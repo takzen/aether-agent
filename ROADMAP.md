@@ -24,7 +24,7 @@ Cel: działający agent, który myśli, odpowiada i korzysta z pierwszych narzę
 - [ ] **1.1** Inicjalizacja projektu — struktura katalogów, `pyproject.toml`, `venv`
 - [ ] **1.2** Konfiguracja **FastAPI** — aplikacja startowa, health-check endpoint `/ping`
 - [ ] **1.3** Integracja **PydanticAI** — pierwsza pętla agenta (input → reasoning → output)
-- [ ] **1.4** Podpięcie **Gemini 1.5 Pro** jako głównego modelu logicznego
+- [ ] **1.4** Podpięcie **Gemini 3 Flash** jako głównego modelu logicznego
 - [ ] **1.5** Podpięcie **Ollama / Llama 3** jako lokalnego fallbacku dla prywatnych danych
 - [ ] **1.6** Mechanizm przełączania modeli (env flag lub runtime switch)
 - [ ] **1.7** Pierwsza **PydanticAI Tool** — `get_current_time()`
@@ -111,11 +111,11 @@ Cel: system gotowy do długoterminowego self-hostingu, bezpieczny i łatwy w utr
 
 ## 💡 Dlaczego ten stos jest „killerem"?
 
-| Technologia                     | Przewaga                                                                                                       |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **PydanticAI + Gemini 1.5 Pro** | Ogromne okno kontekstowe + wymuszone typowanie danych eliminuje ~90% błędów znanych z LangChain                |
-| **Next.js 16 + FastAPI**        | Czyste rozdzielenie frontu od logiki AI — interfejs można zamienić niezależnie (np. app mobilna w przyszłości) |
-| **Supabase**                    | Zastępuje 4 osobne usługi: baza danych, wektory, auth, storage — dramatycznie przyspiesza development          |
+| Technologia                         | Przewaga                                                                                                       |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **PydanticAI + Gemini 3 Flash/Pro** | Ogromne okno kontekstowe + wymuszone typowanie danych eliminuje ~90% błędów znanych z LangChain                |
+| **Next.js 16 + FastAPI**            | Czyste rozdzielenie frontu od logiki AI — interfejs można zamienić niezależnie (np. app mobilna w przyszłości) |
+| **Supabase**                        | Zastępuje 4 osobne usługi: baza danych, wektory, auth, storage — dramatycznie przyspiesza development          |
 
 ---
 
