@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(230 25% 4%);
+  --color-foreground: hsl(210 40% 98%);
+  
+  --color-card: hsl(230 25% 7%);
+  --color-card-foreground: hsl(210 40% 98%);
+  
+  --color-popover: hsl(230 25% 4%);
+  --color-popover-foreground: hsl(210 40% 98%);
+  
+  --color-primary: hsl(190 90% 50%);
+  --color-primary-foreground: hsl(230 25% 4%);
+  
+  --color-secondary: hsl(260 80% 60%);
+  --color-secondary-foreground: hsl(210 40% 98%);
+  
+  --color-muted: hsl(230 20% 15%);
+  --color-muted-foreground: hsl(215 20% 65%);
+  
+  --color-accent: hsl(190 90% 50% / 0.1);
+  --color-accent-foreground: hsl(190 90% 50%);
+  
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  
+  --color-border: hsl(230 20% 15%);
+  --color-input: hsl(230 20% 15%);
+  --color-ring: hsl(190 90% 50%);
+
+  --radius-lg: 1rem;
+  --radius-md: calc(1rem - 2px);
+  --radius-sm: calc(1rem - 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-500;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-white/5;
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/10;
+  }
+
+  .glow-primary {
+    filter: drop-shadow(0 0 10px hsl(190 90% 50% / 0.4));
+  }
+
+  .glow-secondary {
+    filter: drop-shadow(0 0 15px hsl(260 80% 60% / 0.3));
+  }
+
+  .neural-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); filter: blur(40px); }
+    50% { opacity: 0.6; transform: scale(1.1); filter: blur(60px); }
+  }
+}

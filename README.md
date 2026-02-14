@@ -39,9 +39,9 @@ Where traditional AI tools react, **Aether anticipates**. Where others forget, *
 | Feature                        | Description                                                                                                         |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
 | 🤖 **Agentic Core**            | Powered by **PydanticAI** — every tool call and model response is validated, structured, and reliable               |
-| 🧠 **Hybrid Intelligence**     | Switch between **Gemini 3 Flash, Pro** for cloud reasoning and **Llama 3 via Ollama** for local, private inference  |
+| 🧠 **Hybrid Intelligence**     | Switch between **Gemini 3 Flash-preview** for cloud reasoning and **Llama 3 via Ollama** for local, private inference  |
 | 🗄️ **Infinite Memory**         | **Supabase Vector (pgvector)** stores long-term context, documents, and conversation history — nothing is forgotten |
-| ⚡ **Proactive Notifications** | Aether _initiates_ conversations via **Telegram / Discord / WhatsApp** for briefings, reminders, and urgent alerts  |
+| ⚡ **Proactive Notifications** | Aether _initiates_ conversations via **Multi-channel Adapters** (Telegram, Discord, Webhooks, etc.) for briefings and alerts |
 | 🛠️ **Extensible Toolbelt**     | Built-in tools: file management, **Tavily** web search, calendar integration, terminal execution                    |
 | 🖥️ **Command Center**          | A sleek **Next.js 16** dashboard to monitor agent thought processes, manage knowledge, and configure settings       |
 
@@ -94,11 +94,11 @@ graph TD
 </tr>
 <tr>
 <td>🧠 LLM Providers</td>
-<td>Google Gemini API, Ollama (local), OpenAI</td>
+<td>Google Gemini 3 API, Ollama (local), OpenAI</td>
 </tr>
 <tr>
 <td>📡 Communication</td>
-<td>Telegram Bot API / Webhooks</td>
+<td>Universal Webhooks, Telegram, Discord, and Custom API Adapters</td>
 </tr>
 </table>
 
@@ -112,7 +112,7 @@ graph TD
 - Node.js `18+`
 - A [Supabase](https://supabase.com) project with `pgvector` enabled
 - A [Gemini API](https://aistudio.google.com) key or a local [Ollama](https://ollama.ai) instance
-- A [Telegram Bot Token](https://t.me/BotFather)
+- A communication channel token (e.g., Telegram Bot Token, Discord Webhook, etc.)
 
 ### Configuration
 

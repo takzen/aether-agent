@@ -21,13 +21,13 @@
 
 Cel: działający agent, który myśli, odpowiada i korzysta z pierwszych narzędzi.
 
-- [ ] **1.1** Inicjalizacja projektu — struktura katalogów, `pyproject.toml`, `venv`
-- [ ] **1.2** Konfiguracja **FastAPI** — aplikacja startowa, health-check endpoint `/ping`
-- [ ] **1.3** Integracja **PydanticAI** — pierwsza pętla agenta (input → reasoning → output)
-- [ ] **1.4** Podpięcie **Gemini 3 Flash** jako głównego modelu logicznego
+- [x] **1.1** Inicjalizacja projektu — struktura katalogów, `pyproject.toml`, `venv`
+- [x] **1.2** Konfiguracja **FastAPI** — aplikacja startowa, health-check endpoint `/ping`
+- [x] **1.3** Integracja **PydanticAI** — pierwsza pętla agenta (input → reasoning → output)
+- [x] **1.4** Podpięcie **Gemini 3 Flash-preview** jako głównego modelu logicznego
 - [ ] **1.5** Podpięcie **Ollama / Llama 3** jako lokalnego fallbacku dla prywatnych danych
 - [ ] **1.6** Mechanizm przełączania modeli (env flag lub runtime switch)
-- [ ] **1.7** Pierwsza **PydanticAI Tool** — `get_current_time()`
+- [x] **1.7** Pierwsza **PydanticAI Tool** — `get_current_time()`
 - [ ] **1.8** Tool — `get_weather(location)` z zewnętrznym API
 - [ ] **1.9** Tool — `web_search(query)` przez **Tavily** lub **DuckDuckGo**
 - [ ] **1.10** Definicja **Structured Outputs** — rygorystyczne schematy Pydantic dla każdego rodzaju odpowiedzi agenta
@@ -64,11 +64,11 @@ Cel: agent, który działa autonomicznie, wysyła powiadomienia i obsługuje zew
 - [ ] **3.5** **Cron Jobs** z `APScheduler` lub `Celery` wbudowane w FastAPI
 - [ ] **3.6** Zadanie poranne — codziennie o `08:00` agent wysyła podsumowanie dnia
 - [ ] **3.7** System szablonów briefingów (pogoda, kalendarz, top wiadomości)
-- [ ] **3.8** Adapter **Telegram Bot** — odbieranie wiadomości od użytkownika
-- [ ] **3.9** Telegram — wysyłanie odpowiedzi i proaktywnych powiadomień
+- [ ] **3.8** **Multi-channel Adapter System** — interfejs do obsługi różnych kanałów (BaseAdapter)
+- [ ] **3.9** Implementacja pierwszego adaptera (np. **Telegram**) — odbieranie i wysyłanie wiadomości
 - [ ] **3.10** Obsługa przycisków / inline keyboard w Telegramie
-- [ ] **3.11** _(Opcjonalne)_ Adapter **Discord** — bot na własnym serwerze
-- [ ] **3.12** _(Opcjonalne)_ Adapter **WhatsApp** przez Twilio / WhatsApp Business API
+- [ ] **3.11** Implementacja kolejnych adapterów (**Discord**, Slack lub Custom Webhooks)
+- [ ] **3.12** System zunifikowanych powiadomień push dla Dashboardu i kanałów zewnętrznych
 
 ---
 
@@ -76,9 +76,9 @@ Cel: agent, który działa autonomicznie, wysyła powiadomienia i obsługuje zew
 
 Cel: Command Center do zarządzania agentem, wiedzą i obserwacji jego „myślenia" w czasie rzeczywistym.
 
-- [ ] **4.1** Inicjalizacja projektu **Next.js 16** (App Router) + Tailwind CSS + shadcn/ui
+- [x] **4.1** Inicjalizacja projektu **Next.js 16** (App Router) + Tailwind CSS + shadcn/ui
 - [ ] **4.2** Klient API — połączenie dashboardu z backendem FastAPI
-- [ ] **4.3** Strona **Chat** — interfejs rozmowy z agentem w przeglądarce
+- [x] **4.3** Strona **Chat** — interfejs rozmowy z agentem w przeglądarce
 - [ ] **4.4** Strona **Settings** — edycja system promptu i „osobowości" agenta
 - [ ] **4.5** Strona **Knowledge Base** — lista wgranych dokumentów + możliwość usunięcia
 - [ ] **4.6** Upload dokumentów z poziomu dashboardu (drag & drop)
