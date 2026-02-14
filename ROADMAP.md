@@ -35,19 +35,19 @@ Cel: działający agent, który myśli, odpowiada i korzysta z pierwszych narzę
 
 ---
 
-## 🗄️ Faza 2 — Pamięć i Kontekst _(Supabase)_
+## 🗄️ Faza 2 — Pamięć i Kontekst _(Local ChromaDB / Supabase)_
 
-Cel: agent, który pamięta przeszłe rozmowy i potrafi uczyć się z dokumentów.
+Cel: agent, który pamięta przeszłe rozmowy i potrafi uczyć się z dokumentów. Note: Zmieniono na Local ChromaDB dla prywatności.
 
-- [ ] **2.1** Uruchomienie projektu **Supabase** z rozszerzeniem `pgvector`
+- [x] **2.1** Uruchomienie projektu **Local ChromaDB** (zastąpiło Supabase w tej fazie)
 - [ ] **2.2** Schemat bazy danych — tabele: `conversations`, `memories`, `documents`, `chunks`
-- [ ] **2.3** Klient Supabase w Pythonie — serwis `DatabaseService`
-- [ ] **2.4** **Memory Management** — zapis każdej rozmowy do bazy po zakończeniu sesji
-- [ ] **2.5** Wyszukiwanie wektorowe — agent przeszukuje bazę przed każdą odpowiedzią (`similarity_search`)
+- [x] **2.3** Klient Bazy Danych w Pythonie — serwis `DatabaseService` (ChromaDB)
+- [x] **2.4** **Memory Management** — zapis wspomnień (tool `remember`)
+- [x] **2.5** Wyszukiwanie wektorowe — tool `recall`
 - [ ] **2.6** Budowanie kontekstu — wstrzykiwanie znalezionych wspomnień do promptu systemowego
 - [ ] **2.7** Pipeline **Document Ingestion** — wgrywanie plików PDF i Markdown
 - [ ] **2.8** **Chunking** dokumentów (np. `langchain.text_splitter` lub własny)
-- [ ] **2.9** Generowanie i zapis embeddingów dla chunków do Supabase Vector
+- [x] **2.9** Generowanie i zapis embeddingów (Gemini Embeddings)
 - [ ] **2.10** Tool — `search_knowledge_base(query)` do przeszukiwania własnych dokumentów
 - [ ] **2.11** Endpoint `/ingest` w FastAPI do wgrywania plików przez API
 
@@ -79,14 +79,14 @@ Cel: Command Center do zarządzania agentem, wiedzą i obserwacji jego „myśle
 - [x] **4.1** Inicjalizacja projektu **Next.js 16** (App Router) + Tailwind CSS + shadcn/ui
 - [ ] **4.2** Klient API — połączenie dashboardu z backendem FastAPI
 - [x] **4.3** Strona **Chat** — interfejs rozmowy z agentem w przeglądarce
-- [ ] **4.4** Strona **Settings** — edycja system promptu i „osobowości" agenta
-- [ ] **4.5** Strona **Knowledge Base** — lista wgranych dokumentów + możliwość usunięcia
+- [x] **4.4** Strona **Settings** — dashboard settings
+- [x] **4.5** Strona **Knowledge Base** — dashboard KB
 - [ ] **4.6** Upload dokumentów z poziomu dashboardu (drag & drop)
-- [ ] **4.7** Strona **Agent Logs** — podgląd wywołanych narzędzi i procesu wnioskowania
-- [ ] **4.8** **Agentic Visualization** — wyświetlanie kroków myślenia (tool calls, reasoning steps)
+- [x] **4.7** Strona **Agent Logs** — dashboard logs
+- [x] **4.8** **Agentic Visualization** — memories graph visualization
 - [ ] **4.9** Integracja **Supabase Realtime** — logi odświeżane na żywo bez odświeżania strony
 - [ ] **4.10** Strona **Costs Monitor** — śledzenie zużycia tokenów i szacowanych kosztów API
-- [ ] **4.11** Responsywność — podstawowy widok mobile dla zarządzania z telefonu
+- [x] **4.11** Responsywność — podstawowy widok mobile dla zarządzania z telefonu
 
 ---
 
@@ -115,20 +115,20 @@ Cel: system gotowy do długoterminowego self-hostingu, bezpieczny i łatwy w utr
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **PydanticAI + Gemini 3 Flash/Pro** | Ogromne okno kontekstowe + wymuszone typowanie danych eliminuje ~90% błędów znanych z LangChain                |
 | **Next.js 16 + FastAPI**            | Czyste rozdzielenie frontu od logiki AI — interfejs można zamienić niezależnie (np. app mobilna w przyszłości) |
-| **Supabase**                        | Zastępuje 4 osobne usługi: baza danych, wektory, auth, storage — dramatycznie przyspiesza development          |
+| **ChromaDB (Local)**                | Pełna prywatność danych i brak kosztów chmurowych (zastąpiło Supabase Vector w fazie dev)                      |
 
 ---
 
 ## 📊 Postęp ogólny
 
 ```
-Faza 1  [░░░░░░░░░░░░░░░░░░░░]   0 / 11
-Faza 2  [░░░░░░░░░░░░░░░░░░░░]   0 / 11
-Faza 3  [░░░░░░░░░░░░░░░░░░░░]   0 / 12
-Faza 4  [░░░░░░░░░░░░░░░░░░░░]   0 / 11
-Faza 5  [░░░░░░░░░░░░░░░░░░░░]   0 / 12
+Faza 1  [██████████░░]   5 / 11
+Faza 2  [████████░░░░]   5 / 11
+Faza 3  [░░░░░░░░░░░░]   0 / 12
+Faza 4  [████████░░░░]   6 / 11
+Faza 5  [░░░░░░░░░░░░]   0 / 12
 
-TOTAL   [░░░░░░░░░░░░░░░░░░░░]   0 / 57 zadań
+TOTAL   [█████░░░░░░░]   16 / 57 zadań
 ```
 
 > Zaktualizuj pasek ręcznie lub automatycznie skryptem `scripts/update_progress.py` (Faza 5+)

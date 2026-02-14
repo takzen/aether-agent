@@ -75,13 +75,18 @@ export default function ChatPage() {
 
     return (
         <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground">
-            <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
+            {/* CINEMATIC BACKGROUND */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-900/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-cyan-900/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+            </div>
 
             <Sidebar />
 
             <main className="flex-1 flex flex-col relative overflow-hidden">
                 {/* Chat Header */}
-                <div className="p-6 border-b border-white/5 flex items-center justify-between glass z-10">
+                <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl z-10">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 glow-primary">
                             <Bot className="w-5 h-5 text-primary" />

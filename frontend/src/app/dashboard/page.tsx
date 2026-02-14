@@ -6,8 +6,12 @@ import { Zap, Shield, Cpu } from "lucide-react";
 export default function Home() {
   return (
     <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground">
-      {/* Visual background noise/texture */}
-      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
+      {/* CINEMATIC BACKGROUND */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-900/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-cyan-900/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
+      </div>
 
       <Sidebar />
 
@@ -16,25 +20,24 @@ export default function Home() {
         <div className="flex-1 flex flex-col items-center justify-center relative p-8">
           <NeuralHub />
 
-          <div className="mt-12 text-center max-w-xl">
-            <h2 className="text-4xl font-light tracking-tight mb-4">
-              Intelligence in <span className="text-primary glow-primary font-normal">Aether</span>
+          <div className="mt-12 text-center max-w-xl z-20">
+            <h2 className="text-5xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+              SYSTEM ONLINE
             </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Your proactive personal agent is active and monitoring your workspace.
-              Currently connected to Gemini 3 Flash-preview.
+            <p className="text-neutral-400 leading-relaxed text-lg font-light">
+              Neural core active and monitoring. <br /> Aether represents your second brain.
             </p>
 
             <div className="grid grid-cols-3 gap-4 mt-12">
               {[
-                { icon: Shield, label: "Private Core", val: "Llama 3 Ready" },
-                { icon: Zap, label: "Proactivity", val: "High" },
-                { icon: Cpu, label: "Memory", val: "842 Nodes" },
+                { icon: Shield, label: "Encryption", val: "AES-256" },
+                { icon: Zap, label: "Latency", val: "12ms" },
+                { icon: Cpu, label: "Memory", val: "1.2 TB" },
               ].map((stat, i) => (
-                <div key={i} className="glass p-4 rounded-2xl flex flex-col items-center gap-2">
-                  <stat.icon className="w-5 h-5 text-primary" />
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{stat.label}</p>
-                  <p className="text-sm font-bold">{stat.val}</p>
+                <div key={i} className="bg-white/5 border border-white/5 p-4 rounded-2xl flex flex-col items-center gap-3 backdrop-blur-md">
+                  <stat.icon className="w-5 h-5 text-white/80" />
+                  <p className="text-[10px] uppercase tracking-widest text-neutral-500">{stat.label}</p>
+                  <p className="text-sm font-bold text-white">{stat.val}</p>
                 </div>
               ))}
             </div>

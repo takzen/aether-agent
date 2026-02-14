@@ -12,7 +12,7 @@ const mockedSteps = [
 
 export default function ThoughtStream() {
     return (
-        <div className="w-80 h-full glass-dark border-l border-white/5 flex flex-col hidden xl:flex">
+        <div className="w-80 h-full bg-black/40 backdrop-blur-xl border-l border-white/5 flex flex-col hidden xl:flex z-20">
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Thought Stream</h3>
                 <div className="flex gap-1">

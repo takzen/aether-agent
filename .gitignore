@@ -1,1 +1,29 @@
-example/
+# Environment Variables
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+body
+.venv/
+venv/
+ENV/
+
+# Node.js
+node_modules/
+.next/
+dist/
+build/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Local DB
+aether_memory/
+*.db
