@@ -58,7 +58,7 @@ export default function Sidebar() {
                         <span className="text-[10px] font-bold text-purple-400">AI</span>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold text-white">Gemini 3</p>
+                        <p className="text-xs font-semibold text-white">Gemini 3.1 Pro</p>
                         <p className="text-[10px] text-neutral-500 uppercase tracking-wider">Online</p>
                     </div>
                 </div>

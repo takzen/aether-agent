@@ -4,10 +4,10 @@ import { Terminal, Search, Code, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const mockedSteps = [
-    { id: 1, type: "thought", message: "Analyzing user request for context...", icon: Terminal },
-    { id: 2, type: "search", message: "Searching knowledge base for 'Aether design system'", icon: Search },
-    { id: 3, type: "tool", message: "Executing tool: get_current_time()", icon: Code },
-    { id: 4, type: "complete", message: "Response synthesized with 98% confidence", icon: CheckCircle2 },
+    { id: 1, type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "12s ago" },
+    { id: 2, type: "search", message: "Searching knowledge base for 'Aether design system'", icon: Search, time: "8s ago" },
+    { id: 3, type: "tool", message: "Executing tool: get_current_time()", icon: Code, time: "3s ago" },
+    { id: 4, type: "complete", message: "Response synthesized with 98% confidence", icon: CheckCircle2, time: "just now" },
 ];
 
 export default function ThoughtStream() {
@@ -45,7 +45,7 @@ export default function ThoughtStream() {
                                     }`}>
                                     {step.message}
                                 </p>
-                                <p className="text-[10px] text-muted-foreground mt-1">2.4ms ago</p>
+                                <p className="text-[10px] text-muted-foreground mt-1">{step.time}</p>
                             </div>
                         </motion.div>
                     ))}
