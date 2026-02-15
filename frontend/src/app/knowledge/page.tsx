@@ -15,7 +15,7 @@ const knowledgeItems = [
 
 export default function KnowledgeBase() {
     return (
-        <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground">
+        <div className="flex h-screen bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
             <Sidebar />
 
@@ -66,7 +66,7 @@ export default function KnowledgeBase() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className="group relative p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-purple-500/30 transition-all cursor-pointer overflow-hidden"
+                                className="group relative p-5 rounded-2xl bg-[#252526] border border-[#303030] hover:bg-[#2d2d2d] hover:border-purple-500/30 transition-all cursor-pointer overflow-hidden"
                             >
                                 <div className="absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 rounded-lg">
                                     <ExternalLink className="w-3 h-3 text-purple-400" />

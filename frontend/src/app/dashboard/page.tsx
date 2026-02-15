@@ -65,7 +65,7 @@ export default function Home() {
 
       <Sidebar />
 
-      <main className="flex-1 flex relative overflow-hidden">
+      <main className="flex-1 flex relative overflow-hidden bg-background">
         <div className="flex-1 flex flex-col relative z-10 p-6 gap-4">
 
           {/* System Info Strip */}
@@ -101,7 +101,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="col-span-8 bg-[#0a0a0a] border border-white/10 rounded-2xl flex flex-col overflow-hidden shadow-2xl"
+              className="col-span-8 bg-[#1e1e1e] border border-[#303030] rounded-2xl flex flex-col overflow-hidden shadow-2xl"
             >
               {/* Terminal Title Bar */}
               <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.02] shrink-0">
@@ -223,7 +223,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="col-span-4 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col overflow-hidden"
+              className="col-span-4 bg-[#252526] border border-[#303030] rounded-2xl flex flex-col overflow-hidden"
             >
               <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
                 <h3 className="text-sm font-bold text-white">Recent Activity</h3>

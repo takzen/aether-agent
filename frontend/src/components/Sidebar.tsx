@@ -19,7 +19,7 @@ export default function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="w-64 h-screen bg-black/40 backdrop-blur-xl border-r border-white/5 flex flex-col p-6 z-20">
+        <div className="w-64 h-screen bg-[#181818] border-r border-[#303030] flex flex-col p-6 z-20 shrink-0">
             <div className="flex items-center gap-3 mb-10 pl-2">
                 <AetherLogo className="w-6 h-6 text-white" />
                 <h1 className="text-lg font-bold tracking-widest text-white">

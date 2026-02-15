@@ -93,7 +93,7 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground">
+        <div className="flex h-screen bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
             <Sidebar />
 
@@ -102,7 +102,7 @@ export default function ChatPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex-1 max-w-5xl mx-auto w-full bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-black/40"
+                    className="flex-1 max-w-5xl mx-auto w-full bg-[#252526] border border-[#303030] rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-black/40"
                 >
                     {/* Chat Header — IDENTICAL to Dashboard style */}
                     <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-white/[0.01]">

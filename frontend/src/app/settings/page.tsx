@@ -61,7 +61,7 @@ export default function Settings() {
                                 <span className="text-[9px] text-neutral-700">UUID: 8F2D-4B1A-9C3E-7L0P</span>
                             </div>
 
-                            <div className="flex items-center gap-8 bg-white/[0.02] border border-white/5 p-8 rounded-2xl backdrop-blur-md">
+                            <div className="flex items-center gap-8 bg-[#252526] border border-[#303030] p-8 rounded-2xl backdrop-blur-md">
                                 <div className="relative group">
                                     <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-purple-600/20 to-blue-600/20 border border-white/10 flex items-center justify-center p-1">
                                         <div className="w-full h-full bg-[#050505] rounded-xl flex items-center justify-center text-3xl font-bold text-white font-sans group-hover:scale-95 transition-transform duration-500 shadow-2xl">TK</div>

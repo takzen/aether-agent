@@ -77,7 +77,7 @@ export default function AgentLogs() {
                     <div className="absolute inset-0 bg-gradient-to-b from-purple-500/[0.02] to-transparent pointer-events-none" />
 
                     {/* Filter Bar */}
-                    <div className="px-6 py-2 border-b border-white/5 bg-black/40 flex items-center justify-between z-10">
+                    <div className="px-6 py-2 border-b border-[#303030] bg-[#252526] flex items-center justify-between z-10">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-md px-2.5 py-1">
                                 <Search className="w-3 h-3 text-neutral-500" />
@@ -113,8 +113,8 @@ export default function AgentLogs() {
                             >
                                 <span className="text-neutral-600 w-24 shrink-0 select-none">{log.timestamp}</span>
                                 <span className={`w-20 shrink-0 font-bold ${log.type === 'info' ? 'text-blue-500/70' :
-                                        log.type === 'success' ? 'text-green-500/70' :
-                                            log.type === 'warning' ? 'text-yellow-500/70' : 'text-red-500/70'
+                                    log.type === 'success' ? 'text-green-500/70' :
+                                        log.type === 'warning' ? 'text-yellow-500/70' : 'text-red-500/70'
                                     }`}>
                                     {log.type.toUpperCase()}
                                 </span>
