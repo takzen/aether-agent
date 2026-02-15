@@ -2,94 +2,170 @@
 
 import Sidebar from "@/components/Sidebar";
 import ThoughtStream from "@/components/ThoughtStream";
-import { Terminal, AlertCircle, CheckCircle, Info, Hash, Clock, Cpu } from "lucide-react";
+import { Terminal, AlertCircle, CheckCircle, Info, Hash, Clock, Cpu, Shield, Zap, Search, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const mockLogs = [
-    { id: 1, type: "info", timestamp: "14:20:05.120", message: "System initialized. Core modules loaded.", source: "main.py" },
-    { id: 2, type: "info", timestamp: "14:20:05.340", message: "Connecting to Supabase instance...", source: "database.py" },
-    { id: 3, type: "success", timestamp: "14:20:05.890", message: "Database connection established (Pool: 5/10)", source: "database.py" },
-    { id: 4, type: "info", timestamp: "14:20:06.010", message: "Loading vector index 'memories_embedding_idx'...", source: "vector_store.py" },
-    { id: 5, type: "warning", timestamp: "14:20:06.450", message: "Index rebuild recommended. Fragmentation > 15%", source: "maintenance_worker" },
-    { id: 6, type: "info", timestamp: "14:20:08.110", message: "Agent 'Gemini-Pro' listening on port 8000", source: "server.py" },
-    { id: 7, type: "error", timestamp: "14:22:15.300", message: "Rate limit warning: 45 req/min aimed at Google API", source: "llm_client.py" },
-    { id: 8, type: "info", timestamp: "14:22:16.000", message: "Backoff strategy applied. Retrying in 200ms...", source: "llm_client.py" },
-    { id: 9, type: "success", timestamp: "14:22:16.250", message: "Request successful. Context tokens: 4096", source: "llm_client.py" },
+    { id: 1, type: "info", timestamp: "14:20:05.120", message: "Kernel initialization sequence complete. All core modules at standard operating parameters.", source: "KERNEL" },
+    { id: 2, type: "info", timestamp: "14:20:05.340", message: "Establishing handshake with distributed vector cluster...", source: "NET_INFRA" },
+    { id: 3, type: "success", timestamp: "14:20:05.890", message: "Synchronous link established (Pool: 0x5F3759DF). Latency: 12ms.", source: "NET_INFRA" },
+    { id: 4, type: "info", timestamp: "14:20:06.010", message: "Loading neural weights into primary cache layer...", source: "MEM_BANK" },
+    { id: 5, type: "warning", timestamp: "14:20:06.450", message: "Non-critical fragmentation detected in embedding index. Auto-reorg scheduled.", source: "MEM_BANK" },
+    { id: 6, type: "info", timestamp: "14:20:08.110", message: "Security protocol 'AETHER_SEC_V4' engaged. Unauthorized access blocked.", source: "SEC_CORE" },
+    { id: 7, type: "error", timestamp: "14:22:15.300", message: "Outbound API request failed: Google Cloud quota reached. Falling back to local model.", source: "LLM_ADAPTER" },
+    { id: 8, type: "info", timestamp: "14:22:16.000", message: "Transitioning to 'AETHER_LOCAL_LLAMA3' strategy...", source: "ORCHESTRATOR" },
+    { id: 9, type: "success", timestamp: "14:22:16.250", message: "Local fallback successful. Processing queue resuming at priority 0.", source: "ORCHESTRATOR" },
+    { id: 10, type: "info", timestamp: "14:22:20.105", message: "User query intercepted: 'System Status'. Generating tactical report.", source: "INTENT_ENGINE" },
 ];
 
 export default function AgentLogs() {
-    return (
-        <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground font-mono">
+    const [currentTime, setCurrentTime] = useState("");
 
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="flex h-screen bg-[#020202] overflow-hidden font-mono text-neutral-400 select-none">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col relative overflow-hidden z-10">
+            <main className="flex-1 flex flex-col relative overflow-hidden z-10 border-l border-white/5">
 
-                {/* Header */}
-                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-xl z-20">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-white mb-1 font-sans">System Logs</h1>
-                        <p className="text-sm text-neutral-400 font-sans">Real-time execution trace & debugging.</p>
+                {/* Header — Tactical Dashboard Style */}
+                <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-black/20 shrink-0 z-20">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <div>
+                            <h1 className="text-sm font-bold tracking-wider text-white uppercase">System Execution Logs</h1>
+                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                                <span>SYSTEM.KERNEL_LOGS</span>
+                                <span className="text-neutral-700">|</span>
+                                <span>PID: 8392</span>
+                                <span className="text-neutral-700">|</span>
+                                <span>TRACE_STATUS: ACTIVE</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex gap-4">
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded text-xs text-red-500">
-                            <AlertCircle className="w-3 h-3" /> 1 Error
+
+                    <div className="flex items-center gap-6">
+                        <div className="flex gap-3">
+                            <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-red-500/10 bg-red-500/5 text-red-500/80 text-[10px]">
+                                <AlertCircle className="w-3 h-3" /> 1_ERR
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-yellow-500/10 bg-yellow-500/5 text-yellow-500/80 text-[10px]">
+                                <AlertCircle className="w-3 h-3" /> 1_WARN
+                            </div>
+                            <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-green-500/10 bg-green-500/5 text-green-500 text-[10px]">
+                                <CheckCircle className="w-3 h-3" /> SYSTEM_OK
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded text-xs text-yellow-500">
-                            <AlertCircle className="w-3 h-3" /> 1 Warning
-                        </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded text-xs text-green-500">
-                            <CheckCircle className="w-3 h-3" /> System OK
+                        <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-6 flex items-center gap-2">
+                            <Clock className="w-3 h-3" /> {currentTime}
                         </div>
                     </div>
                 </div>
 
-                {/* Logs Terminal */}
-                <div className="flex-1 overflow-y-auto bg-[#0a0a0a]/90 p-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                    <div className="space-y-1">
+                {/* Main Content Area */}
+                <div className="flex-1 relative flex flex-col overflow-hidden bg-[#020202]">
+
+                    {/* Tactical Elements */}
+                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-purple-500/[0.02] to-transparent pointer-events-none" />
+
+                    {/* Filter Bar */}
+                    <div className="px-6 py-2 border-b border-white/5 bg-black/40 flex items-center justify-between z-10">
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-md px-2.5 py-1">
+                                <Search className="w-3 h-3 text-neutral-500" />
+                                <input
+                                    type="text"
+                                    placeholder="Filter logs..."
+                                    className="bg-transparent border-none text-[10px] text-neutral-300 focus:ring-0 w-32 placeholder:text-neutral-700"
+                                />
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="text-[9px] text-neutral-600 uppercase">Sources:</span>
+                                <div className="flex gap-1">
+                                    {['ALL', 'CORE', 'MEM', 'NET'].map(tag => (
+                                        <button key={tag} className={`text-[9px] px-1.5 py-0.5 rounded ${tag === 'ALL' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-neutral-600 hover:text-neutral-400 transition-colors'}`}>
+                                            {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <span className="text-[9px] text-neutral-600">LIVE_TELEMETRY: ON</span>
+                    </div>
+
+                    {/* Logs Container */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-1 font-mono text-[11px] relative scrollbar-none">
                         {mockLogs.map((log) => (
-                            <div key={log.id} className="flex gap-4 hover:bg-white/5 p-1 rounded transition-colors group text-xs md:text-sm">
-                                <span className="text-neutral-500 w-24 shrink-0">{log.timestamp}</span>
-
-                                <span className={`w-20 shrink-0 font-bold ${log.type === 'info' ? 'text-blue-400' :
-                                    log.type === 'success' ? 'text-green-400' :
-                                        log.type === 'warning' ? 'text-yellow-400' : 'text-red-500'
+                            <motion.div
+                                key={log.id}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: log.id * 0.05 }}
+                                className="group flex gap-4 py-1 border-l border-white/5 pl-4 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all cursor-crosshair"
+                            >
+                                <span className="text-neutral-600 w-24 shrink-0 select-none">{log.timestamp}</span>
+                                <span className={`w-20 shrink-0 font-bold ${log.type === 'info' ? 'text-blue-500/70' :
+                                        log.type === 'success' ? 'text-green-500/70' :
+                                            log.type === 'warning' ? 'text-yellow-500/70' : 'text-red-500/70'
                                     }`}>
-                                    [{log.type.toUpperCase()}]
+                                    {log.type.toUpperCase()}
                                 </span>
-
-                                <span className="flex-1 text-neutral-300 group-hover:text-white transition-colors break-all">
+                                <span className="flex-1 text-neutral-400 group-hover:text-neutral-200 transition-colors">
                                     {log.message}
                                 </span>
-
-                                <span className="text-neutral-600 w-32 text-right shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {log.source}
+                                <span className="text-[9px] text-neutral-700 uppercase tracking-tighter shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                                    <Hash className="w-2.5 h-2.5" /> {log.source}
                                 </span>
-                            </div>
+                            </motion.div>
                         ))}
-                        {/* Typing Cursor */}
-                        <div className="flex gap-4 p-1 animate-pulse">
-                            <span className="text-neutral-500 w-24 shrink-0">14:23:01.005</span>
-                            <span className="text-blue-400 w-20 shrink-0 font-bold">[INFO]</span>
-                            <span className="text-neutral-300">_</span>
+
+                        {/* Animated Cursor Entry */}
+                        <div className="flex gap-4 py-1 border-l border-white/5 pl-4 opacity-50">
+                            <span className="text-neutral-600 w-24 shrink-0">{currentTime}.995</span>
+                            <span className="text-blue-500/50 w-20 shrink-0 font-bold uppercase tracking-widest">TRACE</span>
+                            <span className="flex items-center gap-1">
+                                <span className="text-neutral-500 italic">Listening for system events</span>
+                                <motion.span
+                                    animate={{ opacity: [1, 0] }}
+                                    transition={{ repeat: Infinity, duration: 0.8 }}
+                                    className="w-1.5 h-3 bg-purple-500/50"
+                                />
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer Stats */}
-                <div className="h-12 border-t border-white/10 bg-black/60 backdrop-blur-md flex items-center px-6 gap-6 text-[10px] text-neutral-500 font-sans uppercase tracking-widest">
-                    <div className="flex items-center gap-2">
-                        <Cpu className="w-3 h-3" /> CPU: 12%
+                {/* Bottom Status Bar — Tactical Style */}
+                <div className="flex items-center justify-between px-6 py-2 border-t border-white/5 bg-black/60 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0 z-50">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1.5">
+                            <div className="w-1 h-1 rounded-full bg-green-500" />
+                            <span>NODE_INFRA: CONNECTED</span>
+                        </div>
+                        <span className="text-neutral-800">|</span>
+                        <div className="flex items-center gap-2">
+                            <Cpu className="w-3 h-3 text-neutral-700" />
+                            <span>CPU: 12%</span>
+                        </div>
+                        <span className="text-neutral-800">|</span>
+                        <div className="flex items-center gap-2">
+                            <Zap className="w-3 h-3 text-neutral-700" />
+                            <span>UPTIME: 4H 21M</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Hash className="w-3 h-3" /> PID: 8392
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3" /> Uptime: 4h 21m
-                    </div>
+                    <span>aether.core_stable_v1.0.4</span>
                 </div>
 
             </main>
+            <ThoughtStream />
         </div>
     );
 }
