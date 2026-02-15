@@ -524,44 +524,177 @@ export default function LandingPage() {
                 </div>
             </motion.section>
 
-            {/* --- TECH STACK / BUILT WITH --- */}
+            {/* --- STATS / METRICS BAR (commented out for future use) ---
             <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="max-w-5xl mx-auto px-4 py-24 relative"
+                className="max-w-6xl mx-auto px-4 py-16"
             >
-                <div className="text-center mb-12">
-                    <h2 className="text-sm font-mono text-neutral-500 uppercase tracking-[0.3em]">Built With</h2>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-white/5">
                     {[
-                        { name: "Next.js", desc: "Framework" },
-                        { name: "Supabase", desc: "Database" },
-                        { name: "PydanticAI", desc: "Orchestration" },
-                        { name: "OpenAI", desc: "Embeddings" },
-                        { name: "PostgreSQL", desc: "Vector Store" },
-                        { name: "Vercel", desc: "Deployment" },
-                    ].map((tech, i) => (
+                        { value: "5", label: "Development Phases", suffix: "" },
+                        { value: "3", label: "AI Models Supported", suffix: "+" },
+                        { value: "57", label: "Engineered Tasks", suffix: "" },
+                        { value: "100", label: "Local Privacy", suffix: "%" },
+                    ].map((stat, i) => (
                         <motion.div
                             key={i}
-                            initial={{ opacity: 0, y: 10 }}
+                            initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: i * 0.08 }}
-                            className="group relative rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col items-center justify-center gap-1 hover:border-white/15 hover:bg-white/[0.04] transition-all duration-300 cursor-default"
+                            transition={{ delay: i * 0.1 }}
+                            className="flex flex-col items-center justify-center py-4 cursor-default group"
                         >
-                            <span className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">{tech.name}</span>
-                            <span className="text-[10px] text-neutral-600 font-mono uppercase tracking-wider">{tech.desc}</span>
+                            <div className="flex items-baseline gap-0.5">
+                                <span className="text-4xl md:text-5xl font-bold text-white group-hover:text-purple-400 transition-colors duration-300">
+                                    {stat.value}
+                                </span>
+                                <span className="text-2xl md:text-3xl font-bold text-purple-400">{stat.suffix}</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-[0.2em] mt-2">{stat.label}</span>
                         </motion.div>
                     ))}
                 </div>
+            </motion.section>
+            */}
 
-                <div className="mt-8 text-center">
-                    <p className="text-[11px] text-neutral-600 font-mono uppercase tracking-widest">
-                        100% Open Source • MIT License • Self-Hostable
+            {/* --- LIVE DEMO / TERMINAL PREVIEW --- */}
+            <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="max-w-4xl mx-auto px-4 py-32 relative"
+            >
+                <div className="text-center mb-16 space-y-4">
+                    <h2 className="text-sm font-mono text-green-400 uppercase tracking-[0.3em]">Live Preview</h2>
+                    <h3 className="text-4xl md:text-5xl font-bold text-white tracking-tight">See It In Action</h3>
+                    <p className="text-neutral-400 max-w-2xl mx-auto">
+                        A real conversation with Aether — watch how it thinks, retrieves, and responds.
                     </p>
+                </div>
+
+                {/* Terminal Window */}
+                <div className="rounded-2xl bg-[#0a0a0a] border border-white/10 overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)]">
+                    {/* Title Bar */}
+                    <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+                        <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-green-500/30 border border-green-500/50" />
+                        <span className="ml-3 text-xs text-neutral-500 font-mono">aether — session_live</span>
+                        <div className="ml-auto flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                            <span className="text-[10px] text-green-500/70 font-mono">CONNECTED</span>
+                        </div>
+                    </div>
+
+                    {/* Terminal Content */}
+                    <div className="p-6 space-y-5 font-mono text-sm min-h-[350px]">
+                        {/* User Message */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <span className="text-purple-400">user@local</span>
+                            <span className="text-neutral-600"> ~ </span>
+                            <span className="text-neutral-500">$</span>
+                            <span className="text-white ml-2">What did we discuss about the authentication system last week?</span>
+                        </motion.div>
+
+                        {/* Aether Processing */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.9 }}
+                            className="space-y-1.5"
+                        >
+                            <div className="text-neutral-600 text-xs">
+                                <span className="text-blue-400/60">[aether]</span> Searching memory vectors...
+                            </div>
+                            <div className="flex items-center gap-2 text-xs">
+                                <span className="text-blue-400/60">[aether]</span>
+                                <span className="text-neutral-600">Found</span>
+                                <span className="text-green-400">3 relevant memories</span>
+                                <span className="text-neutral-600">•</span>
+                                <span className="text-neutral-500">similarity: 0.94</span>
+                                <span className="text-neutral-600">•</span>
+                                <span className="text-neutral-500">latency: 23ms</span>
+                            </div>
+                        </motion.div>
+
+                        {/* Aether Response */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 1.5 }}
+                            className="rounded-lg bg-white/[0.02] border border-white/5 p-4 space-y-3"
+                        >
+                            <div className="flex items-center gap-2 text-xs text-green-400/80 mb-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                <span className="font-bold">AETHER RESPONSE</span>
+                            </div>
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 1.8 }}
+                                className="text-neutral-300 leading-relaxed text-[13px]"
+                            >
+                                Last Tuesday, you outlined a <span className="text-purple-400">JWT-based auth flow</span> with refresh token rotation.
+                                Key decisions:
+                            </motion.p>
+                            <motion.ul
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 2.2 }}
+                                className="space-y-1 text-[13px]"
+                            >
+                                <li className="text-neutral-400">
+                                    <span className="text-green-400 mr-2">→</span>
+                                    Supabase Auth for session management
+                                </li>
+                                <li className="text-neutral-400">
+                                    <span className="text-green-400 mr-2">→</span>
+                                    RLS policies on all public tables
+                                </li>
+                                <li className="text-neutral-400">
+                                    <span className="text-green-400 mr-2">→</span>
+                                    Custom claims for role-based access (admin, editor, viewer)
+                                </li>
+                            </motion.ul>
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 2.6 }}
+                                className="text-neutral-500 text-xs pt-2 border-t border-white/5"
+                            >
+                                Sources: conversation_feb_08.md • auth_architecture.pdf • notes_security.md
+                            </motion.p>
+                        </motion.div>
+
+                        {/* Blinking Cursor */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 3.0 }}
+                        >
+                            <span className="text-purple-400">user@local</span>
+                            <span className="text-neutral-600"> ~ </span>
+                            <span className="text-neutral-500">$</span>
+                            <motion.span
+                                animate={{ opacity: [1, 0] }}
+                                transition={{ duration: 0.8, repeat: Infinity, ease: "linear", repeatType: "reverse" }}
+                                className="ml-2 inline-block w-2.5 h-4 bg-white/70 align-middle"
+                            />
+                        </motion.div>
+                    </div>
                 </div>
             </motion.section>
 
