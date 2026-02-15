@@ -524,6 +524,47 @@ export default function LandingPage() {
                 </div>
             </motion.section>
 
+            {/* --- TECH STACK / BUILT WITH --- */}
+            <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="max-w-5xl mx-auto px-4 py-24 relative"
+            >
+                <div className="text-center mb-12">
+                    <h2 className="text-sm font-mono text-neutral-500 uppercase tracking-[0.3em]">Built With</h2>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {[
+                        { name: "Next.js", desc: "Framework" },
+                        { name: "Supabase", desc: "Database" },
+                        { name: "PydanticAI", desc: "Orchestration" },
+                        { name: "OpenAI", desc: "Embeddings" },
+                        { name: "PostgreSQL", desc: "Vector Store" },
+                        { name: "Vercel", desc: "Deployment" },
+                    ].map((tech, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.08 }}
+                            className="group relative rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col items-center justify-center gap-1 hover:border-white/15 hover:bg-white/[0.04] transition-all duration-300 cursor-default"
+                        >
+                            <span className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">{tech.name}</span>
+                            <span className="text-[10px] text-neutral-600 font-mono uppercase tracking-wider">{tech.desc}</span>
+                        </motion.div>
+                    ))}
+                </div>
+
+                <div className="mt-8 text-center">
+                    <p className="text-[11px] text-neutral-600 font-mono uppercase tracking-widest">
+                        100% Open Source • MIT License • Self-Hostable
+                    </p>
+                </div>
+            </motion.section>
+
             {/* --- FOOTER (COMPACT & PROFESSIONAL) --- */}
             <section className="relative w-full border-t border-white/10 bg-[#050505] py-16 flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5" />
