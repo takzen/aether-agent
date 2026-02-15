@@ -8,12 +8,6 @@ import { motion } from "framer-motion";
 export default function Settings() {
     return (
         <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground">
-            {/* CINEMATIC BACKGROUND */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay" />
-                <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-purple-900/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-cyan-900/10 blur-[120px] rounded-full mix-blend-screen animate-pulse" />
-            </div>
 
             <Sidebar />
 
