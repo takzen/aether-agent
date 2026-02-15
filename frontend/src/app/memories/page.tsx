@@ -37,11 +37,11 @@ export default function Memories() {
     };
 
     return (
-        <div className="flex h-screen bg-[#1e1e1e] overflow-hidden font-sans text-foreground relative select-none">
+        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground relative select-none">
 
             <Sidebar />
 
-            <main className="flex-1 flex flex-col relative overflow-hidden z-10">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10">
 
                 {/* Header — Tactical Dashboard Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
@@ -164,7 +164,7 @@ export default function Memories() {
                     </div>
 
                     {/* Recent Context List — VSCode Sidebar Style */}
-                    <div className="w-[320px] border-l border-[#303030] bg-[#252526] p-6 flex flex-col z-20">
+                    <div className="w-[320px] shrink-0 border-l border-[#303030] bg-[#252526] p-6 flex flex-col z-20">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Activity_Log</h3>
                             <Clock className="w-3 h-3 text-neutral-600" />

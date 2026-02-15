@@ -61,12 +61,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground">
+    <div className="flex h-screen w-full bg-background overflow-hidden font-sans text-foreground">
 
       <Sidebar />
 
-      <main className="flex-1 flex relative overflow-hidden bg-background">
-        <div className="flex-1 flex flex-col relative z-10 p-6 gap-4">
+      <main className="flex-1 flex min-w-0 relative overflow-hidden bg-background">
+        <div className="flex-1 flex flex-col min-w-0 relative z-10 p-6 gap-4">
 
           {/* System Info Strip */}
           <motion.div
@@ -94,7 +94,7 @@ export default function Home() {
 
 
           {/* Row 3: Chat + Activity */}
-          <div className="flex-1 grid grid-cols-12 gap-4 min-h-0">
+          <div className="flex-1 grid grid-cols-12 gap-4 min-h-0 min-w-0">
 
             {/* Left: Chat with Agent (Terminal Style) */}
             <motion.div

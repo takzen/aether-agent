@@ -30,10 +30,10 @@ export default function AgentLogs() {
     }, []);
 
     return (
-        <div className="flex h-screen bg-[#1e1e1e] overflow-hidden font-mono text-neutral-400 select-none">
+        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-mono text-neutral-400 select-none">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col relative overflow-hidden z-10 border-l border-[#303030]">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030]">
 
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">

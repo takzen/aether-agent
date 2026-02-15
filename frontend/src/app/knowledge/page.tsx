@@ -15,11 +15,11 @@ const knowledgeItems = [
 
 export default function KnowledgeBase() {
     return (
-        <div className="flex h-screen bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
+        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
             <Sidebar />
 
-            <main className="flex-1 flex flex-col relative overflow-hidden z-10">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10">
 
                 {/* Header — Aligned with Dashboard Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
