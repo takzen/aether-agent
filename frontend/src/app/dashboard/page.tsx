@@ -194,15 +194,15 @@ export default function Home() {
               </div>
 
               {/* Terminal Input Area */}
-              <div className="px-4 py-3 border-t border-white/5 bg-black/40 shrink-0">
-                <div className="flex items-center gap-2 bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 focus-within:border-purple-500/40 transition-all">
+              <div className="px-4 py-3 border-t border-[#303030] bg-[#1e1e1e] shrink-0">
+                <div className="flex items-center gap-2 bg-[#3c3c3c]/30 border border-[#3c3c3c] rounded-lg px-4 py-2 focus-within:border-[#007acc]/50 transition-all bg-[#252526]">
                   <span className="text-purple-400/50 font-mono text-[10px] font-bold">AETHER_CMD:</span>
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Enter command..."
-                    className="flex-1 bg-transparent text-white font-mono text-sm placeholder:text-neutral-700 focus:outline-none"
+                    placeholder="Type command..."
+                    className="flex-1 bg-transparent text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleSend();
                     }}

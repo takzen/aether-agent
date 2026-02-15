@@ -57,16 +57,16 @@ export default function Memories() {
                         </div>
                     </div>
 
-                    {/* Search Moved to Header to avoid overlap */}
+                    {/* Search Moved to Header — VSCode Style */}
                     <div className="flex-1 max-w-sm ml-8">
-                        <div className="relative bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 focus-within:border-purple-500/40 transition-all flex items-center gap-2.5">
-                            <span className="text-purple-400/50 font-mono text-[9px] font-bold shrink-0">MEM_QUERY:</span>
+                        <div className="relative bg-[#252526] border border-[#3c3c3c] rounded-xl px-3 py-1.5 focus-within:border-[#007acc]/50 transition-all flex items-center gap-2.5">
+                            <span className="text-[#858585] font-mono text-[9px] font-bold shrink-0">MEM_QUERY:</span>
                             <input
                                 type="text"
-                                className="bg-transparent w-full text-white font-mono text-[11px] placeholder:text-neutral-700 focus:outline-none"
+                                className="bg-transparent w-full text-[#cccccc] font-mono text-[11px] placeholder:text-[#858585] focus:outline-none"
                                 placeholder="Trace fragment..."
                             />
-                            <Search className="h-3.5 w-3.5 text-neutral-600" />
+                            <Search className="h-3.5 w-3.5 text-[#858585]" />
                         </div>
                     </div>
 

@@ -47,15 +47,15 @@ export default function KnowledgeBase() {
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
 
-                    {/* Search Bar — Tactical Style */}
-                    <div className="relative max-w-2xl bg-black/40 border border-white/10 rounded-xl px-4 py-3 focus-within:border-purple-500/40 transition-all flex items-center gap-3">
-                        <span className="text-purple-400/50 font-mono text-[10px] font-bold shrink-0">QUERY_CORE:</span>
+                    {/* Search Bar — VSCode Style */}
+                    <div className="relative max-w-2xl bg-[#252526] border border-[#3c3c3c] rounded-xl px-4 py-3 focus-within:border-[#007acc]/50 transition-all flex items-center gap-3">
+                        <span className="text-[#858585] font-mono text-[10px] font-bold shrink-0">QUERY_CORE:</span>
                         <input
                             type="text"
-                            className="bg-transparent w-full text-white font-mono text-sm placeholder:text-neutral-700 focus:outline-none"
+                            className="bg-transparent w-full text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
                             placeholder="Explore documents, code, or neural nodes..."
                         />
-                        <Search className="h-4 w-4 text-neutral-600" />
+                        <Search className="h-4 w-4 text-[#858585]" />
                     </div>
 
                     {/* Content Grid */}

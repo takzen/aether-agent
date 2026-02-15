@@ -79,12 +79,12 @@ export default function AgentLogs() {
                     {/* Filter Bar */}
                     <div className="px-6 py-2 border-b border-[#303030] bg-[#252526] flex items-center justify-between z-10">
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-md px-2.5 py-1">
-                                <Search className="w-3 h-3 text-neutral-500" />
+                            <div className="flex items-center gap-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded-md px-2.5 py-1 focus-within:border-[#007acc]/50 transition-all">
+                                <Search className="w-3 h-3 text-[#858585]" />
                                 <input
                                     type="text"
                                     placeholder="Filter logs..."
-                                    className="bg-transparent border-none text-[10px] text-neutral-300 focus:ring-0 w-32 placeholder:text-neutral-700"
+                                    className="bg-transparent border-none text-[10px] text-[#cccccc] focus:ring-0 w-32 placeholder:text-[#858585] focus:outline-none"
                                 />
                             </div>
                             <div className="flex items-center gap-3">

@@ -195,16 +195,16 @@ export default function ChatPage() {
                         )}
                     </div>
 
-                    {/* Input Area — IDENTICAL to Dashboard style */}
-                    <div className="px-5 py-4 border-t border-white/5 shrink-0 bg-white/[0.01]">
-                        <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 focus-within:border-purple-500/30 transition-all duration-300">
+                    {/* Input Area — VSCode Style */}
+                    <div className="px-5 py-4 border-t border-[#303030] shrink-0 bg-[#1e1e1e]">
+                        <div className="flex items-center gap-2 bg-[#252526] border border-[#3c3c3c] rounded-xl px-4 py-3 focus-within:border-[#007acc]/50 transition-all duration-300">
                             <input
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                                 placeholder="Type a message..."
-                                className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-700 focus:outline-none"
+                                className="flex-1 bg-transparent text-[#cccccc] text-sm placeholder:text-[#858585] focus:outline-none"
                             />
                             <button
                                 onClick={handleSend}
