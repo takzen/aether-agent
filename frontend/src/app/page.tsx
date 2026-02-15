@@ -158,7 +158,7 @@ export default function LandingPage() {
 
                     {/* Feature 1: Long-term Memory (The Core) */}
 
-                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-8 flex flex-col md:flex-row gap-8 group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 min-h-[400px]">
+                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
 
                         {/* Left Side: Content */}
                         <div className="flex-1 flex flex-col justify-center z-20">
@@ -168,7 +168,7 @@ export default function LandingPage() {
                                 </div>
                                 <div className="space-y-4">
                                     <h2 className="text-3xl font-bold text-white tracking-tight">Long-Term Memory</h2>
-                                    <p className="text-lg text-neutral-400 leading-relaxed font-light mb-8">
+                                    <p className="text-lg text-neutral-400 leading-relaxed font-light mb-4">
                                         Aether learns you with every conversation. You strictly never have to repeat yourself. It builds your digital profile automatically.
                                     </p>
                                 </div>
@@ -176,7 +176,7 @@ export default function LandingPage() {
                         </div>
 
                         {/* Right Side: Dedicated Animation Container */}
-                        <div className="flex-1 rounded-2xl bg-black/50 border border-white/5 relative overflow-hidden flex items-center justify-center min-h-[250px]">
+                        <div className="flex-1 rounded-2xl bg-black/50 border border-white/5 relative overflow-hidden flex items-center justify-center h-full">
                             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
 
                             {/* The Vector Search Animation */}
@@ -261,7 +261,7 @@ export default function LandingPage() {
                     </Spotlight>
 
                     {/* Feature 2: Knowledge Base (Narrow) */}
-                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-8 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 min-h-[400px]">
+                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
                         <div className="relative z-20 space-y-6 h-full flex flex-col">
                             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
                                 <Database className="w-6 h-6 text-blue-400" />
@@ -274,7 +274,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* Compact Visualization: File Scanning */}
-                            <div className="mt-auto rounded-xl bg-black/50 border border-white/5 relative overflow-hidden h-[180px] flex flex-col">
+                            <div className="mt-auto rounded-xl bg-black/50 border border-white/5 relative overflow-hidden h-[140px] flex flex-col">
                                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
                                 <motion.div
                                     className="absolute top-0 left-0 right-0 h-[2px] bg-blue-500 blur-[2px] z-10 box-shadow-[0_0_15px_#3b82f6]"
@@ -300,7 +300,7 @@ export default function LandingPage() {
                     </Spotlight>
 
                     {/* Feature 3: Transparent Thought Stream (Narrow) */}
-                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-8 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 min-h-[400px]">
+                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
                         <div className="relative z-20 space-y-6 h-full flex flex-col">
                             <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
                                 <Network className="w-6 h-6 text-green-400" />
@@ -313,7 +313,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* Compact Visualization: Terminal */}
-                            <div className="mt-6 rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[220px] font-mono text-[10px] shadow-2xl">
+                            <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[140px] font-mono text-[10px] shadow-2xl">
                                 <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/5 z-20">
                                     <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
@@ -379,72 +379,106 @@ export default function LandingPage() {
                     </Spotlight>
 
                     {/* Feature 4: Hybrid Core (Wide) */}
-                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-8 flex flex-col md:flex-row gap-8 group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 min-h-[400px]">
+                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
 
                         {/* Left Side: Content */}
                         <div className="flex-1 flex flex-col justify-center z-20">
-                            <div className="space-y-6">
-                                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-                                    <Cpu className="w-6 h-6 text-purple-400" />
+                            <div className="space-y-8">
+                                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                                    <Cpu className="w-7 h-7 text-purple-400" />
                                 </div>
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     <h3 className="text-3xl font-bold text-white tracking-tight">Hybrid Core</h3>
-                                    <p className="text-lg text-neutral-400 leading-relaxed font-light">
-                                        Switch between SOTA cloud models (Gemini 1.5 Pro) for reasoning and local weights (Llama 3) for privacy. You own the stack.
+                                    <p className="text-lg text-neutral-400 leading-relaxed font-light mb-4">
+                                        Switch between SOTA cloud models (Gemini 3) for reasoning and local weights (Llama 3) for privacy. You own the stack.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Side: Visualization (Model Switcher) */}
-                        <div className="flex-1 rounded-2xl bg-black/50 border border-white/5 relative overflow-hidden flex flex-col items-center justify-center min-h-[250px]">
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
+                        {/* Right Side: Visualization (Rich Mission Control) */}
+                        <div className="flex-1 rounded-2xl bg-[#050505] border border-white/10 relative overflow-hidden flex flex-col items-center justify-center h-full shadow-2xl">
+                            {/* Background Grid Animation */}
+                            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent opacity-50"
+                                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                            />
 
-                            <div className="flex flex-col gap-4 w-full max-w-sm p-4">
-                                {/* Option 1: Cloud */}
-                                <motion.div
-                                    className="p-4 rounded-xl border border-white/10 bg-white/5 flex items-center justify-between"
-                                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.08)" }}
-                                >
+                            <div className="flex flex-col gap-3 w-full max-w-sm p-6 relative z-10">
+                                {/* Header */}
+                                <div className="flex justify-between items-center mb-1 text-[10px] font-mono text-neutral-500 uppercase tracking-wider">
+                                    <span>Available Models</span>
+                                    <span>Status</span>
+                                </div>
+
+                                {/* Model 1: Gemini 3 */}
+                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                                            <Zap className="w-4 h-4 text-blue-400" />
-                                        </div>
+                                        <Zap className="w-4 h-4 text-blue-400" />
                                         <div>
-                                            <div className="text-sm font-bold text-white">Gemini 1.5 Pro</div>
-                                            <div className="text-[10px] text-neutral-400">Cloud Inferencing</div>
+                                            <div className="text-xs font-bold text-white">Gemini 3 Ultra</div>
+                                            <div className="text-[9px] text-neutral-500">Google DeepMind • 1M Context</div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-end">
-                                        <span className="text-[10px] text-green-400 font-mono">CONNECTED</span>
-                                        <span className="text-[10px] text-neutral-500">120ms</span>
-                                    </div>
-                                </motion.div>
+                                    <span className="text-[9px] text-neutral-500 font-mono">READY</span>
+                                </div>
 
-                                {/* Option 2: Local */}
-                                <motion.div
-                                    className="p-4 rounded-xl border border-green-500/30 bg-green-500/5 flex items-center justify-between relative overflow-hidden"
-                                    initial={{ borderColor: "rgba(255,255,255,0.1)" }}
-                                    whileInView={{ borderColor: "rgba(34,197,94,0.3)" }}
-                                >
-                                    <div className="absolute inset-0 bg-green-500/5 animate-pulse" />
-                                    <div className="relative z-10 flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center border border-green-500/30">
-                                            <Lock className="w-4 h-4 text-green-400" />
-                                        </div>
+                                {/* Model 2: GPT-4o */}
+                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-4 h-4 rounded-sm bg-green-500/20 flex items-center justify-center text-[10px] text-green-400 font-bold">O</div>
                                         <div>
-                                            <div className="text-sm font-bold text-white">Llama 3 (8B)</div>
-                                            <div className="text-[10px] text-neutral-400">Local via Ollama</div>
+                                            <div className="text-xs font-bold text-white">GPT-4o</div>
+                                            <div className="text-[9px] text-neutral-500">OpenAI • Omni Model</div>
                                         </div>
                                     </div>
-                                    <div className="relative z-10 flex flex-col items-end">
-                                        <div className="flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                            <span className="text-[10px] text-green-400 font-mono">ACTIVE</span>
+                                    <span className="text-[9px] text-neutral-500 font-mono">READY</span>
+                                </div>
+
+                                {/* Model 3: Claude 3.5 */}
+                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-4 h-4 rounded-full bg-orange-500/20 flex items-center justify-center text-[10px] text-orange-400 font-bold">C</div>
+                                        <div>
+                                            <div className="text-xs font-bold text-white">Claude 3.5 Sonnet</div>
+                                            <div className="text-[9px] text-neutral-500">Anthropic • Reasoning</div>
                                         </div>
-                                        <span className="text-[10px] text-neutral-500">0ms</span>
                                     </div>
-                                </motion.div>
+                                    <span className="text-[9px] text-neutral-500 font-mono">READY</span>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-1" />
+
+                                {/* Model 4: Llama 3 (Active) */}
+                                <div className="relative">
+                                    <motion.div
+                                        className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-green-500/50 via-emerald-500/50 to-green-500/50 opacity-30 blur-sm"
+                                        animate={{ opacity: [0.3, 0.6, 0.3] }}
+                                        transition={{ duration: 3, repeat: Infinity }}
+                                    />
+                                    <div className="p-3 rounded-lg bg-[#0a0a0a] border border-green-500/30 flex items-center justify-between relative z-10">
+                                        <div className="flex items-center gap-3">
+                                            <Lock className="w-4 h-4 text-green-400" />
+                                            <div>
+                                                <div className="text-xs font-bold text-white flex items-center gap-2">
+                                                    Llama 3
+                                                    <span className="text-[8px] px-1 py-0.5 bg-green-500/20 text-green-400 rounded border border-green-500/20">LOCAL</span>
+                                                </div>
+                                                <div className="text-[9px] text-green-400/70">Meta • 8B Parameters • Private</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-end">
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                                <span className="text-[9px] text-green-400 font-bold">ACTIVE</span>
+                                            </div>
+                                            <span className="text-[9px] text-neutral-500">12ms</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </Spotlight>
