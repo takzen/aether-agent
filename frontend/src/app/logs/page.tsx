@@ -69,12 +69,11 @@ export default function AgentLogs() {
                     </div>
                 </div>
 
-                {/* Main Content Area */}
-                <div className="flex-1 relative flex flex-col overflow-hidden bg-[#020202]">
+                {/* Main Content Area — VSCode Editor Style */}
+                <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
-                    {/* Tactical Elements */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-purple-500/[0.02] to-transparent pointer-events-none" />
+                    {/* Tactical Elements (Removed for clarity/VSCode aesthetic) */}
+
 
                     {/* Filter Bar */}
                     <div className="px-6 py-2 border-b border-[#303030] bg-[#252526] flex items-center justify-between z-10">
