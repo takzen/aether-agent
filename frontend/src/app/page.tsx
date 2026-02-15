@@ -268,7 +268,7 @@ export default function LandingPage() {
                             </div>
                             <div className="space-y-3">
                                 <h3 className="text-2xl font-bold tracking-tight text-white">Your Knowledge Base</h3>
-                                <p className="text-base text-neutral-400 leading-relaxed font-light">
+                                <p className="text-lg text-neutral-400 leading-relaxed font-light">
                                     Drop in your PDFs, notes, and research. Aether indexes them instantly.
                                 </p>
                             </div>
@@ -307,28 +307,72 @@ export default function LandingPage() {
                             </div>
                             <div className="space-y-3">
                                 <h3 className="text-2xl font-bold tracking-tight text-white">Thought Stream</h3>
-                                <p className="text-base text-neutral-400 leading-relaxed font-light">
+                                <p className="text-lg text-neutral-400 leading-relaxed font-light">
                                     Trust is built on visibility. Watch the Chain of Thought in real-time.
                                 </p>
                             </div>
 
                             {/* Compact Visualization: Terminal */}
-                            <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[180px] font-mono text-[9px]">
-                                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/5">
-                                    <div className="w-2 h-2 rounded-full bg-red-500/50" />
-                                    <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
-                                    <div className="w-2 h-2 rounded-full bg-green-500/50" />
-                                    <span className="ml-2 text-neutral-500">thought.log</span>
+                            <div className="mt-6 rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[220px] font-mono text-[10px] shadow-2xl">
+                                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/5 z-20">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50" />
+                                    <span className="ml-2 text-neutral-500 text-xs">thought_stream.log</span>
                                 </div>
-                                <div className="p-3 space-y-1.5 text-neutral-400 overflow-hidden relative flex-1">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10" />
-                                    <div className="text-yellow-500 text-[8px]">Thinking...</div>
-                                    <div className="border-l border-white/10 pl-2">
-                                        <div>&gt; Analyzing request</div>
-                                        <div>&gt; Checking memory...</div>
-                                        <div className="text-blue-400">&gt; Found relevant ctx</div>
-                                    </div>
-                                    <motion.div className="w-1.5 h-3 bg-green-500 animate-pulse mt-1" />
+
+                                <div className="p-4 space-y-1 overflow-hidden relative flex-1">
+                                    <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-[#0a0a0a]/20 pointer-events-none z-10" />
+
+                                    <motion.div
+                                        className="flex flex-col gap-1.5"
+                                        animate={{ y: [0, -120] }}
+                                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                    >
+                                        <div className="text-neutral-500 text-[9px] mb-2">// INITIATING REASONING CHAIN</div>
+
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:01]</span>
+                                            <span className="text-neutral-300">Parsing user intent...</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:02]</span>
+                                            <span className="text-purple-400">Context retrieved: 4 chunks</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:03]</span>
+                                            <span className="text-neutral-400">Filtering irrelevant nodes...</span>
+                                        </div>
+                                        <div className="flex gap-2 pl-4 border-l border-neutral-800">
+                                            <span className="text-neutral-600">&gt; Node A: Valid (0.91)</span>
+                                        </div>
+                                        <div className="flex gap-2 pl-4 border-l border-neutral-800">
+                                            <span className="text-neutral-600">&gt; Node B: Discarded</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:05]</span>
+                                            <span className="text-orange-400">Formulating hypothesis...</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:08]</span>
+                                            <span className="text-green-400">Generating final response.</span>
+                                        </div>
+
+                                        <div className="text-neutral-500 text-[9px] mt-2 mb-2">// NEW CYCLE START</div>
+
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:12]</span>
+                                            <span className="text-neutral-300">Await input...</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:13]</span>
+                                            <span className="text-purple-400">Detecting pattern match</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-blue-500">[00:15]</span>
+                                            <span className="text-neutral-400">Optimizing query path...</span>
+                                        </div>
+                                    </motion.div>
                                 </div>
                             </div>
                         </div>
