@@ -444,6 +444,86 @@ export default function LandingPage() {
                 </div>
             </motion.section>
 
+            {/* --- HOW IT WORKS --- */}
+            <motion.section
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="max-w-7xl mx-auto px-4 py-32 relative"
+            >
+                <div className="text-center mb-20 space-y-4">
+                    <h2 className="text-sm font-mono text-blue-400 uppercase tracking-[0.3em]">The Process</h2>
+                    <h3 className="text-4xl md:text-5xl font-bold text-white tracking-tight">How It Works</h3>
+                    <p className="text-neutral-400 max-w-2xl mx-auto">
+                        From raw input to structured intelligence — in four steps.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+                    {/* Connecting Line (Desktop) */}
+                    <div className="hidden md:block absolute top-[60px] left-[12.5%] right-[12.5%] h-[1px] border-t border-dashed border-white/10 z-0" />
+
+                    {[
+                        {
+                            step: "01",
+                            icon: <Globe className="w-6 h-6" />,
+                            title: "Upload",
+                            desc: "Feed Aether your documents, notes, and context. PDF, Markdown, plain text — it ingests everything.",
+                            boxClass: "bg-purple-500/5 border-purple-500/20 group-hover:border-purple-500/40 group-hover:bg-purple-500/10",
+                            badgeClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+                            iconClass: "text-purple-400"
+                        },
+                        {
+                            step: "02",
+                            icon: <Zap className="w-6 h-6" />,
+                            title: "Process",
+                            desc: "Content is chunked, embedded, and indexed into a vector knowledge graph with semantic links.",
+                            boxClass: "bg-blue-500/5 border-blue-500/20 group-hover:border-blue-500/40 group-hover:bg-blue-500/10",
+                            badgeClass: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+                            iconClass: "text-blue-400"
+                        },
+                        {
+                            step: "03",
+                            icon: <Network className="w-6 h-6" />,
+                            title: "Query",
+                            desc: "Ask anything. Aether retrieves relevant context across all your data with precision recall.",
+                            boxClass: "bg-green-500/5 border-green-500/20 group-hover:border-green-500/40 group-hover:bg-green-500/10",
+                            badgeClass: "bg-green-500/20 text-green-400 border-green-500/30",
+                            iconClass: "text-green-400"
+                        },
+                        {
+                            step: "04",
+                            icon: <Shield className="w-6 h-6" />,
+                            title: "Remember",
+                            desc: "Every interaction strengthens the model. Your digital profile evolves continuously.",
+                            boxClass: "bg-orange-500/5 border-orange-500/20 group-hover:border-orange-500/40 group-hover:bg-orange-500/10",
+                            badgeClass: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+                            iconClass: "text-orange-400"
+                        }
+                    ].map((item, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.15, duration: 0.5 }}
+                            className="relative z-10 flex flex-col items-center text-center group"
+                        >
+                            <div className={`w-[120px] h-[120px] rounded-2xl border flex items-center justify-center mb-6 transition-all duration-500 relative ${item.boxClass}`}>
+                                <span className={`absolute -top-2 -right-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${item.badgeClass}`}>
+                                    {item.step}
+                                </span>
+                                <div className={item.iconClass}>
+                                    {item.icon}
+                                </div>
+                            </div>
+                            <h4 className="text-lg font-bold text-white mb-2">{item.title}</h4>
+                            <p className="text-sm text-neutral-500 leading-relaxed max-w-[200px]">{item.desc}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            </motion.section>
+
             {/* --- FOOTER (COMPACT & PROFESSIONAL) --- */}
             <section className="relative w-full border-t border-white/10 bg-[#050505] py-16 flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5" />
