@@ -87,8 +87,7 @@ export default function Memories() {
                         onWheel={handleWheel}
                         className="flex-1 relative overflow-hidden bg-gradient-to-br from-[#1e1e1e] via-[#252526] to-[#2d2d2d] cursor-crosshair"
                     >
-                        {/* Tactical Grid Background (Fixed) */}
-                        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+                        {/* Tactical Grid Background (Removed) */}
 
                         {/* Search Overlay (Command Style) */}
                         {/* Removed search bar from here as per instruction */}
@@ -164,8 +163,8 @@ export default function Memories() {
                         </motion.div>
                     </div>
 
-                    {/* Recent Context List — Tactical Style */}
-                    <div className="w-[320px] border-l border-white/5 bg-black/40 backdrop-blur-2xl p-6 flex flex-col z-20">
+                    {/* Recent Context List — VSCode Sidebar Style */}
+                    <div className="w-[320px] border-l border-[#303030] bg-[#252526] p-6 flex flex-col z-20">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500">Activity_Log</h3>
                             <Clock className="w-3 h-3 text-neutral-600" />
