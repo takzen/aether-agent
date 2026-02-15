@@ -168,7 +168,7 @@ export default function LandingPage() {
                                 </div>
                                 <div className="space-y-4">
                                     <h2 className="text-3xl font-bold text-white tracking-tight">Long-Term Memory</h2>
-                                    <p className="text-lg text-neutral-400 leading-relaxed font-light">
+                                    <p className="text-lg text-neutral-400 leading-relaxed font-light mb-8">
                                         Aether learns you with every conversation. You strictly never have to repeat yourself. It builds your digital profile automatically.
                                     </p>
                                 </div>
@@ -179,69 +179,83 @@ export default function LandingPage() {
                         <div className="flex-1 rounded-2xl bg-black/50 border border-white/5 relative overflow-hidden flex items-center justify-center min-h-[250px]">
                             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
 
-                            {/* The Rich Graph Animation */}
+                            {/* The Vector Search Animation */}
                             <div className="relative w-full h-full p-4">
-                                {/* Grid of Nodes */}
-                                <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-8 p-8 opacity-50">
-                                    {Array.from({ length: 9 }).map((_, i) => (
+                                {/* Vector Space Grid */}
+                                <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-8 p-12 opacity-30">
+                                    {Array.from({ length: 16 }).map((_, i) => (
                                         <motion.div
                                             key={i}
-                                            className="w-1 h-1 bg-neutral-600 rounded-full relative"
-                                            animate={{ opacity: [0.3, 1, 0.3] }}
-                                            transition={{ duration: 2 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2 }}
-                                        >
-                                            {/* Random connections */}
-                                            <motion.div
-                                                className="absolute top-0 left-0 h-[1px] bg-purple-500/20 origin-left"
-                                                style={{ width: `${Math.random() * 60 + 20}px`, rotate: `${Math.random() * 360}deg` }}
-                                                animate={{ opacity: [0, 0.5, 0] }}
-                                                transition={{ duration: 3, repeat: Infinity, delay: Math.random() * 2 }}
-                                            />
-                                        </motion.div>
+                                            className="w-1.5 h-1.5 bg-neutral-600 rounded-full relative"
+                                            initial={{ opacity: 0.2 }}
+                                            animate={{
+                                                opacity: [0.2, 0.8, 0.2],
+                                                scale: [1, 1.5, 1],
+                                                backgroundColor: ["#525252", "#a855f7", "#525252"]
+                                            }}
+                                            transition={{
+                                                duration: 3,
+                                                repeat: Infinity,
+                                                delay: Math.random() * 2,
+                                                ease: "easeInOut"
+                                            }}
+                                        />
                                     ))}
                                 </div>
 
-                                {/* Active Logic Nodes */}
+                                {/* Active Search Beam (Radar Scan) */}
                                 <motion.div
-                                    className="absolute top-1/2 left-1/2 w-32 h-32 border border-purple-500/30 rounded-full -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
+                                    className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-gradient-to-r from-transparent via-purple-500/10 to-transparent -translate-x-1/2 -translate-y-1/2"
                                     animate={{ rotate: 360 }}
-                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                >
-                                    <div className="absolute top-0 left-1/2 w-1 h-1 bg-purple-400 rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_#a855f7]" />
-                                    <div className="absolute bottom-0 left-1/2 w-1 h-1 bg-purple-400 rounded-full -translate-x-1/2 translate-y-1/2" />
-                                </motion.div>
-
-                                <motion.div
-                                    className="absolute top-1/2 left-1/2 w-48 h-48 border border-dashed border-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"
-                                    animate={{ rotate: -360 }}
-                                    transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                                    style={{ clipPath: "polygon(50% 50%, 100% 0, 100% 100%)" }}
                                 />
 
-                                {/* Central Core */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                    <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.5)] animate-pulse" />
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-purple-600/20 rounded-full blur-md" />
+                                {/* Found Match Connection */}
+                                <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                                    <motion.line
+                                        x1="50%" y1="50%" x2="70%" y2="30%"
+                                        stroke="rgba(168, 85, 247, 0.4)"
+                                        strokeWidth="2"
+                                        strokeDasharray="5,5"
+                                        animate={{ strokeDashoffset: [0, -20] }}
+                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                    />
+                                    <motion.line
+                                        x1="50%" y1="50%" x2="30%" y2="70%"
+                                        stroke="rgba(168, 85, 247, 0.2)"
+                                        strokeWidth="1"
+                                        animate={{ opacity: [0, 1, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    />
+                                </svg>
+
+                                {/* Central Core (Query Origin) */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                                    <div className="w-6 h-6 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.8)] animate-pulse flex items-center justify-center">
+                                        <div className="w-2 h-2 bg-purple-600 rounded-full" />
+                                    </div>
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-purple-600/10 rounded-full blur-xl" />
                                 </div>
 
-                                {/* Floating Labels */}
+                                {/* Floating Labels - Search Context */}
                                 <motion.div
-                                    className="absolute top-1/3 left-1/4 px-2 py-1 bg-black/60 border border-purple-500/30 rounded text-[9px] text-purple-300 font-mono pointer-events-none"
-                                    animate={{ y: [-5, 5, -5] }}
-                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                    className="absolute top-[20%] right-[20%] px-3 py-1.5 bg-black/80 border border-purple-500/50 rounded-lg text-[10px] text-white font-mono shadow-lg z-20"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: [0, 1, 1, 0], y: [10, 0, 0, -10] }}
+                                    transition={{ duration: 4, repeat: Infinity, times: [0, 0.2, 0.8, 1] }}
                                 >
-                                    CTX_HASH: 0x8F
-                                </motion.div>
-                                <motion.div
-                                    className="absolute bottom-1/3 right-1/4 px-2 py-1 bg-black/60 border border-purple-500/30 rounded text-[9px] text-purple-300 font-mono pointer-events-none"
-                                    animate={{ y: [5, -5, 5] }}
-                                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                                >
-                                    MEM_ALLOC
+                                    <div className="text-purple-300 text-[8px] uppercase tracking-wider mb-0.5">Similarity Match</div>
+                                    <div className="font-bold">0.9248 SCORE</div>
                                 </motion.div>
 
-                                <div className="absolute bottom-4 right-4 text-[10px] text-neutral-500 font-mono">
-                                    VECTOR_INDEX_ACTIVE
-                                </div>
+                                <motion.div
+                                    className="absolute bottom-[20%] left-[20%] px-3 py-1.5 bg-black/80 border border-white/10 rounded-lg text-[10px] text-neutral-400 font-mono z-10"
+                                    animate={{ opacity: [0.5, 1, 0.5] }}
+                                    transition={{ duration: 3, repeat: Infinity }}
+                                >
+                                    &gt; QUERY_EMBEDDING...
+                                </motion.div>
                             </div>
                         </div>
                     </Spotlight>
@@ -268,7 +282,7 @@ export default function LandingPage() {
                                     transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                                 />
                                 <div className="p-4 space-y-3 font-mono text-[10px] text-neutral-500 overflow-hidden">
-                                    {["specs_v2.pdf", "notes.md", "diagram.png", "budget.xlsx"].map((file, i) => (
+                                    {["specs_v2.pdf", "notes.md", "diagram.png", "budget.xlsx", "user_profile.json", "contract_final.pdf"].map((file, i) => (
                                         <motion.div
                                             key={i}
                                             className="flex items-center justify-between border-b border-white/5 pb-2"
