@@ -48,15 +48,14 @@ export default function Settings() {
                 {/* Main Content Area — VSCode Style */}
                 <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
-                    {/* Tactical Elements */}
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.03] via-transparent to-blue-500/[0.03] pointer-events-none" />
+                    {/* Tactical Elements (Removed) */}
+
 
                     <div className="flex-1 overflow-y-auto p-10 space-y-12 relative z-10 scrollbar-none max-w-5xl mx-auto w-full">
 
                         {/* Section: Operator Profile */}
                         <section className="space-y-6">
-                            <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-white/[0.01]">
+                            <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
                                 <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Operator_ID</h2>
                                 <span className="text-[9px] text-neutral-700">UUID: 8F2D-4B1A-9C3E-7L0P</span>
                             </div>
@@ -64,7 +63,7 @@ export default function Settings() {
                             <div className="flex items-center gap-8 bg-[#252526] border border-[#303030] p-8 rounded-2xl backdrop-blur-md">
                                 <div className="relative group">
                                     <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-purple-600/20 to-blue-600/20 border border-white/10 flex items-center justify-center p-1">
-                                        <div className="w-full h-full bg-[#050505] rounded-xl flex items-center justify-center text-3xl font-bold text-white font-sans group-hover:scale-95 transition-transform duration-500 shadow-2xl">TK</div>
+                                        <div className="w-full h-full bg-[#1e1e1e] rounded-xl flex items-center justify-center text-3xl font-bold text-white font-sans group-hover:scale-95 transition-transform duration-500 shadow-2xl">TK</div>
                                     </div>
                                     <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center border border-black group-hover:rotate-12 transition-transform cursor-pointer">
                                         <Settings2 className="w-4 h-4 text-white" />
@@ -84,12 +83,12 @@ export default function Settings() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Section: AI Configuration */}
                             <section className="space-y-6">
-                                <div className="flex items-center justify-between border-l-2 border-blue-500/30 pl-6 py-2 bg-white/[0.01]">
+                                <div className="flex items-center justify-between border-l-2 border-blue-500/30 pl-6 py-2 bg-[#252526]/50">
                                     <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Intelligence_Params</h2>
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-blue-500/20 transition-all group overflow-hidden relative">
+                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-blue-500/20 transition-all group overflow-hidden relative">
                                         <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                                         </div>
@@ -105,7 +104,7 @@ export default function Settings() {
                                         </button>
                                     </div>
 
-                                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-green-500/20 transition-all flex items-center justify-between">
+                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-green-500/20 transition-all flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="p-2 bg-green-500/10 rounded-lg"><Shield className="w-5 h-5 text-green-400" /></div>
                                             <div>
@@ -122,12 +121,12 @@ export default function Settings() {
 
                             {/* Section: System Telemetry */}
                             <section className="space-y-6">
-                                <div className="flex items-center justify-between border-l-2 border-yellow-500/30 pl-6 py-2 bg-white/[0.01]">
+                                <div className="flex items-center justify-between border-l-2 border-yellow-500/30 pl-6 py-2 bg-[#252526]/50">
                                     <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">System_Telemetry</h2>
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-yellow-500/20 transition-all flex items-center justify-between">
+                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-yellow-500/20 transition-all flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="p-2 bg-yellow-500/10 rounded-lg"><Bell className="w-5 h-5 text-yellow-400" /></div>
                                             <div>
@@ -140,7 +139,7 @@ export default function Settings() {
                                         </div>
                                     </div>
 
-                                    <div className="p-5 bg-white/[0.02] border border-white/5 rounded-xl hover:border-purple-500/20 transition-all flex items-center justify-between group cursor-pointer">
+                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-purple-500/20 transition-all flex items-center justify-between group cursor-pointer">
                                         <div className="flex items-center gap-4">
                                             <div className="p-2 bg-purple-500/10 rounded-lg group-hover:scale-110 transition-transform"><Zap className="w-5 h-5 text-purple-400" /></div>
                                             <div>
@@ -158,8 +157,8 @@ export default function Settings() {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar — Tactical Style */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-white/5 bg-black/60 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0 z-50">
+                {/* Bottom Status Bar — VSCode Style */}
+                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0 z-50">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5">
                             <div className="w-1 h-1 rounded-full bg-green-500" />

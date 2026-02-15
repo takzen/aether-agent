@@ -122,8 +122,8 @@ export default function KnowledgeBase() {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar — Matches Dashboard */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-white/5 bg-black/40 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0">
+                {/* Bottom Status Bar — VSCode Style */}
+                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5">
                             <div className="w-1 h-1 rounded-full bg-green-500" />
