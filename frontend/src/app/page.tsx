@@ -267,7 +267,7 @@ export default function LandingPage() {
                                 <Database className="w-6 h-6 text-blue-400" />
                             </div>
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-bold tracking-tight text-white">Your Knowledge Base</h3>
+                                <h2 className="text-3xl font-bold tracking-tight text-white">Your Knowledge Base</h2>
                                 <p className="text-lg text-neutral-400 leading-relaxed font-light">
                                     Drop in your PDFs, notes, and research. Aether indexes them instantly.
                                 </p>
@@ -306,7 +306,7 @@ export default function LandingPage() {
                                 <Network className="w-6 h-6 text-green-400" />
                             </div>
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-bold tracking-tight text-white">Thought Stream</h3>
+                                <h2 className="text-3xl font-bold tracking-tight text-white">Thought Stream</h2>
                                 <p className="text-lg text-neutral-400 leading-relaxed font-light">
                                     Trust is built on visibility. Watch the Chain of Thought in real-time.
                                 </p>
@@ -388,7 +388,7 @@ export default function LandingPage() {
                                     <Cpu className="w-7 h-7 text-purple-400" />
                                 </div>
                                 <div className="space-y-6">
-                                    <h3 className="text-3xl font-bold text-white tracking-tight">Hybrid Core</h3>
+                                    <h2 className="text-3xl font-bold text-white tracking-tight">Hybrid Core</h2>
                                     <p className="text-lg text-neutral-400 leading-relaxed font-light mb-4">
                                         Switch between SOTA cloud models (Gemini 3) for reasoning and local weights (Llama 3) for privacy. You own the stack.
                                     </p>
