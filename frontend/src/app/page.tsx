@@ -263,11 +263,11 @@ export default function LandingPage() {
                                     animate={{ top: ["0%", "100%", "0%"] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                                 />
-                                <div className="p-4 space-y-3 font-mono text-[10px] text-neutral-500 overflow-hidden">
-                                    {["specs_v2.pdf", "notes.md", "diagram.png", "budget.xlsx", "user_profile.json", "contract_final.pdf"].map((file, i) => (
+                                <div className="p-3 space-y-2 font-mono text-[10px] text-neutral-500 overflow-hidden">
+                                    {["specs_v2.pdf", "notes.md", "diagram.png", "budget.xlsx"].map((file, i) => (
                                         <motion.div
                                             key={i}
-                                            className="flex items-center justify-between border-b border-white/5 pb-2"
+                                            className="flex items-center justify-between border-b border-white/5 pb-1.5"
                                             initial={{ opacity: 0, x: -10 }}
                                             whileInView={{ opacity: 1, x: 0 }}
                                             transition={{ delay: i * 0.2 }}
@@ -295,7 +295,7 @@ export default function LandingPage() {
                             </p>
 
                             {/* Compact Visualization: Terminal */}
-                            <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[140px] font-mono text-[10px] shadow-2xl">
+                            <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[180px] font-mono text-[10px] shadow-2xl">
                                 <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/5 z-20">
                                     <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
@@ -374,7 +374,7 @@ export default function LandingPage() {
                             </p>
 
                             {/* Bottom: Model List Container (same pattern as Cards 2 & 3) */}
-                            <div className="mt-auto rounded-xl bg-[#050505] border border-white/10 relative overflow-hidden h-[225px]">
+                            <div className="mt-auto rounded-xl bg-[#050505] border border-white/10 relative overflow-hidden h-[180px]">
                                 {/* Background Grid Animation */}
                                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
 
@@ -390,31 +390,20 @@ export default function LandingPage() {
                                         <div className="flex items-center gap-2">
                                             <Zap className="w-3 h-3 text-blue-400" />
                                             <div>
-                                                <div className="text-[10px] font-bold text-white">Gemini 3 Ultra</div>
+                                                <div className="text-[10px] font-bold text-white">Gemini 3.1 Pro</div>
                                                 <div className="text-[8px] text-neutral-500">Google • 1M Context</div>
                                             </div>
                                         </div>
                                         <span className="text-[8px] text-neutral-500 font-mono">READY</span>
                                     </div>
 
-                                    {/* Model 2: GPT-4o */}
-                                    <div className="p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-sm bg-green-500/20 flex items-center justify-center text-[8px] text-green-400 font-bold">O</div>
-                                            <div>
-                                                <div className="text-[10px] font-bold text-white">GPT-4o</div>
-                                                <div className="text-[8px] text-neutral-500">OpenAI • Omni</div>
-                                            </div>
-                                        </div>
-                                        <span className="text-[8px] text-neutral-500 font-mono">READY</span>
-                                    </div>
 
                                     {/* Model 3: Claude 3.5 */}
                                     <div className="p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60">
                                         <div className="flex items-center gap-2">
                                             <div className="w-3 h-3 rounded-full bg-orange-500/20 flex items-center justify-center text-[8px] text-orange-400 font-bold">C</div>
                                             <div>
-                                                <div className="text-[10px] font-bold text-white">Claude 3.5 Sonnet</div>
+                                                <div className="text-[10px] font-bold text-white">Claude 4.6 Opus</div>
                                                 <div className="text-[8px] text-neutral-500">Anthropic • Reason</div>
                                             </div>
                                         </div>
@@ -433,7 +422,7 @@ export default function LandingPage() {
                                                 <Lock className="w-3 h-3 text-green-400" />
                                                 <div>
                                                     <div className="text-[10px] font-bold text-white flex items-center gap-1">
-                                                        Llama 3
+                                                        Llama 3.2
                                                         <span className="text-[7px] px-1 bg-green-500/20 text-green-400 rounded border border-green-500/20 uppercase">Local</span>
                                                     </div>
                                                     <div className="text-[8px] text-green-400/70">Meta • Private</div>
