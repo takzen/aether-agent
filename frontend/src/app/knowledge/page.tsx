@@ -22,7 +22,7 @@ export default function KnowledgeBase() {
             <main className="flex-1 flex flex-col relative overflow-hidden z-10">
 
                 {/* Header — Aligned with Dashboard Style */}
-                <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-black/20 shrink-0">
+                <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                         <div>

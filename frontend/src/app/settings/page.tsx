@@ -17,13 +17,13 @@ export default function Settings() {
     }, []);
 
     return (
-        <div className="flex h-screen bg-[#020202] overflow-hidden font-mono text-neutral-400 select-none">
+        <div className="flex h-screen bg-[#1e1e1e] overflow-hidden font-mono text-neutral-400 select-none">
             <Sidebar />
 
-            <main className="flex-1 flex flex-col relative overflow-hidden z-10 border-l border-white/5">
+            <main className="flex-1 flex flex-col relative overflow-hidden z-10 border-l border-[#303030]">
 
-                {/* Header — Tactical Dashboard Style */}
-                <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-black/20 shrink-0 z-50">
+                {/* Header — VSCode Style */}
+                <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                         <div>
@@ -45,8 +45,8 @@ export default function Settings() {
                     </div>
                 </div>
 
-                {/* Main Content Area */}
-                <div className="flex-1 relative flex flex-col overflow-hidden bg-[#020202]">
+                {/* Main Content Area — VSCode Style */}
+                <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
                     {/* Tactical Elements */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />

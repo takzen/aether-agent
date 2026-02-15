@@ -72,7 +72,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 px-5 py-3 bg-white/[0.02] border border-white/5 rounded-xl shrink-0"
+            className="flex items-center gap-4 px-5 py-3 bg-[#181818] border border-[#303030] rounded-xl shrink-0"
           >
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />

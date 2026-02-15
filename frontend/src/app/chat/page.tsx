@@ -104,8 +104,8 @@ export default function ChatPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex-1 max-w-5xl mx-auto w-full bg-[#252526] border border-[#303030] rounded-2xl flex flex-col overflow-hidden shadow-2xl shadow-black/40"
                 >
-                    {/* Chat Header — IDENTICAL to Dashboard style */}
-                    <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-white/[0.01]">
+                    {/* Chat Header — VSCode Style */}
+                    <div className="px-5 py-4 border-b border-[#303030] flex items-center justify-between shrink-0 bg-[#181818]">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                             <h3 className="text-sm font-bold text-white">Aether Agent</h3>
