@@ -53,7 +53,7 @@ export default function Settings() {
                                     <Database className="w-5 h-5 text-purple-400" />
                                     <div>
                                         <div className="font-medium text-white">Model Selection</div>
-                                        <div className="text-sm text-neutral-400">Currently using Gemini 1.5 Flash (Cloud)</div>
+                                        <div className="text-sm text-neutral-400">Currently using Gemini 3 (Cloud)</div>
                                     </div>
                                 </div>
                                 <ChevronRight className="w-5 h-5 text-neutral-600" />

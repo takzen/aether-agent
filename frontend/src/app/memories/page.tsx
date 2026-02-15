@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 const memoryNodes = [
     { id: 1, type: "concept", label: "Aether Architecture", relevance: 0.98, x: 200, y: 150 },
-    { id: 2, type: "fact", label: "Gemini 1.5 Flash Speed", relevance: 0.85, x: 400, y: 250 },
+    { id: 2, type: "fact", label: "Gemini 3 Performance", relevance: 0.85, x: 400, y: 250 },
     { id: 3, type: "concept", label: "RAG Pipeline", relevance: 0.92, x: 100, y: 300 },
     { id: 4, type: "snippet", label: "vector_store.py", relevance: 0.76, x: 600, y: 100 },
     { id: 5, type: "fact", label: "User Preference: Dark Mode", relevance: 0.65, x: 500, y: 400 },
@@ -73,7 +73,7 @@ export default function Memories() {
                                 dragConstraints={{ left: 0, right: 800, top: 0, bottom: 600 }}
                             >
                                 <div className={`relative flex items-center justify-center p-4 rounded-full border border-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)] group hover:scale-110 transition-transform z-10 ${node.type === 'concept' ? 'bg-purple-500/10 border-purple-500/30' :
-                                        node.type === 'fact' ? 'bg-cyan-500/10 border-cyan-500/30' : 'bg-neutral-800/50'
+                                    node.type === 'fact' ? 'bg-cyan-500/10 border-cyan-500/30' : 'bg-neutral-800/50'
                                     }`}>
                                     <span className="text-xs font-medium text-white whitespace-nowrap">{node.label}</span>
 

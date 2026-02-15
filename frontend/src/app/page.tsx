@@ -140,11 +140,11 @@ export default function LandingPage() {
 
 
             <motion.section
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8 }}
-                className="relative z-10 max-w-7xl mx-auto px-6 py-32"
+                viewport={{ once: true }}
+                className="max-w-7xl mx-auto px-4 pt-40 pb-32 scroll-mt-32"
+                id="features"
             >
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-sm font-mono text-purple-400 uppercase tracking-[0.3em]">The Architecture</h2>
@@ -158,35 +158,28 @@ export default function LandingPage() {
 
                     {/* Feature 1: Long-term Memory (The Core) */}
 
-                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
-
-                        {/* Left Side: Content */}
-                        <div className="flex-1 flex flex-col justify-center z-20">
-                            <div className="space-y-6">
-                                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-auto md:h-[380px]">
+                        <div className="relative z-20 h-full flex flex-col">
+                            <div className="flex items-start justify-between gap-4 mb-4">
+                                <h2 className="text-3xl font-bold text-white tracking-tight">Long-Term Memory</h2>
+                                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex-shrink-0">
                                     <span className="text-xl">🧠</span>
                                 </div>
-                                <div className="space-y-4">
-                                    <h2 className="text-3xl font-bold text-white tracking-tight">Long-Term Memory</h2>
-                                    <p className="text-lg text-neutral-400 leading-relaxed font-light mb-4">
-                                        Aether learns you with every conversation. You strictly never have to repeat yourself. It builds your digital profile automatically.
-                                    </p>
-                                </div>
                             </div>
-                        </div>
+                            <p className="text-lg text-neutral-400 leading-relaxed font-light">
+                                Aether learns you with every conversation. You strictly never have to repeat yourself. It builds your digital profile automatically.
+                            </p>
 
-                        {/* Right Side: Dedicated Animation Container */}
-                        <div className="flex-1 rounded-2xl bg-black/50 border border-white/5 relative overflow-hidden flex items-center justify-center h-full">
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
+                            {/* Bottom: Animation Container (same pattern as Cards 2 & 3) */}
+                            <div className="mt-auto rounded-xl bg-black/50 border border-white/5 relative overflow-hidden h-[180px]">
+                                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10" />
 
-                            {/* The Vector Search Animation */}
-                            <div className="relative w-full h-full p-4">
                                 {/* Vector Space Grid */}
-                                <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-8 p-12 opacity-30">
+                                <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-4 p-6 opacity-30">
                                     {Array.from({ length: 16 }).map((_, i) => (
                                         <motion.div
                                             key={i}
-                                            className="w-1.5 h-1.5 bg-neutral-600 rounded-full relative"
+                                            className="w-1.5 h-1.5 bg-neutral-600 rounded-full"
                                             initial={{ opacity: 0.2 }}
                                             animate={{
                                                 opacity: [0.2, 0.8, 0.2],
@@ -205,73 +198,62 @@ export default function LandingPage() {
 
                                 {/* Active Search Beam (Radar Scan) */}
                                 <motion.div
-                                    className="absolute top-1/2 left-1/2 w-[300px] h-[300px] bg-gradient-to-r from-transparent via-purple-500/10 to-transparent -translate-x-1/2 -translate-y-1/2"
+                                    className="absolute top-1/2 left-1/2 w-[200px] h-[200px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-purple-500/15 to-transparent"
                                     animate={{ rotate: 360 }}
                                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                                     style={{ clipPath: "polygon(50% 50%, 100% 0, 100% 100%)" }}
                                 />
 
-                                {/* Found Match Connection */}
+                                {/* Found Match Connection Line */}
                                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
                                     <motion.line
-                                        x1="50%" y1="50%" x2="70%" y2="30%"
-                                        stroke="rgba(168, 85, 247, 0.4)"
+                                        x1="50%" y1="50%" x2="75%" y2="25%"
+                                        stroke="rgba(168, 85, 247, 0.5)"
                                         strokeWidth="2"
-                                        strokeDasharray="5,5"
+                                        strokeDasharray="4,4"
                                         animate={{ strokeDashoffset: [0, -20] }}
                                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                    />
-                                    <motion.line
-                                        x1="50%" y1="50%" x2="30%" y2="70%"
-                                        stroke="rgba(168, 85, 247, 0.2)"
-                                        strokeWidth="1"
-                                        animate={{ opacity: [0, 1, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
                                     />
                                 </svg>
 
                                 {/* Central Core (Query Origin) */}
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                                    <div className="w-6 h-6 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.8)] animate-pulse flex items-center justify-center">
-                                        <div className="w-2 h-2 bg-purple-600 rounded-full" />
+                                    <div className="w-7 h-7 bg-white/10 rounded-full border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                                        <div className="w-2 h-2 bg-purple-500 rounded-full shadow-[0_0_15px_rgba(168,85,247,1)]" />
                                     </div>
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-purple-600/10 rounded-full blur-xl" />
+                                    <motion.div
+                                        className="absolute inset-[-4px] rounded-full border border-purple-500/20"
+                                        animate={{ scale: [1, 1.4, 1], opacity: [1, 0, 1] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    />
                                 </div>
 
-                                {/* Floating Labels - Search Context */}
+                                {/* Found Node Label */}
                                 <motion.div
-                                    className="absolute top-[20%] right-[20%] px-3 py-1.5 bg-black/80 border border-purple-500/50 rounded-lg text-[10px] text-white font-mono shadow-lg z-20"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: [0, 1, 1, 0], y: [10, 0, 0, -10] }}
-                                    transition={{ duration: 4, repeat: Infinity, times: [0, 0.2, 0.8, 1] }}
+                                    className="absolute top-[15%] right-[10%] px-2.5 py-1 bg-black/90 border border-purple-500/50 rounded-lg text-[10px] text-white font-mono shadow-2xl z-20 whitespace-nowrap"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1, 1, 0.8] }}
+                                    transition={{ duration: 4, repeat: Infinity, times: [0, 0.1, 0.9, 1] }}
                                 >
-                                    <div className="text-purple-300 text-[8px] uppercase tracking-wider mb-0.5">Similarity Match</div>
+                                    <div className="text-purple-400 text-[8px] uppercase tracking-wider mb-0.5">Similarity Match</div>
                                     <div className="font-bold">0.9248 SCORE</div>
-                                </motion.div>
-
-                                <motion.div
-                                    className="absolute bottom-[20%] left-[20%] px-3 py-1.5 bg-black/80 border border-white/10 rounded-lg text-[10px] text-neutral-400 font-mono z-10"
-                                    animate={{ opacity: [0.5, 1, 0.5] }}
-                                    transition={{ duration: 3, repeat: Infinity }}
-                                >
-                                    &gt; QUERY_EMBEDDING...
                                 </motion.div>
                             </div>
                         </div>
                     </Spotlight>
 
                     {/* Feature 2: Knowledge Base (Narrow) */}
-                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
-                        <div className="relative z-20 space-y-6 h-full flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-                                <Database className="w-6 h-6 text-blue-400" />
-                            </div>
-                            <div className="space-y-3">
+                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-auto md:h-[380px]">
+                        <div className="relative z-20 h-full flex flex-col">
+                            <div className="flex items-start justify-between gap-4 mb-4">
                                 <h2 className="text-3xl font-bold tracking-tight text-white">Your Knowledge Base</h2>
-                                <p className="text-lg text-neutral-400 leading-relaxed font-light">
-                                    Drop in your PDFs, notes, and research. Aether indexes them instantly.
-                                </p>
+                                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)] flex-shrink-0">
+                                    <Database className="w-6 h-6 text-blue-400" />
+                                </div>
                             </div>
+                            <p className="text-lg text-neutral-400 leading-relaxed font-light">
+                                Drop in your PDFs, notes, and research. Aether indexes them instantly.
+                            </p>
 
                             {/* Compact Visualization: File Scanning */}
                             <div className="mt-auto rounded-xl bg-black/50 border border-white/5 relative overflow-hidden h-[140px] flex flex-col">
@@ -300,17 +282,17 @@ export default function LandingPage() {
                     </Spotlight>
 
                     {/* Feature 3: Transparent Thought Stream (Narrow) */}
-                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
-                        <div className="relative z-20 space-y-6 h-full flex flex-col">
-                            <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]">
-                                <Network className="w-6 h-6 text-green-400" />
-                            </div>
-                            <div className="space-y-3">
+                    <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-auto md:h-[380px]">
+                        <div className="relative z-20 h-full flex flex-col">
+                            <div className="flex items-start justify-between gap-4 mb-4">
                                 <h2 className="text-3xl font-bold tracking-tight text-white">Thought Stream</h2>
-                                <p className="text-lg text-neutral-400 leading-relaxed font-light">
-                                    Trust is built on visibility. Watch the Chain of Thought in real-time.
-                                </p>
+                                <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)] flex-shrink-0">
+                                    <Network className="w-6 h-6 text-green-400" />
+                                </div>
                             </div>
+                            <p className="text-lg text-neutral-400 leading-relaxed font-light">
+                                Trust is built on visibility. Watch the Chain of Thought in real-time.
+                            </p>
 
                             {/* Compact Visualization: Terminal */}
                             <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[140px] font-mono text-[10px] shadow-2xl">
@@ -379,103 +361,91 @@ export default function LandingPage() {
                     </Spotlight>
 
                     {/* Feature 4: Hybrid Core (Wide) */}
-                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-[380px]">
-
-                        {/* Left Side: Content */}
-                        <div className="flex-1 flex flex-col justify-center z-20">
-                            <div className="space-y-8">
-                                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-                                    <Cpu className="w-7 h-7 text-purple-400" />
-                                </div>
-                                <div className="space-y-6">
-                                    <h2 className="text-3xl font-bold text-white tracking-tight">Hybrid Core</h2>
-                                    <p className="text-lg text-neutral-400 leading-relaxed font-light mb-4">
-                                        Switch between SOTA cloud models (Gemini 3) for reasoning and local weights (Llama 3) for privacy. You own the stack.
-                                    </p>
+                    <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-auto md:h-[380px]">
+                        <div className="relative z-20 h-full flex flex-col">
+                            <div className="flex items-start justify-between gap-4 mb-4">
+                                <h2 className="text-3xl font-bold text-white tracking-tight">Hybrid Core</h2>
+                                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex-shrink-0">
+                                    <Cpu className="w-6 h-6 text-purple-400" />
                                 </div>
                             </div>
-                        </div>
+                            <p className="text-lg text-neutral-400 leading-relaxed font-light">
+                                Switch between SOTA cloud models (Gemini 3) for reasoning and local weights (Llama 3) for privacy. You own the stack.
+                            </p>
 
-                        {/* Right Side: Visualization (Rich Mission Control) */}
-                        <div className="flex-1 rounded-2xl bg-[#050505] border border-white/10 relative overflow-hidden flex flex-col items-center justify-center h-full shadow-2xl">
-                            {/* Background Grid Animation */}
-                            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent opacity-50"
-                                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                                transition={{ duration: 4, repeat: Infinity }}
-                            />
+                            {/* Bottom: Model List Container (same pattern as Cards 2 & 3) */}
+                            <div className="mt-auto rounded-xl bg-[#050505] border border-white/10 relative overflow-hidden h-[225px]">
+                                {/* Background Grid Animation */}
+                                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
 
-                            <div className="flex flex-col gap-3 w-full max-w-sm p-6 relative z-10">
-                                {/* Header */}
-                                <div className="flex justify-between items-center mb-1 text-[10px] font-mono text-neutral-500 uppercase tracking-wider">
-                                    <span>Available Models</span>
-                                    <span>Status</span>
-                                </div>
-
-                                {/* Model 1: Gemini 3 */}
-                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity">
-                                    <div className="flex items-center gap-3">
-                                        <Zap className="w-4 h-4 text-blue-400" />
-                                        <div>
-                                            <div className="text-xs font-bold text-white">Gemini 3 Ultra</div>
-                                            <div className="text-[9px] text-neutral-500">Google DeepMind • 1M Context</div>
-                                        </div>
+                                <div className="flex flex-col gap-1.5 w-full p-3 relative z-10">
+                                    {/* Header */}
+                                    <div className="flex justify-between items-center text-[8px] font-mono text-neutral-500 uppercase tracking-wider">
+                                        <span>Available Models</span>
+                                        <span>Status</span>
                                     </div>
-                                    <span className="text-[9px] text-neutral-500 font-mono">READY</span>
-                                </div>
 
-                                {/* Model 2: GPT-4o */}
-                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-4 h-4 rounded-sm bg-green-500/20 flex items-center justify-center text-[10px] text-green-400 font-bold">O</div>
-                                        <div>
-                                            <div className="text-xs font-bold text-white">GPT-4o</div>
-                                            <div className="text-[9px] text-neutral-500">OpenAI • Omni Model</div>
-                                        </div>
-                                    </div>
-                                    <span className="text-[9px] text-neutral-500 font-mono">READY</span>
-                                </div>
-
-                                {/* Model 3: Claude 3.5 */}
-                                <div className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60 hover:opacity-100 transition-opacity">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-4 h-4 rounded-full bg-orange-500/20 flex items-center justify-center text-[10px] text-orange-400 font-bold">C</div>
-                                        <div>
-                                            <div className="text-xs font-bold text-white">Claude 3.5 Sonnet</div>
-                                            <div className="text-[9px] text-neutral-500">Anthropic • Reasoning</div>
-                                        </div>
-                                    </div>
-                                    <span className="text-[9px] text-neutral-500 font-mono">READY</span>
-                                </div>
-
-                                {/* Divider */}
-                                <div className="h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent my-1" />
-
-                                {/* Model 4: Llama 3 (Active) */}
-                                <div className="relative">
-                                    <motion.div
-                                        className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-green-500/50 via-emerald-500/50 to-green-500/50 opacity-30 blur-sm"
-                                        animate={{ opacity: [0.3, 0.6, 0.3] }}
-                                        transition={{ duration: 3, repeat: Infinity }}
-                                    />
-                                    <div className="p-3 rounded-lg bg-[#0a0a0a] border border-green-500/30 flex items-center justify-between relative z-10">
-                                        <div className="flex items-center gap-3">
-                                            <Lock className="w-4 h-4 text-green-400" />
+                                    {/* Model 1: Gemini 3 */}
+                                    <div className="p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60">
+                                        <div className="flex items-center gap-2">
+                                            <Zap className="w-3 h-3 text-blue-400" />
                                             <div>
-                                                <div className="text-xs font-bold text-white flex items-center gap-2">
-                                                    Llama 3
-                                                    <span className="text-[8px] px-1 py-0.5 bg-green-500/20 text-green-400 rounded border border-green-500/20">LOCAL</span>
-                                                </div>
-                                                <div className="text-[9px] text-green-400/70">Meta • 8B Parameters • Private</div>
+                                                <div className="text-[10px] font-bold text-white">Gemini 3 Ultra</div>
+                                                <div className="text-[8px] text-neutral-500">Google • 1M Context</div>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end">
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                                <span className="text-[9px] text-green-400 font-bold">ACTIVE</span>
+                                        <span className="text-[8px] text-neutral-500 font-mono">READY</span>
+                                    </div>
+
+                                    {/* Model 2: GPT-4o */}
+                                    <div className="p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-sm bg-green-500/20 flex items-center justify-center text-[8px] text-green-400 font-bold">O</div>
+                                            <div>
+                                                <div className="text-[10px] font-bold text-white">GPT-4o</div>
+                                                <div className="text-[8px] text-neutral-500">OpenAI • Omni</div>
                                             </div>
-                                            <span className="text-[9px] text-neutral-500">12ms</span>
+                                        </div>
+                                        <span className="text-[8px] text-neutral-500 font-mono">READY</span>
+                                    </div>
+
+                                    {/* Model 3: Claude 3.5 */}
+                                    <div className="p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between opacity-60">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-3 rounded-full bg-orange-500/20 flex items-center justify-center text-[8px] text-orange-400 font-bold">C</div>
+                                            <div>
+                                                <div className="text-[10px] font-bold text-white">Claude 3.5 Sonnet</div>
+                                                <div className="text-[8px] text-neutral-500">Anthropic • Reason</div>
+                                            </div>
+                                        </div>
+                                        <span className="text-[8px] text-neutral-500 font-mono">READY</span>
+                                    </div>
+
+                                    {/* Model 4: Llama 3 (Active) */}
+                                    <div className="relative">
+                                        <motion.div
+                                            className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-green-500/50 via-emerald-500/50 to-green-500/50 opacity-30 blur-sm"
+                                            animate={{ opacity: [0.3, 0.6, 0.3] }}
+                                            transition={{ duration: 3, repeat: Infinity }}
+                                        />
+                                        <div className="p-1.5 rounded-lg bg-[#0a0a0a] border border-green-500/30 flex items-center justify-between relative z-10">
+                                            <div className="flex items-center gap-2">
+                                                <Lock className="w-3 h-3 text-green-400" />
+                                                <div>
+                                                    <div className="text-[10px] font-bold text-white flex items-center gap-1">
+                                                        Llama 3
+                                                        <span className="text-[7px] px-1 bg-green-500/20 text-green-400 rounded border border-green-500/20 uppercase">Local</span>
+                                                    </div>
+                                                    <div className="text-[8px] text-green-400/70">Meta • Private</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                                                    <span className="text-[7px] text-green-400 font-bold">ACTIVE</span>
+                                                </div>
+                                                <span className="text-[7px] text-neutral-500 font-mono">12ms</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
