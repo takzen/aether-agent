@@ -64,10 +64,13 @@ export default function LandingPage() {
 
             {/* --- NAVBAR --- */}
             <nav className="fixed top-0 inset-x-0 z-50 flex justify-between items-center px-8 py-6 mix-blend-difference text-white">
-                <div className="flex items-center gap-2">
+                <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+                >
                     <AetherLogo className="w-8 h-8" />
                     <span className="font-bold tracking-tighter text-xl">AETHER</span>
-                </div>
+                </button>
                 <div className="flex gap-8 items-center">
                     <div className="hidden md:flex items-center gap-2 group cursor-default">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" />

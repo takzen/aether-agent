@@ -20,12 +20,12 @@ export default function Sidebar() {
 
     return (
         <div className="w-64 h-screen bg-[#181818] border-r border-[#303030] flex flex-col p-6 z-20 shrink-0">
-            <div className="flex items-center gap-3 mb-10 pl-2">
+            <Link href="/dashboard" className="flex items-center gap-3 mb-10 pl-2 hover:opacity-80 transition-opacity">
                 <AetherLogo className="w-6 h-6 text-white" />
                 <h1 className="text-lg font-bold tracking-widest text-white">
                     AETHER
                 </h1>
-            </div>
+            </Link>
 
             <nav className="flex-1 space-y-1">
                 {menuItems.map((item) => {
