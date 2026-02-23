@@ -52,12 +52,11 @@ export default function Memories() {
     const graphNodes = useMemo(() => {
         return memories.map((mem, index) => {
             const angle = (index / memories.length) * Math.PI * 2;
-            // Distribute memories in a more "cloud-like" cluster around the Qdrant node
-            const radiusOffset = Math.sin(index * 123.45) * 50; // Deterministic random-looking offset
-            const dist = 180 + radiusOffset;
-            const x = CX + dist * Math.cos(angle) + 200; // Offset towards Qdrant
-            const y = CY + dist * Math.sin(angle);
-            return { ...mem, x, y, delay: index * 0.1 };
+            const radiusOffset = Math.sin(index * 123.45) * 40;
+            const dist = 100 + radiusOffset; // Cluster around Qdrant
+            const x = 650 + dist * Math.cos(angle);
+            const y = 350 + dist * Math.sin(angle);
+            return { ...mem, x, y };
         });
     }, [memories]);
 
@@ -194,10 +193,10 @@ export default function Memories() {
 
                                         {/* Pulse to center */}
                                         <circle r="2" fill="#6b7280">
-                                            <animateMotion dur="4s" repeatCount="indefinite" path="M 28 0 L 210 0" />
+                                            <animateMotion dur="4s" repeatCount="indefinite" path="M 28 0 L 215 0" />
                                         </circle>
 
-                                        <path d="M 28 0 L 210 0" stroke="#4b5563" strokeWidth="1" strokeDasharray="5 5" className="opacity-20" />
+                                        <path d="M 28 0 L 215 0" stroke="#4b5563" strokeWidth="1" strokeDasharray="5 5" className="opacity-20" />
                                         <text x="120" y="-8" textAnchor="middle" fill="#6b7280" fontSize="9" fontFamily="monospace" className="opacity-70">Loads session context</text>
                                     </g>
 
@@ -209,13 +208,13 @@ export default function Memories() {
 
                                         {/* Active Data Pulses to Core */}
                                         <circle r="3" fill="#3b82f6">
-                                            <animateMotion dur="2s" repeatCount="indefinite" path="M -28 0 L -210 0" />
+                                            <animateMotion dur="2s" repeatCount="indefinite" path="M -28 0 L -215 0" />
                                         </circle>
                                         <circle r="2" fill="#3b82f6" opacity="0.6">
-                                            <animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M -28 0 L -210 0" />
+                                            <animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M -28 0 L -215 0" />
                                         </circle>
 
-                                        <path d="M -28 0 L -210 0" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 4" className="opacity-40" />
+                                        <path d="M -28 0 L -215 0" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 4" className="opacity-40" />
                                         <text x="-120" y="-8" textAnchor="middle" fill="#3b82f6" fontSize="9" fontFamily="monospace" className="opacity-70">Semantic recall pulses</text>
                                     </g>
 
@@ -226,22 +225,19 @@ export default function Memories() {
                                         <text x="0" y="-40" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="uppercase">Roadmap Context</text>
 
                                         <circle r="2" fill="#f59e0b">
-                                            <animateMotion dur="5s" repeatCount="indefinite" path="M 0 -28 L 0 -160" />
+                                            <animateMotion dur="5s" repeatCount="indefinite" path="M 0 -28 L 0 -165" />
                                         </circle>
 
-                                        <path d="M 0 -28 L 0 -160" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="3 6" className="opacity-30" />
+                                        <path d="M 0 -28 L 0 -165" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="3 6" className="opacity-30" />
                                         <text x="70" y="-80" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="opacity-50">Sleep-cycle prep</text>
                                     </g>
 
                                     {/* Connections to Vectors (Orbiting Qdrant) */}
                                     {graphNodes.map((node) => {
-                                        const relX = node.x - CX + 650;
-                                        const relY = node.y - CY + 350;
-
                                         return (
                                             <g key={`line-group-${node.id}`}>
                                                 <line
-                                                    x1={650} y1={350} x2={relX} y2={relY}
+                                                    x1={650} y1={350} x2={node.x} y2={node.y}
                                                     stroke={selectedMemory?.id === node.id ? "#60a5fa" : "#3b82f6"}
                                                     strokeWidth={selectedMemory?.id === node.id ? 1.5 : 0.5}
                                                     className="opacity-20 transition-all duration-500"
@@ -250,7 +246,7 @@ export default function Memories() {
                                                     <motion.line
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 0.4 }}
-                                                        x1={relX} y1={relY} x2={400} y2={350}
+                                                        x1={node.x} y1={node.y} x2={400} y2={350}
                                                         stroke="#a855f7"
                                                         strokeWidth="1"
                                                         strokeDasharray="4 4"
@@ -291,26 +287,19 @@ export default function Memories() {
 
                                     {/* Vector Memory Nodes */}
                                     {graphNodes.map((node) => {
-                                        const relX = node.x - CX + 650;
-                                        const relY = node.y - CY + 350;
-
                                         return (
                                             <motion.button
                                                 key={node.id}
                                                 initial={{ scale: 0, opacity: 0 }}
                                                 animate={{
                                                     scale: 1,
-                                                    opacity: 1,
-                                                    x: [0, Math.sin(node.delay) * 5, 0],
-                                                    y: [0, Math.cos(node.delay) * 5, 0]
+                                                    opacity: 1
                                                 }}
                                                 transition={{
-                                                    x: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut" },
-                                                    y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut" },
                                                     scale: { duration: 0.5 }
                                                 }}
                                                 onClick={() => setSelectedMemory(node)}
-                                                style={{ left: relX, top: relY }}
+                                                style={{ left: node.x, top: node.y }}
                                                 className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all ${selectedMemory?.id === node.id ? "bg-blue-500 scale-150 shadow-[0_0_20px_rgba(59,130,246,0.8)] z-20" : "bg-blue-500/20 border border-blue-500/40 hover:border-blue-400 hover:scale-125 z-10"}`}
                                             >
                                                 <div className={`w-1.5 h-1.5 rounded-full ${selectedMemory?.id === node.id ? "bg-white animate-pulse" : "bg-blue-400/60"}`} />
