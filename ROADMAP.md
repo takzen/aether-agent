@@ -26,7 +26,7 @@ Cel: działający agent, który myśli, odpowiada i korzysta z pierwszych narzę
 - [x] **1.2** Konfiguracja **FastAPI** — aplikacja startowa, health-check endpoint `/ping`
 - [x] **1.3** Integracja **PydanticAI** — pierwsza pętla agenta (input → reasoning → output)
 - [x] **1.4** Podpięcie **Gemini 2.0/3.0 Flash** jako głównego modelu logicznego
-- [ ] **1.5** Podpięcie **Ollama / Llama 3** jako lokalnego fallbacku (Prywatność)
+- [x] **1.5** Podpięcie **Ollama / Llama 3** jako lokalnego fallbacku (Prywatność)
 - [x] **1.6** Pierwsza **PydanticAI Tool** — `get_current_time()`
 - [x] **1.7** Tool — `web_search(query)` przez **Tavily**
 - [x] **1.8** Definicja **Structured Outputs** — rygorystyczne schematy odpowiedzi
@@ -99,14 +99,14 @@ Cel: To, co czyni Aethera unikalnym na skalę światową.
 ## 📊 Postęp ogólny
 
 ```
-Faza 1  [██████████░░]   7 / 8
+Faza 1  [████████████]   8 / 8
 Faza 2  [████████████]   8 / 8
 Faza 3  [█████████░░░]   5 / 6
 Faza 4  [████████████]   6 / 6
 Faza 5  [███░░░░░░░░░]   1 / 4
 Faza 6  [███░░░░░░░░░]   1 / 4
 
-TOTAL   [███████████░]   28 / 36 zadań
+TOTAL   [███████████░]   29 / 36 zadań
 ```
 
 ---
