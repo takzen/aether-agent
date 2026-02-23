@@ -102,5 +102,62 @@ class SQLiteService:
                 rows = await cursor.fetchall()
                 return [dict(row) for row in rows]
 
+    # --- GRAPH MEMORY (CONSTELLATIONS) ---
+
+    async def upsert_concept(self, name: str, c_type: str = 'general', description: str = None, metadata: Dict = None) -> str:
+        """Adds or updates a concept node."""
+        concept_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, name.lower()))
+        meta_json = json.dumps(metadata) if metadata else None
+        
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                """INSERT INTO concepts (id, name, type, description, metadata) 
+                   VALUES (?, ?, ?, ?, ?)
+                   ON CONFLICT(name) DO UPDATE SET 
+                     type=excluded.type, 
+                     description=COALESCE(excluded.description, concepts.description),
+                     metadata=COALESCE(excluded.metadata, concepts.metadata)""",
+                (concept_id, name, c_type, description, meta_json)
+            )
+            await db.commit()
+        return concept_id
+
+    async def add_concept_link(self, source_name: str, target_name: str, relation: str, weight: float = 1.0):
+        """Creates a link between two concepts by name."""
+        s_id = await self.upsert_concept(source_name)
+        t_id = await self.upsert_concept(target_name)
+        link_id = str(uuid.uuid4())
+
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                """INSERT INTO concept_links (id, source_id, target_id, relation, weight)
+                   VALUES (?, ?, ?, ?, ?)
+                   ON CONFLICT(source_id, target_id, relation) DO UPDATE SET weight = weight + 0.1""",
+                (link_id, s_id, t_id, relation, weight)
+            )
+            await db.commit()
+
+    async def get_concept_graph(self) -> Dict[str, Any]:
+        """Returns the full graph (nodes and edges)."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            
+            # Nodes
+            async with db.execute("SELECT * FROM concepts") as cursor:
+                nodes = [dict(row) for row in await cursor.fetchall()]
+                for n in nodes:
+                    if n["metadata"]: n["metadata"] = json.loads(n["metadata"])
+
+            # Edges
+            async with db.execute(
+                """SELECT l.*, s.name as source_name, t.name as target_name 
+                   FROM concept_links l
+                   JOIN concepts s ON l.source_id = s.id
+                   JOIN concepts t ON l.target_id = t.id"""
+            ) as cursor:
+                links = [dict(row) for row in await cursor.fetchall()]
+
+            return {"nodes": nodes, "links": links}
+
 # Singleton instance
 sqlite_service = SQLiteService()

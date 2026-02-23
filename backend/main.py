@@ -380,6 +380,15 @@ async def get_system_logs():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.get("/graph")
+async def get_concept_graph():
+    """Returns the concept constellation graph."""
+    try:
+        graph = await sqlite_service.get_concept_graph()
+        return {"status": "success", "graph": graph}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.delete("/sessions/{session_id}")
 async def delete_session_record(session_id: str):
     try:

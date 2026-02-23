@@ -91,7 +91,7 @@ Cel: To, co czyni Aethera unikalnym na skalę światową.
 
 - [ ] **6.1** **Active World Model** — agent przeprowadza symulacje w tle (Self-Reflection)
 - [ ] **6.2** **Digital Circadian Rhythm** — zmiana trybu pracy (Strateg/Philosopher) zależnie od pory dnia
-- [ ] **6.3** **Concept Constellations** — pamięć grafowa zamiast prostych wektorów
+- [x] **6.3** **Concept Constellations** — pamięć grafowa zamiast prostych wektorów
 - [ ] **6.4** **Sleep Cycle** — nocna konsolidacja i optymalizacja bazy wiedzy
 
 ---
@@ -104,9 +104,9 @@ Faza 2  [████████████]   8 / 8
 Faza 3  [█████████░░░]   5 / 6
 Faza 4  [████████████]   6 / 6
 Faza 5  [███░░░░░░░░░]   1 / 4
-Faza 6  [░░░░░░░░░░░░]   0 / 4
+Faza 6  [███░░░░░░░░░]   1 / 4
 
-TOTAL   [██████████░░]   27 / 36 zadań
+TOTAL   [███████████░]   28 / 36 zadań
 ```
 
 ---

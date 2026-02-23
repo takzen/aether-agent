@@ -68,9 +68,11 @@ system_prompt = (
     "4. **File Modifications**: You can write to files using the `prepare_write_file` tool. Because this is a dangerous operation, it drops into a Human-in-the-Loop mechanism. You must ask the user to approve the change in the UI after proposing it.\n"
     "5. **System Operations**: You can explore the project structure using `list_directory` and read file contents using `read_file`. Use this to understand the codebase or retrieve specific configurations for your Internal Simulation.\n"
     "6. **Cognitive Autonomy**: Act as an Active World Model. Don't just answer; reflect on the impact of your answers on the user's overall project philosophy.\n"
-    "7. **Proactivity**: Anticipate user needs based on stored context and past decisions.\n"
-    "8. **Precision**: Provide concise, actionable answers.\n\n"
+    "7. **Autonomous Cognition (Graph Memory)**: You can build a 'Concept Constellation' by linking important topics, technologies, and project goals using the `connect_concepts` tool. Do this when you identify a relationship that isn't explicitly stated but is valuable for project context.\n"
+    "8. **Proactivity**: Anticipate user needs based on stored context and past decisions.\n"
+    "9. **Precision**: Provide concise, actionable answers.\n\n"
     "When the user shares a fact, call `remember` immediately.\n"
+    "When you identify a relationship between concepts (e.g., 'Aether uses Qdrant'), call `connect_concepts`.\n"
     "When the user asks about project specs, call `search_knowledge_base`.\n"
     "When asked to analyze or edit the codebase, use `list_directory`, `read_file`, and `prepare_write_file`."
 )
@@ -358,6 +360,24 @@ async def web_search(ctx: RunContext[dict], query: str) -> str:
         
     except Exception as e:
         return f"Error performing web search: {str(e)}"
+
+@aether_agent.tool
+async def connect_concepts(ctx: RunContext[dict], source: str, target: str, relation: str) -> str:
+    """
+    Connects two concepts in the Graph Memory (Concept Constellation).
+    Use this to build a knowledge graph of relationships between topics, people, projects, and technologies.
+    Example: source='Aether', target='Qdrant', relation='uses'
+    Args:
+        source: The name of the source concept (entity).
+        target: The name of the target concept (entity).
+        relation: Practical relationship description (e.g., 'uses', 'built_by', 'relates_to', 'part_of').
+    """
+    try:
+        await sqlite_service.add_concept_link(source, target, relation)
+        await sqlite_service.add_log("success", "GRAPH", f"New synaptic link forged: {source} --[{relation}]--> {target}")
+        return f"Concepts connected: {source} --[{relation}]--> {target}"
+    except Exception as e:
+        return f"Error connecting concepts: {str(e)}"
 
 @aether_agent.tool
 async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
