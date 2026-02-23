@@ -10,29 +10,49 @@ from memory import memory_manager
 from tavily import TavilyClient
 import uuid
 
+from local_db import sqlite_service
+
 # In-memory store for pending actions (HITL)
 pending_actions = {}
 
 # Initialize Services
 db_service = DatabaseService()
+tavily_api_key = os.getenv("TAVILY_API_KEY")
+tavily_client = TavilyClient(api_key=tavily_api_key) if tavily_api_key else None
 
-# Gemini Configuration
-GEMINI_MODEL_NAME = "gemini-3-flash-preview" # Or flash-preview if available
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# Model Configuration (SOTA 2026)
+AVAILABLE_MODELS = {
+    "gemini-3.1-pro-preview": "gemini-3.1-pro-preview-02-19", # Launched Feb 19, 2026
+    "gemini-3-pro": "gemini-3-pro-1125",
+    "gemini-3-flash": "gemini-3-flash-1225",
+    "gemini-2.5-pro": "gemini-2.5-pro-0625",
+    "ollama-llama3": "ollama:llama3.2",
+    "ollama-mistral": "ollama:mistral"
+}
 
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY missing in .env")
+def get_current_model_name():
+    return os.getenv("MODEL_OVERRIDE", "gemini-3-flash")
 
-# Tavily Configuration
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
-tavily_client = None
-if TAVILY_API_KEY:
-    tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
-else:
-    print("WARNING: TAVILY_API_KEY missing in .env. Web search will be disabled.")
+def is_ollama_model(model_name: str) -> bool:
+    """Check if the model is an Ollama model (doesn't support structured output)."""
+    return model_name.startswith("ollama:")
 
-# pydantic-ai automatically reads GEMINI_API_KEY or GOOGLE_API_KEY from env
-model = GeminiModel(GEMINI_MODEL_NAME)
+def create_model_instance(model_name: str):
+    if model_name.startswith("ollama:"):
+        from pydantic_ai.models.openai import OpenAIChatModel
+        from pydantic_ai.providers.ollama import OllamaProvider
+        base_name = model_name.replace("ollama:", "")
+        return OpenAIChatModel(
+            model_name=base_name,
+            provider=OllamaProvider(base_url='http://localhost:11434/v1'),
+        )
+    else:
+        # Default to Gemini if not ollama
+        return GeminiModel(model_name)
+
+# Initial model setup
+current_model_id = get_current_model_name()
+model = create_model_instance(current_model_id)
 
 # Define Agent with Memory Capabilities
 system_prompt = (
@@ -64,31 +84,55 @@ aether_agent = Agent(
     system_prompt=system_prompt,
     retries=3,
     deps_type=dict,
-    output_type=AetherResponse
+    # NOTE: We use `str` output type for universal compatibility (Ollama + Gemini).
+    # Structured AetherResponse is constructed manually in main.py's /chat endpoint.
+    output_type=str
 )
 
 @aether_agent.system_prompt
 async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
     """
-    Context Injection (2.5): Automatically retrieves memories relevant to the user's
-    current message and appends them to the system prompt.
+    Hybrid Context Injection (3.0): Automatically retrieves insights from:
+    1. Long-term Memories (Conversations)
+    2. The Library (Indexed Documents/Knowledge Base)
     """
     user_msg = ctx.deps.get("user_message", "") if ctx.deps else ""
     if not user_msg:
         return ""
     
     try:
-        memories = await memory_manager.search_relevant_memories(db_service, user_msg, limit=3, similarity_threshold=0.6)
-        if not memories:
+        # 1. Search semantic memories
+        memories = await memory_manager.search_relevant_memories(db_service, user_msg, limit=3, similarity_threshold=0.55)
+        
+        # 2. Search knowledge base documents
+        embedding = await memory_manager.get_embedding(user_msg)
+        docs = []
+        if embedding:
+            docs = await asyncio.to_thread(
+                db_service.search_documents,
+                query_embedding=embedding,
+                match_threshold=0.5,
+                match_count=3
+            )
+        
+        if not memories and not docs:
             return ""
         
-        injected_text = "\n\n--- INJECTED CONTEXT FROM LONG-TERM MEMORY (DO NOT IGNORE) ---\n"
-        for i, mem in enumerate(memories):
-            content = mem.get("content", "")
-            if content:
-                injected_text += f"- {content}\n"
-        injected_text += "--- END CONTEXT ---\n"
-        injected_text += "Please use the above context to answer the user proactively, without needing to call 'recall' separately."
+        injected_text = "\n\n--- INJECTED NEURAL CONTEXT (SYSTEM AUTO-RECALL) ---\n"
+        
+        if memories:
+            injected_text += "\n[FROM MEMORY CORE]:\n"
+            for mem in memories:
+                injected_text += f"- {mem.get('content', '')}\n"
+                
+        if docs:
+            injected_text += "\n[FROM KNOWLEDGE BASE / THE LIBRARY]:\n"
+            for d in docs:
+                src = d.get('metadata', {}).get('source', 'Unknown')
+                injected_text += f"- (Source: {src}): {d.get('content', '')[:500]}...\n"
+
+        injected_text += "\n--- END CONTEXT ---\n"
+        injected_text += "Use this data to ground your response. If info is missing, use your tools."
         return injected_text
     except Exception as e:
         print(f"[Agent] Failed to inject dynamic context: {e}")
@@ -128,6 +172,7 @@ async def list_directory(ctx: RunContext[dict], path: str = ".") -> str:
     """
     try:
         print(f"[Agent] Listing directory: '{path}'")
+        await sqlite_service.add_log("info", "CORE", f"Exploring directory structure: {path}")
         target_path = validate_path(path)
         
         if not target_path.exists():
@@ -163,6 +208,7 @@ async def read_file(ctx: RunContext[dict], path: str) -> str:
     """
     try:
         print(f"[Agent] Reading file: '{path}'")
+        await sqlite_service.add_log("info", "CORE", f"Reading project file: {path}")
         target_path = validate_path(path)
         
         if not target_path.exists():
@@ -196,6 +242,7 @@ async def prepare_write_file(ctx: RunContext[dict], path: str, content: str) -> 
     """
     try:
         print(f"[Agent] Preparing to write file: '{path}' (Requires Approval)")
+        await sqlite_service.add_log("warning", "CORE", f"Action proposed: Write to {path} (Awaiting HITL Approval)")
         target_path = validate_path(path)
         
         action_id = str(uuid.uuid4())
@@ -231,6 +278,7 @@ async def remember(ctx: RunContext[dict], content: str, category: str = "general
     """
     try:
         # Use MemoryManager to handle embedding generation + storage
+        await sqlite_service.add_log("success", "MEM", f"Knowledge assimilation: Stored new memory in category '{category}'")
         result = await memory_manager.add_memory(
             db_service=db_service,
             content=content,
@@ -253,6 +301,7 @@ async def recall(ctx: RunContext[dict], query: str) -> str:
     """
     try:
         # Use MemoryManager to handle query embedding + search
+        await sqlite_service.add_log("info", "MEM", f"Neural recall initiated for query: '{query}'")
         results = await memory_manager.search_relevant_memories(
             db_service=db_service,
             query=query,
@@ -288,6 +337,7 @@ async def web_search(ctx: RunContext[dict], query: str) -> str:
         # Perform search (Tavily's search is synchronous, so run in thread if needed for high load, 
         # but for single agent calls it's usually fast enough. Let's wrap in thread to be safe async citizen)
         print(f"[Agent] Searching web for: '{query}'")
+        await sqlite_service.add_log("info", "WEB", f"External uplink established. Searching: '{query}'")
         response = await asyncio.to_thread(
             tavily_client.search,
             query=query,
@@ -319,6 +369,7 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
     """
     try:
         print(f"[Agent] Searching knowledge base for: '{query}'")
+        await sqlite_service.add_log("info", "MEM", f"Knowledge base deep search: '{query}'")
         query_embedding = await memory_manager.get_embedding(query)
         if not query_embedding:
             return "Failed to generate query embedding."

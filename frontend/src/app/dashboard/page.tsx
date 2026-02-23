@@ -1,7 +1,6 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import ThoughtStream from "@/components/ThoughtStream";
 import { Zap, Shield, Cpu, Clock, Activity, MessageSquare, Send, Brain, Database, Globe } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -40,7 +39,9 @@ export default function Home() {
     }
   ]);
 
-  const [stats, setStats] = useState({ memories: 0, documents: 0 });
+  const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
+  const [activities, setActivities] = useState<any[]>([]);
+  const [modelName, setModelName] = useState("Loading...");
 
   useEffect(() => {
     // Fetch stats
@@ -50,32 +51,68 @@ export default function Home() {
         if (data.status === "success") {
           setStats({
             memories: data.stats.memories_count,
-            documents: data.stats.documents_count
+            documents: data.stats.documents_count,
+            reliability: data.stats.reliability || 100,
+            sessions: data.stats.sessions_count || 0
           });
         }
       })
-      .catch(err => console.error("Failed to fetch stats:", err));
+      .catch(err => console.error("Stats error:", err));
+
+    const fetchConfig = () => {
+      fetch("http://localhost:8000/config")
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            const raw = data.config.MODEL_OVERRIDE || "gemini-3.1-pro";
+            const formatted = raw
+              .replace("ollama:", "")
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (c: string) => c.toUpperCase());
+            setModelName(formatted);
+          }
+        })
+        .catch(() => setModelName("Aether Core"));
+    };
+
+    fetchConfig();
+    window.addEventListener("configUpdated", fetchConfig);
+
+    // Fetch recent activity
+    fetch("http://localhost:8000/recent_activity")
+      .then(res => res.json())
+      .then(data => {
+        setActivities(data.activities);
+      })
+      .catch(err => console.error("Activity error:", err));
+
+    return () => window.removeEventListener("configUpdated", fetchConfig);
   }, []);
 
   const handleSend = async () => {
-    if (!input.trim() || isProcessing) return;
+    if (!input.trim()) return;
 
-    const userMsg: DashboardMessage = { id: Date.now().toString(), role: "user", content: input };
+    const userMsg: DashboardMessage = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input,
+    };
+
     setMessages(prev => [...prev, userMsg]);
+    const currentInput = input;
     setInput("");
     setIsProcessing(true);
 
     try {
-      const res = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMsg.content }),
+        body: JSON.stringify({ message: currentInput }),
       });
-      const data = await res.json();
+
+      const data = await response.json();
 
       if (data.status === "success") {
-        // Simple heuristic to extract "sources" or "extra" from text if formatted in a specific way
-        // For now, we just dump the text. PydanticAI structured output needed for better UI mapping.
         const aiMsg: DashboardMessage = {
           id: (Date.now() + 1).toString(),
           role: "assistant",
@@ -84,7 +121,7 @@ export default function Home() {
         setMessages(prev => [...prev, aiMsg]);
       } else {
         const errorMsg: DashboardMessage = {
-          id: Date.now().toString(),
+          id: (Date.now() + 1).toString(),
           role: "assistant",
           content: `Error: ${data.message}`,
         };
@@ -127,10 +164,12 @@ export default function Home() {
               <span className="text-neutral-700">•</span>
               <span><Database className="w-3 h-3 inline mr-1 text-blue-400/60" />Docs: {stats.documents}</span>
               <span className="text-neutral-700">•</span>
-              <span><Activity className="w-3 h-3 inline mr-1 text-purple-400/60" />99.9%</span>
+              <span><MessageSquare className="w-3 h-3 inline mr-1 text-cyan-400/60" />Sessions: {stats.sessions}</span>
+              <span className="text-neutral-700">•</span>
+              <span><Activity className="w-3 h-3 inline mr-1 text-purple-400/60" />{stats.reliability}%</span>
             </div>
             <span className="text-neutral-700">|</span>
-            <span className="text-[11px] font-mono text-neutral-500">Gemini 3.1 Pro</span>
+            <span className="text-[11px] font-mono text-neutral-500">{modelName}</span>
           </motion.div>
 
 
@@ -273,29 +312,30 @@ export default function Home() {
                 </Link>
               </div>
               <div className="flex-1 overflow-y-auto divide-y divide-white/5">
-                {[
-                  { icon: Brain, text: "Memory stored: 'Project architecture notes'", time: "2m ago", color: "text-purple-400" },
-                  { icon: Database, text: "Knowledge base indexed 3 documents", time: "15m ago", color: "text-blue-400" },
-                  { icon: Clock, text: "Daily briefing generated", time: "1h ago", color: "text-green-400" },
-                  { icon: MessageSquare, text: "Chat session completed (12 turns)", time: "2h ago", color: "text-cyan-400" },
-                  { icon: Zap, text: "Tool executed: web_search('AI news')", time: "3h ago", color: "text-yellow-400" },
-                  { icon: Shield, text: "Security audit passed", time: "5h ago", color: "text-green-400" },
-                  { icon: Globe, text: "Webhook delivered to Telegram", time: "6h ago", color: "text-blue-400" },
-                ].map((activity, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + i * 0.05 }}
-                    className="px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-default"
-                  >
-                    <activity.icon className={`w-3.5 h-3.5 ${activity.color} shrink-0 mt-0.5`} />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs text-neutral-300 leading-relaxed block truncate">{activity.text}</span>
-                      <span className="text-[10px] text-neutral-600 font-mono">{activity.time}</span>
-                    </div>
-                  </motion.div>
-                ))}
+                {activities.map((activity, i) => {
+                  let Icon = Activity;
+                  if (activity.icon === "Brain") Icon = Brain;
+                  if (activity.icon === "MessageSquare") Icon = MessageSquare;
+
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + i * 0.05 }}
+                      className="px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-default"
+                    >
+                      <Icon className={`w-3.5 h-3.5 ${activity.color} shrink-0 mt-0.5`} />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs text-neutral-300 leading-relaxed block truncate">{activity.text}</span>
+                        <span className="text-[10px] text-neutral-600 font-mono">{activity.time}</span>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+                {activities.length === 0 && (
+                  <div className="px-5 py-8 text-center text-xs text-neutral-500 italic">No recent activity detected.</div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -315,7 +355,6 @@ export default function Home() {
 
         </div>
 
-        <ThoughtStream />
       </main>
     </div>
   );

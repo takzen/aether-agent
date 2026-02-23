@@ -85,5 +85,22 @@ class SQLiteService:
             await db.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
             await db.commit()
 
+    async def add_log(self, type: str, source: str, message: str):
+        """Record a system operation log."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                "INSERT INTO system_logs (type, source, message) VALUES (?, ?, ?)",
+                (type, source, message)
+            )
+            await db.commit()
+
+    async def get_logs(self, limit: int = 100) -> List[Dict[str, Any]]:
+        """Retrieve recent system logs."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM system_logs ORDER BY timestamp DESC LIMIT ?", (limit,)) as cursor:
+                rows = await cursor.fetchall()
+                return [dict(row) for row in rows]
+
 # Singleton instance
 sqlite_service = SQLiteService()

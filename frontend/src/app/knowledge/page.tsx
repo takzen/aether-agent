@@ -1,28 +1,21 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import ThoughtStream from "@/components/ThoughtStream";
-import { Search, FileText, Upload, Filter, ExternalLink, Globe, Code, Loader2, Trash } from "lucide-react";
+import { Search, FileText, Upload, Filter, ExternalLink, Globe, Code, Loader2, Trash, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import NotificationModal from "@/components/modals/NotificationModal";
 
-const initialItems = [
-    { id: 1, type: "doc", title: "Project Aether Specs.pdf", added: "2 hours ago", size: "2.4 MB", icon: FileText },
-    { id: 2, type: "web", title: "Supabase Vector Documentation", added: "Yesterday", url: "supabase.com/docs", icon: Globe },
-    { id: 3, type: "code", title: "backend/agent.py", added: "3 days ago", lines: 450, icon: Code },
-    { id: 4, type: "doc", title: "Meeting Notes - Q1 Roadmap", added: "1 week ago", size: "15 KB", icon: FileText },
-    { id: 5, type: "web", title: "Gemini API Reference", added: "2 weeks ago", url: "ai.google.dev", icon: Globe },
-];
-
 export default function KnowledgeBase() {
-    const [items, setItems] = useState(initialItems);
+    const [items, setItems] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [isUploading, setIsUploading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Modal States
-    const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: number | null; filename: string | null }>({
+    const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; id: string | number | null; filename: string | null }>({
         isOpen: false,
         id: null,
         filename: null
@@ -34,8 +27,14 @@ export default function KnowledgeBase() {
         type: "success"
     });
 
+    // Filtered items based on search query
+    const filteredItems = items.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     // Fetch documents on mount
     const fetchDocuments = async () => {
+        setIsLoading(true);
         try {
             const res = await fetch("http://localhost:8000/knowledge");
             const data = await res.json();
@@ -43,18 +42,20 @@ export default function KnowledgeBase() {
                 // Map DB documents to UI format
                 const dbItems = data.documents.map((doc: any, index: number) => ({
                     id: `db-${index}-${doc.filename}`,
-                    type: doc.filename.endsWith('.code') ? 'code' : 'doc',
+                    type: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? 'code' : 'doc',
                     title: doc.filename,
-                    added: doc.metadata?.timestamp ? new Date(doc.metadata.timestamp).toLocaleDateString() : "Database",
-                    size: doc.metadata?.size || "Unknown",
-                    icon: doc.filename.endsWith('.code') ? Code : FileText
+                    added: doc.status === 'indexed' ? 'READY' : 'ON_DISK',
+                    size: doc.size || "Unknown",
+                    icon: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? Code : FileText,
+                    lines: doc.metadata?.total_chunks || 0
                 }));
 
-                // Merge with initial placeholders if they are unique
-                setItems([...dbItems, ...initialItems.filter(init => !dbItems.some((db: any) => db.title === init.title))]);
+                setItems(dbItems);
             }
         } catch (err) {
             console.error("Failed to fetch documents:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -154,6 +155,37 @@ export default function KnowledgeBase() {
         }
     };
 
+    const handleIndex = async (e: React.MouseEvent, filename: string) => {
+        e.stopPropagation();
+        setIsLoading(true);
+        try {
+            const res = await fetch(`http://localhost:8000/knowledge/index/${filename}`, {
+                method: "POST",
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                await fetchDocuments();
+                setNotification({
+                    isOpen: true,
+                    title: "INDEXING_COMPLETE",
+                    message: `"${filename}" is now synchronized with Aether's neural core.`,
+                    type: "success"
+                });
+            } else {
+                setNotification({
+                    isOpen: true,
+                    title: "INDEXING_FAILED",
+                    message: data.message,
+                    type: "error"
+                });
+            }
+        } catch (err) {
+            console.error("Indexing error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
@@ -204,6 +236,8 @@ export default function KnowledgeBase() {
                         <span className="text-[#858585] font-mono text-[10px] font-bold shrink-0">QUERY_CORE:</span>
                         <input
                             type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                             className="bg-transparent w-full text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
                             placeholder="Explore documents, code, or neural nodes..."
                         />
@@ -212,7 +246,15 @@ export default function KnowledgeBase() {
 
                     {/* Content Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {items.map((item, i) => (
+                        {isLoading ? (
+                            <div className="col-span-full py-20 text-center text-neutral-500 font-mono text-xs animate-pulse">
+                                SYNCHRONizing_KNOWLEDGE_CORE...
+                            </div>
+                        ) : filteredItems.length === 0 ? (
+                            <div className="col-span-full py-20 text-center text-neutral-500 font-mono text-xs">
+                                {searchQuery ? "NO_MATCHES_FOUND" : "KNOWLEDGE_CORE_EMPTY"}
+                            </div>
+                        ) : filteredItems.map((item, i) => (
                             <motion.div
                                 key={item.id}
                                 initial={{ opacity: 0, y: 10 }}
@@ -242,28 +284,36 @@ export default function KnowledgeBase() {
                                             {item.title}
                                         </h3>
                                         <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
-                                            <span className="text-purple-400/60">{item.type.toUpperCase()}</span>
+                                            <span className={`px-2 py-0.5 rounded ${item.added === 'READY' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                                                {item.added}
+                                            </span>
                                             <span className="text-neutral-700">•</span>
-                                            <span>{item.added.toUpperCase()}</span>
+                                            <span>{item.type.toUpperCase()}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {item.type === 'web' && (
-                                    <div className="text-[10px] text-blue-400/60 truncate font-mono bg-blue-500/5 px-2 py-1 rounded inline-block mt-2">
-                                        {item.url}
-                                    </div>
-                                )}
-                                {item.type === 'doc' && (
-                                    <div className="text-[10px] text-neutral-500 font-mono bg-white/5 px-2 py-1 rounded inline-block mt-2">
-                                        SIZE: {item.size}
-                                    </div>
-                                )}
-                                {item.type === 'code' && (
-                                    <div className="text-[10px] text-green-400/60 font-mono bg-green-500/5 px-2 py-1 rounded inline-block mt-2">
-                                        LINES: {item.lines}
-                                    </div>
-                                )}
+                                <div className="flex items-center justify-between mt-2">
+                                    {item.type === 'doc' && (
+                                        <div className="text-[10px] text-neutral-500 font-mono bg-white/5 px-2 py-1 rounded inline-block">
+                                            SIZE: {item.size}
+                                        </div>
+                                    )}
+                                    {item.type === 'code' && (
+                                        <div className="text-[10px] text-green-400/60 font-mono bg-green-500/5 px-2 py-1 rounded inline-block">
+                                            CHUNKS: {item.lines}
+                                        </div>
+                                    )}
+
+                                    {item.added === 'ON_DISK' && (
+                                        <button
+                                            onClick={(e) => handleIndex(e, item.title)}
+                                            className="text-[10px] font-bold font-mono text-purple-400 hover:text-white bg-purple-500/10 hover:bg-purple-500 px-3 py-1 rounded transition-all flex items-center gap-2 border border-purple-500/30"
+                                        >
+                                            <Zap className="w-3 h-3" /> INDEX_NOW
+                                        </button>
+                                    )}
+                                </div>
 
                                 {/* Card Status Strip */}
                                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -302,7 +352,6 @@ export default function KnowledgeBase() {
                 </div>
 
             </main>
-            <ThoughtStream />
 
             {/* Modals */}
             <ConfirmationModal

@@ -1,39 +1,75 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import ThoughtStream from "@/components/ThoughtStream";
-import { Terminal, AlertCircle, CheckCircle, Info, Hash, Clock, Cpu, Shield, Zap, Search, ChevronRight } from "lucide-react";
+import { Terminal, AlertCircle, CheckCircle2, Info, Hash, Clock, Cpu, Shield, Zap, Search, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const mockLogs = [
-    { id: 1, type: "info", timestamp: "14:20:05.120", message: "Kernel initialization sequence complete. All core modules at standard operating parameters.", source: "KERNEL" },
-    { id: 2, type: "info", timestamp: "14:20:05.340", message: "Establishing handshake with distributed vector cluster...", source: "NET_INFRA" },
-    { id: 3, type: "success", timestamp: "14:20:05.890", message: "Synchronous link established (Pool: 0x5F3759DF). Latency: 12ms.", source: "NET_INFRA" },
-    { id: 4, type: "info", timestamp: "14:20:06.010", message: "Loading neural weights into primary cache layer...", source: "MEM_BANK" },
-    { id: 5, type: "warning", timestamp: "14:20:06.450", message: "Non-critical fragmentation detected in embedding index. Auto-reorg scheduled.", source: "MEM_BANK" },
-    { id: 6, type: "info", timestamp: "14:20:08.110", message: "Security protocol 'AETHER_SEC_V4' engaged. Unauthorized access blocked.", source: "SEC_CORE" },
-    { id: 7, type: "error", timestamp: "14:22:15.300", message: "Outbound API request failed: Google Cloud quota reached. Falling back to local model.", source: "LLM_ADAPTER" },
-    { id: 8, type: "info", timestamp: "14:22:16.000", message: "Transitioning to 'AETHER_LOCAL_LLAMA3' strategy...", source: "ORCHESTRATOR" },
-    { id: 9, type: "success", timestamp: "14:22:16.250", message: "Local fallback successful. Processing queue resuming at priority 0.", source: "ORCHESTRATOR" },
-    { id: 10, type: "info", timestamp: "14:22:20.105", message: "User query intercepted: 'System Status'. Generating tactical report.", source: "INTENT_ENGINE" },
-];
+interface Log {
+    id: number;
+    type: string;
+    source: string;
+    message: string;
+    timestamp: string;
+}
 
 export default function AgentLogs() {
     const [currentTime, setCurrentTime] = useState("");
+    const [logs, setLogs] = useState<Log[]>([]);
+    const [filter, setFilter] = useState("");
+    const [activeTab, setActiveTab] = useState("ALL");
+
+    const fetchLogs = async () => {
+        try {
+            const res = await fetch("http://localhost:8000/logs");
+            const data = await res.json();
+            if (data.status === "success") {
+                setLogs(data.logs);
+            }
+        } catch (err) {
+            console.error("Error fetching logs:", err);
+        }
+    };
 
     useEffect(() => {
+        fetchLogs();
+        const logsInterval = setInterval(fetchLogs, 3000); // Poll every 3 seconds
+
         const timer = setInterval(() => {
             setCurrentTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
         }, 1000);
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+            clearInterval(logsInterval);
+        };
     }, []);
+
+    const filteredLogs = logs.filter(log => {
+        const matchesSearch = log.message.toLowerCase().includes(filter.toLowerCase()) ||
+            log.source.toLowerCase().includes(filter.toLowerCase());
+        const matchesTab = activeTab === "ALL" || log.source === activeTab;
+        return matchesSearch && matchesTab;
+    });
+
+    const formatTime = (ts: string) => {
+        if (!ts) return "--:--:--";
+        try {
+            // SQLite timestamp is usually YYYY-MM-DD HH:MM:SS
+            const date = new Date(ts.replace(" ", "T"));
+            if (isNaN(date.getTime())) return ts;
+            return date.toLocaleTimeString('en-GB', { hour12: false }) + "." + String(date.getMilliseconds()).padStart(3, '0');
+        } catch {
+            return ts;
+        }
+    };
+
+
 
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] font-mono text-neutral-400 select-none">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] select-none">
 
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
@@ -60,7 +96,7 @@ export default function AgentLogs() {
                                 <AlertCircle className="w-3 h-3" /> 1_WARN
                             </div>
                             <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-green-500/10 bg-green-500/5 text-green-500 text-[10px]">
-                                <CheckCircle className="w-3 h-3" /> SYSTEM_OK
+                                <CheckCircle2 className="w-3 h-3" /> SYSTEM_OK
                             </div>
                         </div>
                         <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-6 flex items-center gap-2">
@@ -83,14 +119,19 @@ export default function AgentLogs() {
                                 <input
                                     type="text"
                                     placeholder="Filter logs..."
+                                    value={filter}
+                                    onChange={(e) => setFilter(e.target.value)}
                                     className="bg-transparent border-none text-[10px] text-[#cccccc] focus:ring-0 w-32 placeholder:text-[#858585] focus:outline-none"
                                 />
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="text-[9px] text-neutral-600 uppercase">Sources:</span>
                                 <div className="flex gap-1">
-                                    {['ALL', 'CORE', 'MEM', 'NET'].map(tag => (
-                                        <button key={tag} className={`text-[9px] px-1.5 py-0.5 rounded ${tag === 'ALL' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-neutral-600 hover:text-neutral-400 transition-colors'}`}>
+                                    {['ALL', 'CORE', 'MEM', 'NET', 'WEB'].map(tag => (
+                                        <button
+                                            key={tag}
+                                            onClick={() => setActiveTab(tag)}
+                                            className={`text-[9px] px-1.5 py-0.5 rounded transition-all ${activeTab === tag ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-neutral-600 hover:text-neutral-400'}`}>
                                             {tag}
                                         </button>
                                     ))}
@@ -102,15 +143,15 @@ export default function AgentLogs() {
 
                     {/* Logs Container */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-1 font-mono text-[11px] relative scrollbar-none">
-                        {mockLogs.map((log) => (
+                        {filteredLogs.map((log, idx) => (
                             <motion.div
                                 key={log.id}
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: log.id * 0.05 }}
+                                transition={{ delay: Math.min(idx * 0.05, 0.5) }}
                                 className="group flex gap-4 py-1 border-l border-white/5 pl-4 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all cursor-crosshair"
                             >
-                                <span className="text-neutral-600 w-24 shrink-0 select-none">{log.timestamp}</span>
+                                <span className="text-neutral-600 w-24 shrink-0 select-none">{formatTime(log.timestamp)}</span>
                                 <span className={`w-20 shrink-0 font-bold ${log.type === 'info' ? 'text-blue-500/70' :
                                     log.type === 'success' ? 'text-green-500/70' :
                                         log.type === 'warning' ? 'text-yellow-500/70' : 'text-red-500/70'
@@ -164,7 +205,6 @@ export default function AgentLogs() {
                 </div>
 
             </main>
-            <ThoughtStream steps={[]} />
         </div>
     );
 }

@@ -1,26 +1,69 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import ThoughtStream from "@/components/ThoughtStream";
-import { User, Lock, Bell, Moon, Database, LogOut, ChevronRight, Shield, Cpu, Zap, Clock, Save, Settings2 } from "lucide-react";
+import { User, Lock, Bell, Moon, Database, LogOut, ChevronRight, Shield, Cpu, Zap, Clock, Save, Settings2, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 export default function Settings() {
     const [currentTime, setCurrentTime] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+    const [config, setConfig] = useState({
+        GEMINI_API_KEY: "",
+        TAVILY_API_KEY: "",
+        QDRANT_URL: "",
+        QDRANT_API_KEY: "",
+        MODEL_OVERRIDE: ""
+    });
 
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date().toLocaleTimeString('en-GB', { hour12: false }));
         }, 1000);
+
+        // Fetch current config from backend
+        fetch("http://localhost:8000/config")
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    setConfig(data.config);
+                }
+            })
+            .catch(err => console.error("Error fetching config:", err));
+
         return () => clearInterval(timer);
     }, []);
+
+
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const res = await fetch("http://localhost:8000/config", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(config)
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                window.dispatchEvent(new Event("configUpdated"));
+                alert("Configuration saved successfully! Environment reloaded.");
+            } else {
+                alert("Error saving: " + data.message);
+            }
+        } catch (err) {
+            console.error("Save error:", err);
+            alert("Failed to connect to backend.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] font-mono text-neutral-400 select-none">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] select-none">
 
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
@@ -29,9 +72,9 @@ export default function Settings() {
                         <div>
                             <h1 className="text-sm font-bold tracking-wider text-white uppercase">Neural System Configuration</h1>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.CONFIG_V4</span>
+                                <span>SYSTEM.CONFIG_V1</span>
                                 <span className="text-neutral-700">|</span>
-                                <span>LAST_MODIFIED: 15.02.2026</span>
+                                <span>LAST_MODIFIED: {new Date().toLocaleDateString()}</span>
                                 <span className="text-neutral-700">|</span>
                                 <span className="text-green-500/80">ENCRYPTION: AES-256</span>
                             </div>
@@ -39,8 +82,11 @@ export default function Settings() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 rounded hover:bg-purple-500/20 text-[10px] text-purple-400 transition-all uppercase tracking-widest font-bold">
-                            <Save className="w-3.5 h-3.5" /> Commit_Changes
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className={`flex items-center gap-2 px-3 py-1.5 border rounded text-[10px] transition-all uppercase tracking-widest font-bold ${isSaving ? 'bg-neutral-800 border-neutral-700 text-neutral-600' : 'bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20 text-purple-400'}`}>
+                            <Save className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} /> {isSaving ? 'Committing...' : 'Commit_Changes'}
                         </button>
                     </div>
                 </div>
@@ -48,34 +94,44 @@ export default function Settings() {
                 {/* Main Content Area — VSCode Style */}
                 <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
-                    {/* Tactical Elements (Removed) */}
-
-
                     <div className="flex-1 overflow-y-auto p-10 space-y-12 relative z-10 scrollbar-none max-w-5xl mx-auto w-full">
 
-                        {/* Section: Operator Profile */}
+                        {/* Section: Operational Secrets */}
                         <section className="space-y-6">
                             <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
-                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Operator_ID</h2>
-                                <span className="text-[9px] text-neutral-700">UUID: 8F2D-4B1A-9C3E-7L0P</span>
+                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">API_Configuration</h2>
+
                             </div>
 
-                            <div className="flex items-center gap-8 bg-[#252526] border border-[#303030] p-8 rounded-2xl backdrop-blur-md">
-                                <div className="relative group">
-                                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-purple-600/20 to-blue-600/20 border border-white/10 flex items-center justify-center p-1">
-                                        <div className="w-full h-full bg-[#1e1e1e] rounded-xl flex items-center justify-center text-3xl font-bold text-white font-sans group-hover:scale-95 transition-transform duration-500 shadow-2xl">TK</div>
-                                    </div>
-                                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center border border-black group-hover:rotate-12 transition-transform cursor-pointer">
-                                        <Settings2 className="w-4 h-4 text-white" />
-                                    </div>
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-2 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
+                                    <label className="text-xs font-bold text-white tracking-wider flex items-center gap-2">
+                                        <Database className="w-4 h-4 text-purple-400" />
+                                        GEMINI_API_KEY
+                                    </label>
+                                    <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for primary cognitive reasoning using Google's Gemini models.</p>
+                                    <input
+                                        type="password"
+                                        value={config.GEMINI_API_KEY}
+                                        onChange={(e) => setConfig({ ...config, GEMINI_API_KEY: e.target.value })}
+                                        placeholder="AIzaSy..."
+                                        className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-purple-500/50 transition-colors"
+                                    />
                                 </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-2xl font-bold text-white tracking-tight">Takzen <span className="text-purple-500 text-xs ml-2 opacity-50 px-2 py-0.5 border border-purple-500/20 rounded">PRO_MEMBER</span></h3>
-                                    <p className="text-sm text-neutral-500 font-mono uppercase tracking-tighter">Active Sequence: 1,492 Days • System Integrity: 99.8%</p>
-                                    <div className="flex gap-4 pt-4">
-                                        <button className="text-[10px] text-neutral-400 hover:text-white transition-colors flex items-center gap-1.5 uppercase tracking-widest bg-white/5 px-2.5 py-1 rounded border border-white/5">Update_Vitals</button>
-                                        <button className="text-[10px] text-red-400/70 hover:text-red-400 transition-colors flex items-center gap-1.5 uppercase tracking-widest border border-red-500/10 px-2.5 py-1 rounded">Terminate_Session</button>
-                                    </div>
+
+                                <div className="flex flex-col gap-2 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
+                                    <label className="text-xs font-bold text-white tracking-wider flex items-center gap-2">
+                                        <Globe className="w-4 h-4 text-blue-400" />
+                                        TAVILY_API_KEY
+                                    </label>
+                                    <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for giving the agent live internet access and search capabilities.</p>
+                                    <input
+                                        type="password"
+                                        value={config.TAVILY_API_KEY}
+                                        onChange={(e) => setConfig({ ...config, TAVILY_API_KEY: e.target.value })}
+                                        placeholder="tvly-..."
+                                        className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-blue-500/50 transition-colors"
+                                    />
                                 </div>
                             </div>
                         </section>
@@ -88,68 +144,61 @@ export default function Settings() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-blue-500/20 transition-all group overflow-hidden relative">
-                                        <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                        </div>
-                                        <div className="flex items-center gap-4 mb-3">
-                                            <div className="p-2 bg-blue-500/10 rounded-lg"><Database className="w-5 h-5 text-blue-400" /></div>
+                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl relative">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="p-2 bg-blue-500/10 rounded-lg"><Cpu className="w-5 h-5 text-blue-400" /></div>
                                             <div>
                                                 <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Model Cluster</h4>
-                                                <p className="text-[10px] text-neutral-500">GEMINI_3_ULTRA (CLOUD_SYNC)</p>
+                                                <p className="text-[10px] text-neutral-500">SELECT RUNTIME ENGINE</p>
                                             </div>
                                         </div>
-                                        <button className="w-full py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] uppercase font-bold text-neutral-400 hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2">
-                                            Switch_Core <ChevronRight className="w-3 h-3" />
-                                        </button>
-                                    </div>
-
-                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-green-500/20 transition-all flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2 bg-green-500/10 rounded-lg"><Shield className="w-5 h-5 text-green-400" /></div>
-                                            <div>
-                                                <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Local Privacy Shield</h4>
-                                                <p className="text-[10px] text-neutral-500">HYBRID_OVERRIDE: ENABLED</p>
-                                            </div>
-                                        </div>
-                                        <div className="w-10 h-5 bg-green-500/20 border border-green-500/30 rounded-full flex items-center px-1">
-                                            <div className="w-3 h-3 bg-green-500 rounded-sm shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                                        </div>
+                                        <select
+                                            value={config.MODEL_OVERRIDE}
+                                            onChange={(e) => setConfig({ ...config, MODEL_OVERRIDE: e.target.value })}
+                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500/50 transition-colors uppercase cursor-pointer"
+                                        >
+                                            <optgroup label="Google Gemini (SOTA 2026)" className="bg-[#1e1e1e]">
+                                                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Latest Preview)</option>
+                                                <option value="gemini-3-pro">Gemini 3 Pro (Visionary)</option>
+                                                <option value="gemini-3-flash">Gemini 3 Flash (Fast & Lean)</option>
+                                                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Stable Legacy)</option>
+                                            </optgroup>
+                                            <optgroup label="Local Models (Private)" className="bg-[#1e1e1e]">
+                                                <option value="ollama:llama3.2">Ollama: Llama 3.2</option>
+                                                <option value="ollama:mistral">Ollama: Mistral</option>
+                                            </optgroup>
+                                        </select>
                                     </div>
                                 </div>
                             </section>
 
-                            {/* Section: System Telemetry */}
+                            {/* Section: Database Sync */}
                             <section className="space-y-6">
                                 <div className="flex items-center justify-between border-l-2 border-yellow-500/30 pl-6 py-2 bg-[#252526]/50">
-                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">System_Telemetry</h2>
+                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Vector_Memory</h2>
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-yellow-500/20 transition-all flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2 bg-yellow-500/10 rounded-lg"><Bell className="w-5 h-5 text-yellow-400" /></div>
-                                            <div>
-                                                <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Interface Alerts</h4>
-                                                <p className="text-[10px] text-neutral-500">HAPTIC & AUDIO_GATES: ON</p>
-                                            </div>
+                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl flex flex-col gap-4">
+                                        <div>
+                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-1">Qdrant Cloud Mode</h4>
+                                            <p className="text-[10px] text-neutral-500 leading-tight">Leave blank to force fallback to <span className="text-yellow-400">Local Embedded Qdrant</span> mode (No server needed, 100% private).</p>
                                         </div>
-                                        <div className="w-10 h-5 bg-yellow-500/20 border border-yellow-500/30 rounded-full flex items-center justify-end px-1">
-                                            <div className="w-3 h-3 bg-yellow-400 rounded-sm" />
-                                        </div>
-                                    </div>
 
-                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl hover:border-purple-500/20 transition-all flex items-center justify-between group cursor-pointer">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2 bg-purple-500/10 rounded-lg group-hover:scale-110 transition-transform"><Zap className="w-5 h-5 text-purple-400" /></div>
-                                            <div>
-                                                <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Performance Mode</h4>
-                                                <p className="text-[10px] text-neutral-500">LATENCY_OPTIMIZER_X4</p>
-                                            </div>
-                                        </div>
-                                        <div className="w-10 h-5 bg-white/5 border border-white/10 rounded-full flex items-center px-1">
-                                            <div className="w-3 h-3 bg-white/20 rounded-sm" />
-                                        </div>
+                                        <input
+                                            type="text"
+                                            value={config.QDRANT_URL}
+                                            onChange={(e) => setConfig({ ...config, QDRANT_URL: e.target.value })}
+                                            placeholder="https://...cloud.qdrant.io (Optional)"
+                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-yellow-500/50 transition-colors"
+                                        />
+                                        <input
+                                            type="password"
+                                            value={config.QDRANT_API_KEY}
+                                            onChange={(e) => setConfig({ ...config, QDRANT_API_KEY: e.target.value })}
+                                            placeholder="Qdrant API Key (Optional)"
+                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-yellow-500/50 transition-colors"
+                                        />
                                     </div>
                                 </div>
                             </section>
@@ -162,24 +211,17 @@ export default function Settings() {
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1.5">
                             <div className="w-1 h-1 rounded-full bg-green-500" />
-                            <span>NODE_INFRA: CONNECTED</span>
+                            <span>CONFIG_STATE: {isSaving ? "SAVING..." : "LIVE"}</span>
                         </div>
                         <span className="text-neutral-800">|</span>
                         <div className="flex items-center gap-2">
-                            <Cpu className="w-3 h-3 text-neutral-700" />
-                            <span>CPU: 12%</span>
-                        </div>
-                        <span className="text-neutral-800">|</span>
-                        <div className="flex items-center gap-2">
-                            <Zap className="w-3 h-3 text-neutral-700" />
-                            <span>UPTIME: 4H 21M</span>
+                            <span>ENV_PATH: .env</span>
                         </div>
                     </div>
                     <span>aether.core_stable_v1.0.4</span>
                 </div>
 
             </main>
-            <ThoughtStream steps={[]} />
         </div>
     );
 }

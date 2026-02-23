@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
-import ThoughtStream from "@/components/ThoughtStream";
 import { Brain, Network, Clock, Database, X, Trash2, List, Zap, ChevronRight, FileText, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -53,11 +52,12 @@ export default function Memories() {
     const graphNodes = useMemo(() => {
         return memories.map((mem, index) => {
             const angle = (index / memories.length) * Math.PI * 2;
-            const radiusOffset = (index % 3 === 0) ? -40 : ((index % 2 === 0) ? 40 : 0);
-            const actualR = R + radiusOffset;
-            const x = CX + actualR * Math.cos(angle);
-            const y = CY + actualR * Math.sin(angle);
-            return { ...mem, x, y };
+            // Distribute memories in a more "cloud-like" cluster around the Qdrant node
+            const radiusOffset = Math.sin(index * 123.45) * 50; // Deterministic random-looking offset
+            const dist = 180 + radiusOffset;
+            const x = CX + dist * Math.cos(angle) + 200; // Offset towards Qdrant
+            const y = CY + dist * Math.sin(angle);
+            return { ...mem, x, y, delay: index * 0.1 };
         });
     }, [memories]);
 
@@ -110,8 +110,8 @@ export default function Memories() {
                         ) : viewMode === "graph" ? (
                             <div className="relative w-full h-full min-h-[600px] overflow-auto flex items-center justify-center bg-[#1e1e1e] cursor-crosshair">
 
-                                {/* Info Legend */}
-                                <div className="absolute top-6 left-6 bg-[#181818]/80 backdrop-blur-md border border-[#303030] p-4 rounded-xl shadow-2xl z-20 max-w-sm pointer-events-none">
+                                {/* Info Legend - Relocated to right to prevent graph overlap */}
+                                <div className="absolute top-6 right-6 bg-[#181818]/80 backdrop-blur-md border border-[#303030] p-4 rounded-xl shadow-2xl z-20 max-w-sm pointer-events-none">
                                     <h4 className="text-[11px] text-blue-400 font-mono font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
                                         <Brain className="w-3.5 h-3.5" />
                                         System Architecture Legend
@@ -136,41 +136,54 @@ export default function Memories() {
                                     </div>
                                 </div>
 
-                                {/* Simulated SVG Graph - Upgraded Visualization */}
-                                <svg width="1000" height="700" className="absolute pointer-events-none" style={{ filter: "drop-shadow(0 0 12px rgba(59, 130, 246, 0.2))" }}>
+                                {/* Simulated SVG Graph - Living Neural Visualization */}
+                                <svg width="1000" height="700" className="absolute pointer-events-none" style={{ filter: "drop-shadow(0 0 15px rgba(59, 130, 246, 0.15))" }}>
+
+                                    {/* Grid Background Effect */}
+                                    <defs>
+                                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="1000" height="700" fill="url(#grid)" />
 
                                     {/* --- Core System Nodes --- */}
 
-                                    {/* Unifying Future Concept Constellation Orbit (Links everything together) */}
+                                    {/* Unifying Future Concept Constellation Orbit */}
                                     <ellipse
                                         cx="400" cy="350"
-                                        rx="250" ry="200"
+                                        rx="280" ry="220"
                                         fill="none"
                                         stroke="#f59e0b"
-                                        strokeWidth="1"
-                                        strokeDasharray="4 8"
-                                        className="opacity-30 animate-[spin_30s_linear_infinite]"
+                                        strokeWidth="0.5"
+                                        strokeDasharray="2 10"
+                                        className="opacity-20 animate-[spin_60s_linear_infinite]"
                                         style={{ transformOrigin: "400px 350px" }}
                                     />
 
-                                    <g transform="translate(400, 150)">
+                                    <g transform="translate(400, 60)">
                                         {/* Knowledge Base Node (Top) */}
                                         <circle cx="0" cy="0" r="28" fill="#181818" stroke="#10b981" strokeWidth="2" />
-                                        <text x="0" y="-35" textAnchor="middle" fill="#10b981" fontSize="10" fontFamily="monospace" fontWeight="bold">The Library</text>
-                                        <text x="0" y="-24" textAnchor="middle" fill="#34d399" fontSize="9" fontFamily="monospace" className="uppercase">Stored Files</text>
 
-                                        {/* Connection to center */}
-                                        <path d="M 0 28 L 0 160" stroke="#10b981" strokeWidth="2" strokeDasharray="3 6" className="animate-[pulse_3s_ease-in-out_infinite]" />
-                                        <text x="60" y="80" textAnchor="middle" fill="#10b981" fontSize="9" fontFamily="monospace">Document Lookup</text>
+                                        {/* Connection to center with pulse */}
+                                        <path d="M 0 28 L 0 255" stroke="#10b981" strokeWidth="1" strokeDasharray="3 6" className="opacity-30" />
+                                        <circle r="3" fill="#10b981">
+                                            <animateMotion dur="3s" repeatCount="indefinite" path="M 0 28 L 0 255" />
+                                        </circle>
+
+                                        <text x="0" y="-50" textAnchor="middle" fill="#10b981" fontSize="10" fontFamily="monospace" fontWeight="bold">The Library</text>
+                                        <text x="0" y="-38" textAnchor="middle" fill="#34d399" fontSize="9" fontFamily="monospace" className="uppercase">Knowledge Base</text>
+                                        <text x="60" y="140" textAnchor="middle" fill="#10b981" fontSize="9" fontFamily="monospace" className="opacity-70">Document Lookup</text>
                                     </g>
 
                                     <g transform="translate(400, 350)">
                                         {/* Aether Agent Node (Center) */}
-                                        <circle cx="0" cy="0" r="35" fill="#181818" stroke="#a855f7" strokeWidth="2" />
-                                        <text x="0" y="55" textAnchor="middle" fill="#a855f7" fontSize="12" fontFamily="monospace" fontWeight="bold">AETHER CORE</text>
+                                        <circle cx="0" cy="0" r="35" fill="#181818" stroke="#a855f7" strokeWidth="2" className="animate-pulse" />
+                                        <text x="0" y="80" textAnchor="middle" fill="#a855f7" fontSize="12" fontFamily="monospace" fontWeight="bold">AETHER CORE</text>
 
-                                        {/* Dynamic Core Pulse */}
-                                        <circle cx="0" cy="0" r="45" fill="transparent" stroke="#a855f7" strokeWidth="1" strokeDasharray="4 4" className="animate-[spin_10s_linear_infinite]" />
+                                        {/* Dynamic Core Pulse Rays */}
+                                        <circle cx="0" cy="0" r="45" fill="transparent" stroke="#a855f7" strokeWidth="0.5" strokeDasharray="1 8" className="animate-[spin_20s_linear_infinite]" />
+                                        <circle cx="0" cy="0" r="55" fill="transparent" stroke="#a855f7" strokeWidth="0.5" strokeDasharray="1 12" className="animate-[spin_15s_linear_reverse_infinite]" />
                                     </g>
 
                                     <g transform="translate(150, 350)">
@@ -179,9 +192,13 @@ export default function Memories() {
                                         <text x="0" y="48" textAnchor="middle" fill="#9ca3af" fontSize="10" fontFamily="monospace" fontWeight="bold">SQLite</text>
                                         <text x="0" y="-40" textAnchor="middle" fill="#6b7280" fontSize="9" fontFamily="monospace" className="uppercase">Chronicles</text>
 
-                                        {/* Connection to center */}
-                                        <path d="M 28 0 L 210 0" stroke="#4b5563" strokeWidth="1" strokeDasharray="5 5" />
-                                        <text x="120" y="-8" textAnchor="middle" fill="#6b7280" fontSize="9" fontFamily="monospace">Loads strict session context</text>
+                                        {/* Pulse to center */}
+                                        <circle r="2" fill="#6b7280">
+                                            <animateMotion dur="4s" repeatCount="indefinite" path="M 28 0 L 210 0" />
+                                        </circle>
+
+                                        <path d="M 28 0 L 210 0" stroke="#4b5563" strokeWidth="1" strokeDasharray="5 5" className="opacity-20" />
+                                        <text x="120" y="-8" textAnchor="middle" fill="#6b7280" fontSize="9" fontFamily="monospace" className="opacity-70">Loads session context</text>
                                     </g>
 
                                     <g transform="translate(650, 350)">
@@ -190,46 +207,53 @@ export default function Memories() {
                                         <text x="0" y="48" textAnchor="middle" fill="#60a5fa" fontSize="10" fontFamily="monospace" fontWeight="bold">Qdrant</text>
                                         <text x="0" y="-40" textAnchor="middle" fill="#3b82f6" fontSize="9" fontFamily="monospace" className="uppercase">Vector DB</text>
 
-                                        {/* Connection to center */}
-                                        <path d="M -28 0 L -210 0" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 4" className="animate-pulse" />
-                                        <text x="-120" y="-8" textAnchor="middle" fill="#3b82f6" fontSize="9" fontFamily="monospace">Injects dynamic semantic facts</text>
+                                        {/* Active Data Pulses to Core */}
+                                        <circle r="3" fill="#3b82f6">
+                                            <animateMotion dur="2s" repeatCount="indefinite" path="M -28 0 L -210 0" />
+                                        </circle>
+                                        <circle r="2" fill="#3b82f6" opacity="0.6">
+                                            <animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M -28 0 L -210 0" />
+                                        </circle>
+
+                                        <path d="M -28 0 L -210 0" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 4" className="opacity-40" />
+                                        <text x="-120" y="-8" textAnchor="middle" fill="#3b82f6" fontSize="9" fontFamily="monospace" className="opacity-70">Semantic recall pulses</text>
                                     </g>
 
                                     <g transform="translate(400, 550)">
                                         {/* Future Graph Node (Bottom) */}
-                                        <circle cx="0" cy="0" r="28" fill="#181818" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" className="opacity-80" />
+                                        <circle cx="0" cy="0" r="28" fill="#181818" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" className="opacity-60" />
                                         <text x="0" y="48" textAnchor="middle" fill="#fcd34d" fontSize="9" fontFamily="monospace" fontWeight="bold">Graph Memory</text>
-                                        <text x="0" y="-40" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="uppercase">Future Roadmap</text>
+                                        <text x="0" y="-40" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="uppercase">Roadmap Context</text>
 
-                                        {/* Connection to center */}
-                                        <path d="M 0 -28 L 0 -160" stroke="#f59e0b" strokeWidth="1" strokeDasharray="3 6" className="opacity-50 animate-pulse" />
-                                        <text x="70" y="-80" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="opacity-70">Sleep-cycle prep</text>
+                                        <circle r="2" fill="#f59e0b">
+                                            <animateMotion dur="5s" repeatCount="indefinite" path="M 0 -28 L 0 -160" />
+                                        </circle>
+
+                                        <path d="M 0 -28 L 0 -160" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="3 6" className="opacity-30" />
+                                        <text x="70" y="-80" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="opacity-50">Sleep-cycle prep</text>
                                     </g>
 
                                     {/* Connections to Vectors (Orbiting Qdrant) */}
                                     {graphNodes.map((node) => {
-                                        // Offset logic to map coords relative to the visual SVG center instead of standard React state bounds
                                         const relX = node.x - CX + 650;
                                         const relY = node.y - CY + 350;
 
                                         return (
                                             <g key={`line-group-${node.id}`}>
-                                                {/* Line from Qdrant to vector */}
                                                 <line
                                                     x1={650} y1={350} x2={relX} y2={relY}
-                                                    stroke={selectedMemory?.id === node.id ? "#60a5fa" : "#1e3a8a"}
-                                                    strokeWidth={selectedMemory?.id === node.id ? 2 : 1}
-                                                    strokeDasharray="2 4"
-                                                    className="transition-all duration-300"
+                                                    stroke={selectedMemory?.id === node.id ? "#60a5fa" : "#3b82f6"}
+                                                    strokeWidth={selectedMemory?.id === node.id ? 1.5 : 0.5}
+                                                    className="opacity-20 transition-all duration-500"
                                                 />
-                                                {/* If selected, line from Vector to Aether core for visual clarity */}
                                                 {selectedMemory?.id === node.id && (
-                                                    <line
+                                                    <motion.line
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 0.4 }}
                                                         x1={relX} y1={relY} x2={400} y2={350}
                                                         stroke="#a855f7"
-                                                        strokeWidth="1.5"
+                                                        strokeWidth="1"
                                                         strokeDasharray="4 4"
-                                                        className="animate-pulse"
                                                     />
                                                 )}
                                             </g>
@@ -246,7 +270,7 @@ export default function Memories() {
                                     </div>
 
                                     {/* Knowledge Base HTML UI Overlay */}
-                                    <div className="absolute top-[150px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-green-400 pointer-events-none flex flex-col items-center justify-center">
+                                    <div className="absolute top-[60px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-green-400 pointer-events-none flex flex-col items-center justify-center">
                                         <FileText className="w-5 h-5" />
                                     </div>
 
@@ -274,14 +298,25 @@ export default function Memories() {
                                             <motion.button
                                                 key={node.id}
                                                 initial={{ scale: 0, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
+                                                animate={{
+                                                    scale: 1,
+                                                    opacity: 1,
+                                                    x: [0, Math.sin(node.delay) * 5, 0],
+                                                    y: [0, Math.cos(node.delay) * 5, 0]
+                                                }}
+                                                transition={{
+                                                    x: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut" },
+                                                    y: { duration: 3 + Math.random() * 2, repeat: Infinity, ease: "easeInOut" },
+                                                    scale: { duration: 0.5 }
+                                                }}
                                                 onClick={() => setSelectedMemory(node)}
                                                 style={{ left: relX, top: relY }}
-                                                className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all ${selectedMemory?.id === node.id ? "bg-blue-500 scale-150 shadow-[0_0_15px_rgba(59,130,246,0.6)] z-20" : "bg-[#252525] border border-[#404040] hover:border-blue-400 hover:scale-125 z-10"}`}
+                                                className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all ${selectedMemory?.id === node.id ? "bg-blue-500 scale-150 shadow-[0_0_20px_rgba(59,130,246,0.8)] z-20" : "bg-blue-500/20 border border-blue-500/40 hover:border-blue-400 hover:scale-125 z-10"}`}
                                             >
-                                                <div className={`w-1 h-1 rounded-full ${selectedMemory?.id === node.id ? "bg-white" : "bg-neutral-500"}`} />
+                                                <div className={`w-1.5 h-1.5 rounded-full ${selectedMemory?.id === node.id ? "bg-white animate-pulse" : "bg-blue-400/60"}`} />
+
                                                 {/* Label peek */}
-                                                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 hover:opacity-100 transition-opacity bg-[#181818] border border-[#303030] text-[9px] text-neutral-300 px-2 py-1 rounded w-32 truncate pointer-events-none font-mono shadow-xl">
+                                                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#181818]/90 backdrop-blur-sm border border-[#303030] text-[9px] text-neutral-300 px-2 py-1 rounded w-32 truncate pointer-events-none font-mono shadow-xl z-50">
                                                     {node.content}
                                                 </div>
                                             </motion.button>
@@ -401,7 +436,6 @@ export default function Memories() {
                     <span>aether.core_stable_v1.0.4</span>
                 </div>
             </main>
-            <ThoughtStream steps={[]} />
         </div>
     );
 }

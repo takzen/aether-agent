@@ -19,22 +19,10 @@ export default function ChatPage() {
     const [mounted, setMounted] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
-            id: "1",
+            id: "initial",
             role: "assistant",
-            content: "Welcome back! Your neural core is active and all systems are online. I have 3 new memories stored since your last session.",
-            timestamp: new Date(new Date().setHours(14, 30))
-        },
-        {
-            id: "2",
-            role: "user",
-            content: "What's the latest from my knowledge base?",
-            timestamp: new Date(new Date().setHours(14, 31))
-        },
-        {
-            id: "3",
-            role: "assistant",
-            content: "I found 3 recently indexed documents in your knowledge base:\n\nProject architecture overview\nAuthentication system design\nAPI endpoint documentation",
-            timestamp: new Date(new Date().setHours(14, 31))
+            content: "Welcome. Neural core active and synchronised. How can I assist you today?",
+            timestamp: new Date()
         }
     ]);
     const [input, setInput] = useState("");
@@ -309,27 +297,7 @@ export default function ChatPage() {
                             <h3 className="text-sm font-bold text-white">Aether Agent</h3>
                         </div>
                         <div className="flex items-center gap-3 text-[10px] text-neutral-500 font-mono uppercase tracking-widest overflow-hidden">
-                            {/* Model Toggle Switch */}
-                            <div className="hidden sm:flex items-center bg-black/40 rounded-md p-1 border border-white/5 h-7">
-                                <button
-                                    onClick={() => setSelectedModel("gemini")}
-                                    className={`px-3 h-full rounded-sm transition-all flex items-center ${selectedModel === "gemini"
-                                        ? "bg-purple-500/20 text-purple-400 font-bold"
-                                        : "text-neutral-500 hover:text-white"
-                                        }`}
-                                >
-                                    Gemini 3.1
-                                </button>
-                                <button
-                                    onClick={() => setSelectedModel("ollama")}
-                                    className={`px-3 h-full rounded-sm transition-all flex items-center ${selectedModel === "ollama"
-                                        ? "bg-purple-500/20 text-purple-400 font-bold"
-                                        : "text-neutral-500 hover:text-white"
-                                        }`}
-                                >
-                                    Llama 3.2
-                                </button>
-                            </div>
+
 
                             {/* History Toggle */}
                             <button
@@ -516,13 +484,13 @@ export default function ChatPage() {
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1.5">
                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500/30 animate-pulse" />
-                                <span className="text-green-500/40">Secured Node</span>
+                                <span className="text-green-500/40">Local Instance</span>
                             </div>
                             <span className="text-neutral-800">•</span>
-                            <span>Neural Core v0.1.0</span>
+                            <span>Aether v0.1.0</span>
                         </div>
                         <div className="hidden md:block">
-                            Ready for instructions // <span className="text-neutral-700">Aether Terminal</span>
+                            System Ready // <span className="text-neutral-700">Aether Workspace</span>
                         </div>
                     </div>
                 </div >
