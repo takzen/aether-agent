@@ -28,8 +28,8 @@ class DatabaseService:
             # This uses the embedded Qdrant engine (Rust) directly in the process
             self.client = QdrantClient(path=local_path)
         
-        # Dimensions for Gemini Embedding 001 are 768
-        self.vector_size = 768
+        # Dimensions for Gemini Embedding 001 are 3072
+        self.vector_size = 3072
         
         # Ensure collections exist
         self._ensure_collection("memories")
@@ -98,18 +98,17 @@ class DatabaseService:
 
     def _search_collection(self, collection_name: str, query_embedding: List[float], match_threshold: float, match_count: int):
         try:
-            results = self.client.search(
+            response = self.client.query_points(
                 collection_name=collection_name,
-                query_vector=query_embedding,
+                query=query_embedding,
                 limit=match_count,
                 with_payload=True
             )
             
             formatted_results = []
-            for hit in results:
+            for hit in response.points:
                 if hit.score >= match_threshold:
-                    # hit.payload contains the original dict including 'content'
-                    payload = hit.payload
+                    payload = hit.payload or {}
                     content = payload.pop("content", "")
                     
                     formatted_results.append({
@@ -137,6 +136,42 @@ class DatabaseService:
         except Exception as e:
             print(f"[Database] Error getting Qdrant stats: {e}")
             return {"memories_count": 0, "documents_count": 0}
+
+    def delete_memory(self, memory_id: str):
+        """Deletes a memory by its point ID."""
+        try:
+            self.client.delete(
+                collection_name="memories",
+                points_selector=models.PointIdsList(points=[memory_id])
+            )
+            print(f"[Database] Deleted memory from Qdrant: {memory_id}")
+            return True
+        except Exception as e:
+            print(f"[Database] Error deleting memory {memory_id} from Qdrant: {e}")
+            return False
+
+    def list_memories(self):
+        """Returns a list of all memories."""
+        try:
+            scroll_result = self.client.scroll(
+                collection_name="memories",
+                limit=1000,
+                with_payload=True,
+                with_vectors=False
+            )
+            points = scroll_result[0]
+            if not points:
+                return []
+            
+            return [{
+                "id": point.id,
+                "content": point.payload.get("content", ""),
+                "category": point.payload.get("category", "general"),
+                "timestamp": point.payload.get("timestamp", "")
+            } for point in points]
+        except Exception as e:
+            print(f"[Database] Error listing memories from Qdrant: {e}")
+            return []
 
     def delete_document(self, filename: str):
         """Deletes all chunks associated with a specific file source."""

@@ -3,14 +3,21 @@
 import { Terminal, Search, Code, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const mockedSteps = [
-    { id: 1, type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "12s ago" },
-    { id: 2, type: "search", message: "Searching knowledge base for 'Aether design system'", icon: Search, time: "8s ago" },
-    { id: 3, type: "tool", message: "Executing tool: get_current_time()", icon: Code, time: "3s ago" },
-    { id: 4, type: "complete", message: "Response synthesized with 98% confidence", icon: CheckCircle2, time: "just now" },
-];
+import { LucideIcon } from "lucide-react";
 
-export default function ThoughtStream() {
+export interface ThoughtStep {
+    id: string | number;
+    type: "thought" | "search" | "tool" | "complete" | string;
+    message: string;
+    icon: LucideIcon;
+    time: string;
+}
+
+interface ThoughtStreamProps {
+    steps: ThoughtStep[];
+}
+
+export default function ThoughtStream({ steps = [] }: ThoughtStreamProps) {
     return (
         <div className="w-80 h-full bg-[#181818] border-l border-[#303030] flex flex-col hidden xl:flex z-20">
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -23,15 +30,14 @@ export default function ThoughtStream() {
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 <AnimatePresence>
-                    {mockedSteps.map((step, index) => (
+                    {steps.map((step, index) => (
                         <motion.div
                             key={step.id}
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.2 }}
                             className="flex gap-3 relative"
                         >
-                            {index !== mockedSteps.length - 1 && (
+                            {index !== steps.length - 1 && (
                                 <div className="absolute left-4 top-8 w-[1px] h-full bg-white/5" />
                             )}
 

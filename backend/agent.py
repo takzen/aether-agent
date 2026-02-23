@@ -3,12 +3,15 @@ import os
 import asyncio
 from dotenv import load_dotenv
 from pydantic_ai import Agent, RunContext
+from pydantic import BaseModel, Field
 from pydantic_ai.models.gemini import GeminiModel
 from database import DatabaseService
 from memory import memory_manager
 from tavily import TavilyClient
+import uuid
 
-load_dotenv()
+# In-memory store for pending actions (HITL)
+pending_actions = {}
 
 # Initialize Services
 db_service = DatabaseService()
@@ -42,21 +45,54 @@ system_prompt = (
     "   - The user explicitly asks you to 'search' or 'find online'.\n"
     "   - DO NOT search for personal information stored in your memory (use `recall` instead).\n"
     "3. **Document Analysis**: You have access to a library of project documents via `search_knowledge_base`. Use this when asked about specific project details, specifications, or uploaded files.\n"
+    "4. **File Modifications**: You can write to files using the `prepare_write_file` tool. Because this is a dangerous operation, it drops into a Human-in-the-Loop mechanism. You must ask the user to approve the change in the UI after proposing it.\n"
     "5. **System Operations**: You can explore the project structure using `list_directory` and read file contents using `read_file`. Use this to understand the codebase or retrieve specific configurations for your Internal Simulation.\n"
     "6. **Cognitive Autonomy**: Act as an Active World Model. Don't just answer; reflect on the impact of your answers on the user's overall project philosophy.\n"
     "7. **Proactivity**: Anticipate user needs based on stored context and past decisions.\n"
     "8. **Precision**: Provide concise, actionable answers.\n\n"
     "When the user shares a fact, call `remember` immediately.\n"
     "When the user asks about project specs, call `search_knowledge_base`.\n"
-    "When asked to analyze the codebase or a specific file, use `list_directory` and `read_file`."
+    "When asked to analyze or edit the codebase, use `list_directory`, `read_file`, and `prepare_write_file`."
 )
+
+class AetherResponse(BaseModel):
+    internal_thought: str = Field(description="Your step-by-step reasoning and deduction about the user's request.")
+    final_answer: str = Field(description="The final message you will return to the user.")
 
 aether_agent = Agent(
     model=model,
     system_prompt=system_prompt,
     retries=3,
-    deps_type=dict 
+    deps_type=dict,
+    output_type=AetherResponse
 )
+
+@aether_agent.system_prompt
+async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
+    """
+    Context Injection (2.5): Automatically retrieves memories relevant to the user's
+    current message and appends them to the system prompt.
+    """
+    user_msg = ctx.deps.get("user_message", "") if ctx.deps else ""
+    if not user_msg:
+        return ""
+    
+    try:
+        memories = await memory_manager.search_relevant_memories(db_service, user_msg, limit=3, similarity_threshold=0.6)
+        if not memories:
+            return ""
+        
+        injected_text = "\n\n--- INJECTED CONTEXT FROM LONG-TERM MEMORY (DO NOT IGNORE) ---\n"
+        for i, mem in enumerate(memories):
+            content = mem.get("content", "")
+            if content:
+                injected_text += f"- {content}\n"
+        injected_text += "--- END CONTEXT ---\n"
+        injected_text += "Please use the above context to answer the user proactively, without needing to call 'recall' separately."
+        return injected_text
+    except Exception as e:
+        print(f"[Agent] Failed to inject dynamic context: {e}")
+        return ""
 
 # --- UTILS FOR FILE OPERATIONS ---
 from pathlib import Path
@@ -147,6 +183,36 @@ async def read_file(ctx: RunContext[dict], path: str) -> str:
         return str(e)
     except Exception as e:
         return f"Error reading file: {str(e)}"
+
+@aether_agent.tool
+async def prepare_write_file(ctx: RunContext[dict], path: str, content: str) -> str:
+    """
+    PREPARES to write content to a file. 
+    This is a dangerous operation, so it requires Human-in-the-Loop (HITL) approval.
+    This tool will generate an approval request. It does NOT write the file yet.
+    Args:
+        path: The file path to write to (relative to project root).
+        content: The exact content to write to the file.
+    """
+    try:
+        print(f"[Agent] Preparing to write file: '{path}' (Requires Approval)")
+        target_path = validate_path(path)
+        
+        action_id = str(uuid.uuid4())
+        
+        pending_actions[action_id] = {
+            "type": "write_file",
+            "path": str(target_path),
+            "display_path": path,
+            "content": content,
+            "status": "pending"
+        }
+        
+        return f"ACTION_PENDING: File write proposed for '{path}'. Tell the user they need to approve this action in the UI."
+    except ValueError as e:
+        return str(e)
+    except Exception as e:
+        return f"Error preparing file write: {str(e)}"
 
 @aether_agent.tool
 async def get_current_time(ctx: RunContext[dict]) -> str:

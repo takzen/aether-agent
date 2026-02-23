@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
-import ThoughtStream from "@/components/ThoughtStream";
-import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe } from "lucide-react";
+import ThoughtStream, { ThoughtStep } from "@/components/ThoughtStream";
+import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Message {
@@ -12,6 +12,7 @@ interface Message {
     content: string;
     timestamp: Date;
     tools?: { name: string; detail: string; icon: any; latency: number }[];
+    pendingActions?: any[];
 }
 
 export default function ChatPage() {
@@ -38,10 +39,80 @@ export default function ChatPage() {
     ]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [thoughtSteps, setThoughtSteps] = useState<ThoughtStep[]>([
+        { id: 1, type: "thought", message: "Neural core active and waiting for instructions.", icon: Terminal, time: "just now" }
+    ]);
+    const [selectedModel, setSelectedModel] = useState<"gemini" | "ollama">("gemini");
+    const [agentHistory, setAgentHistory] = useState<any[]>([]);
+
+    // Session History State
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [sessions, setSessions] = useState<{ id: string, title: string, updated_at: string }[]>([]);
+    const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const fetchSessions = async () => {
+        try {
+            const res = await fetch("http://localhost:8000/sessions");
+            const data = await res.json();
+            if (data.status === "success") {
+                setSessions(data.sessions);
+            }
+        } catch (e) {
+            console.error("Failed to fetch sessions:", e);
+        }
+    };
+
+    const loadSession = async (sessionId: string) => {
+        try {
+            const res = await fetch(`http://localhost:8000/sessions/${sessionId}/messages`);
+            const data = await res.json();
+            if (data.status === "success") {
+                const loadedMsgs = data.messages.map((m: any) => ({
+                    id: m.id,
+                    role: m.role,
+                    content: m.content,
+                    timestamp: new Date(m.created_at),
+                    pendingActions: m.metadata?.pendingActions
+                }));
+                setMessages(loadedMsgs);
+                setCurrentSessionId(sessionId);
+                setAgentHistory([]); // Reset running local memory buffer
+            }
+        } catch (e) {
+            console.error("Failed to load session:", e);
+        }
+    };
+
+    const startNewSession = () => {
+        setMessages([{
+            id: Date.now().toString(),
+            role: "assistant",
+            content: "Welcome back! Ready for a new conversation.",
+            timestamp: new Date()
+        }]);
+        setCurrentSessionId(null);
+        setAgentHistory([]);
+        setThoughtSteps([{ id: Date.now(), type: "thought", message: "Memory buffer cleared. Waiting...", icon: Terminal, time: "just now" }]);
+    };
+
+    const deleteSession = async (sessionId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            await fetch(`http://localhost:8000/sessions/${sessionId}`, { method: "DELETE" });
+            if (sessionId === currentSessionId) {
+                startNewSession();
+            }
+            fetchSessions();
+        } catch (error) {
+            console.error("Failed to delete session:", error);
+        }
+    };
 
     useEffect(() => {
         setMounted(true);
+        fetchSessions();
     }, []);
 
     useEffect(() => {
@@ -49,6 +120,49 @@ export default function ChatPage() {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages]);
+
+    const handleActionApproval = async (actionId: string, approved: boolean, messageId: string) => {
+        try {
+            const response = await fetch("http://localhost:8000/actions/approve", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action_id: actionId, approved })
+            });
+            const data = await response.json();
+
+            // Usunięcie akcji z historii wiadomości w UI (lub ukrycie jako zatwierdzone)
+            setMessages(prev => prev.map(m => {
+                if (m.id === messageId && m.pendingActions) {
+                    return {
+                        ...m,
+                        pendingActions: m.pendingActions.filter(a => a.id !== actionId)
+                    };
+                }
+                return m;
+            }));
+
+            // Ciche dołączenie loga do chatu jako nowy powrót z informacją dla usera
+            if (data.status === "success" && approved) {
+                const sysMsg: Message = {
+                    id: Date.now().toString(),
+                    role: "assistant",
+                    content: `[System] Action approved. ${data.message}`,
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, sysMsg]);
+            } else if (data.status === "success" && !approved) {
+                const sysMsg: Message = {
+                    id: Date.now().toString(),
+                    role: "assistant",
+                    content: `[System] Action rejected.`,
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, sysMsg]);
+            }
+        } catch (error) {
+            console.error("Failed to process approval", error);
+        }
+    };
 
     if (!mounted) return null;
 
@@ -65,42 +179,58 @@ export default function ChatPage() {
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
+        setThoughtSteps([
+            { id: Date.now(), type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "just now" }
+        ]);
 
         try {
             const response = await fetch("http://localhost:8000/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: input }),
+                body: JSON.stringify({
+                    message: input,
+                    model: selectedModel,
+                    session_id: currentSessionId,
+                    message_history: agentHistory.length > 0 ? agentHistory : undefined
+                }),
             });
 
             const data = await response.json();
 
             if (data.status === "success") {
                 const usedTools: { name: string; detail: string; icon: any; latency: number }[] = [];
+                const newThoughts: ThoughtStep[] = [];
                 if (data.new_messages) {
                     data.new_messages.forEach((msg: any) => {
                         if (msg.parts) {
-                            msg.parts.forEach((part: any) => {
+                            msg.parts.forEach((part: any, index: number) => {
                                 if (part.part_kind === "tool-call") {
                                     let detail = "";
                                     let icon = Database;
+                                    let messageStr = "";
                                     if (part.tool_name === "read_file" && part.args?.path) {
                                         detail = part.args.path;
                                         icon = FileText;
+                                        messageStr = `Reading file: ${part.args.path}`;
                                     } else if (part.tool_name === "search_knowledge_base") {
                                         detail = "Knowledge Base";
                                         icon = Database;
+                                        messageStr = `Searching knowledge base for '${part.args?.query || ""}'`;
                                     } else if (part.tool_name === "recall") {
                                         detail = "Vector Memory";
                                         icon = Brain;
+                                        messageStr = `Recalling memories for '${part.args?.query || ""}'`;
                                     } else if (part.tool_name === "list_directory") {
                                         detail = "File System";
                                         icon = FolderSearch;
+                                        messageStr = `Listing directory: ${part.args?.path || "."}`;
                                     } else if (part.tool_name === "web_search") {
                                         detail = "Tavily Web Search";
                                         icon = Globe;
+                                        messageStr = `Web search: ${part.args?.query || ""}`;
                                     } else {
                                         detail = part.tool_name;
+                                        messageStr = `Executing tool: ${part.tool_name}`;
                                     }
 
                                     if (!usedTools.find(t => t.name === part.tool_name && t.detail === detail)) {
@@ -110,6 +240,14 @@ export default function ChatPage() {
                                             icon,
                                             latency: Math.floor(Math.random() * 30 + 15) // mock latency 15-45ms
                                         });
+
+                                        newThoughts.push({
+                                            id: Date.now() + index,
+                                            type: "tool",
+                                            message: messageStr,
+                                            icon: icon,
+                                            time: "just now"
+                                        });
                                     }
                                 }
                             });
@@ -117,14 +255,34 @@ export default function ChatPage() {
                     });
                 }
 
+                if (newThoughts.length > 0) {
+                    setThoughtSteps(prev => [...prev, ...newThoughts]);
+                }
+
+                setThoughtSteps(prev => [...prev, {
+                    id: Date.now() + 1000,
+                    type: "complete",
+                    message: "Response synthesized with high confidence",
+                    icon: CheckCircle2,
+                    time: "just now"
+                }]);
+
                 const assistantMessage: Message = {
                     id: (Date.now() + 1).toString(),
                     role: "assistant",
                     content: data.response,
                     timestamp: new Date(),
-                    tools: usedTools.length > 0 ? usedTools : undefined
+                    tools: usedTools.length > 0 ? usedTools : undefined,
+                    pendingActions: data.pending_actions?.length > 0 ? data.pending_actions : undefined
                 };
                 setMessages((prev) => [...prev, assistantMessage]);
+                if (data.new_messages) {
+                    setAgentHistory((prev) => [...prev, ...data.new_messages]);
+                }
+                if (data.session_id && data.session_id !== currentSessionId) {
+                    setCurrentSessionId(data.session_id);
+                    fetchSessions();
+                }
             } else {
                 console.error("Agent error:", data.message);
             }
@@ -140,26 +298,57 @@ export default function ChatPage() {
 
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden bg-[#1e1e1e]">
-                {/* Chat Container */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex-1 max-w-5xl mx-auto w-full flex flex-col overflow-hidden"
-                >
+            <main className="flex-1 min-w-0 flex relative overflow-hidden bg-[#1e1e1e]">
+
+                {/* Chat Column */}
+                <div className="flex-1 flex flex-col relative overflow-hidden">
                     {/* Chat Header — VSCode Style */}
                     <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                             <h3 className="text-sm font-bold text-white">Aether Agent</h3>
                         </div>
-                        <div className="flex items-center gap-4 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
-                                <span>Core Online</span>
+                        <div className="flex items-center gap-3 text-[10px] text-neutral-500 font-mono uppercase tracking-widest overflow-hidden">
+                            {/* Model Toggle Switch */}
+                            <div className="hidden sm:flex items-center bg-black/40 rounded-md p-1 border border-white/5 h-7">
+                                <button
+                                    onClick={() => setSelectedModel("gemini")}
+                                    className={`px-3 h-full rounded-sm transition-all flex items-center ${selectedModel === "gemini"
+                                        ? "bg-purple-500/20 text-purple-400 font-bold"
+                                        : "text-neutral-500 hover:text-white"
+                                        }`}
+                                >
+                                    Gemini 3.1
+                                </button>
+                                <button
+                                    onClick={() => setSelectedModel("ollama")}
+                                    className={`px-3 h-full rounded-sm transition-all flex items-center ${selectedModel === "ollama"
+                                        ? "bg-purple-500/20 text-purple-400 font-bold"
+                                        : "text-neutral-500 hover:text-white"
+                                        }`}
+                                >
+                                    Llama 3.2
+                                </button>
                             </div>
-                            <span>•</span>
-                            <span>Latency: 12ms</span>
+
+                            {/* History Toggle */}
+                            <button
+                                onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                                className={`flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all
+                                    ${isHistoryOpen ? "bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-purple-400 font-bold border-purple-500/30" : "bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"}
+                                `}
+                            >
+                                <History className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">HISTORY Logs</span>
+                            </button>
+
+                            <span className="hidden sm:inline">•</span>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                <span className={`w-1.5 h-1.5 rounded-full ${selectedModel === 'gemini' ? 'bg-purple-500/50' : 'bg-blue-500/50'}`} />
+                                <span>{selectedModel === 'gemini' ? 'Core Online' : 'Local Edge'}</span>
+                            </div>
+                            <span className="hidden md:inline">•</span>
+                            <span className="hidden md:inline">Latency: ~12ms</span>
                         </div>
                     </div>
 
@@ -232,6 +421,44 @@ export default function ChatPage() {
                                                     })}
                                                 </div>
                                             )}
+
+                                            {/* Human-in-the-Loop Actions */}
+                                            {msg.pendingActions && msg.pendingActions.length > 0 && (
+                                                <div className="mt-4 space-y-3">
+                                                    {msg.pendingActions.map((action) => (
+                                                        <div key={action.id} className="border border-orange-500/30 bg-orange-500/5 rounded-xl p-4 shadow-lg shadow-orange-500/5">
+                                                            <div className="flex items-center gap-2 text-orange-400 font-bold mb-2">
+                                                                <AlertTriangle className="w-4 h-4" />
+                                                                <span>Action Required: {action.type === "write_file" ? "File Modification" : action.type}</span>
+                                                            </div>
+                                                            <p className="text-sm text-neutral-300 mb-3 font-medium">
+                                                                The agent wants to modify <code className="bg-black/40 px-1.5 py-0.5 rounded text-orange-300 font-mono text-xs">{action.display_path}</code>.
+                                                            </p>
+
+                                                            <div className="bg-[#1e1e1e] border border-white/5 rounded-lg p-3 text-[11px] text-neutral-400 font-mono mb-4 max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
+                                                                <pre>{action.content}</pre>
+                                                            </div>
+
+                                                            <div className="flex gap-3">
+                                                                <button
+                                                                    onClick={() => handleActionApproval(action.id, true, msg.id)}
+                                                                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-bold transition-all active:scale-[0.98]"
+                                                                >
+                                                                    <Check className="w-4 h-4" />
+                                                                    Approve & Execute
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleActionApproval(action.id, false, msg.id)}
+                                                                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 text-neutral-300 rounded-lg text-xs font-bold transition-all active:scale-[0.98]"
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                    Reject
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {msg.role === "user" && (
@@ -283,25 +510,90 @@ export default function ChatPage() {
                             </button>
                         </div>
                     </div>
-                </motion.div>
 
-                {/* Bottom Bar — System Status */}
-                <div className="flex items-center justify-between px-6 py-4 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500/30 animate-pulse" />
-                            <span className="text-green-500/40">Secured Node</span>
+                    {/* Bottom Bar — System Status */}
+                    <div className="flex items-center justify-between px-6 py-4 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0 w-full">
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/30 animate-pulse" />
+                                <span className="text-green-500/40">Secured Node</span>
+                            </div>
+                            <span className="text-neutral-800">•</span>
+                            <span>Neural Core v0.1.0</span>
                         </div>
-                        <span className="text-neutral-800">•</span>
-                        <span>Neural Core v0.1.0</span>
+                        <div className="hidden md:block">
+                            Ready for instructions // <span className="text-neutral-700">Aether Terminal</span>
+                        </div>
                     </div>
-                    <div className="hidden md:block">
-                        Ready for instructions // <span className="text-neutral-700">Aether Terminal</span>
-                    </div>
-                </div>
+                </div >
+
+                {/* Right History Drawer */}
+                <AnimatePresence>
+                    {
+                        isHistoryOpen && (
+                            <motion.div
+                                initial={{ width: 0, opacity: 0 }}
+                                animate={{ width: 320, opacity: 1 }}
+                                exit={{ width: 0, opacity: 0 }}
+                                className="bg-[#181818] border-l border-[#303030] flex flex-col shrink-0 overflow-hidden font-mono z-20 h-full"
+                            >
+                                <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#1e1e1e]">
+                                    <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                        <Database className="w-4 h-4 text-purple-500" />
+                                        Chronicles
+                                    </h3>
+                                    <button
+                                        onClick={startNewSession}
+                                        className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-white transition-colors"
+                                    >
+                                        <Plus className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
+                                    {sessions.length === 0 ? (
+                                        <div className="p-4 text-center text-xs text-neutral-600 italic">No previous sessions found.</div>
+                                    ) : (
+                                        sessions.map(s => (
+                                            <div key={s.id} className="group flex items-center gap-1 relative">
+                                                <button
+                                                    onClick={() => loadSession(s.id)}
+                                                    className={`w-full text-left px-3 py-3 rounded-lg flex flex-col gap-1 transition-all
+                                                    ${s.id === currentSessionId
+                                                            ? "bg-purple-500/10 border border-purple-500/20"
+                                                            : "bg-transparent border border-transparent hover:bg-white/[0.02]"
+                                                        }
+                                                `}
+                                                >
+                                                    <div className="flex items-start gap-2 max-w-[90%]">
+                                                        <MessageSquare className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${s.id === currentSessionId ? "text-purple-400" : "text-neutral-600"}`} />
+                                                        <span className={`text-[11px] font-sans truncate font-medium ${s.id === currentSessionId ? "text-purple-200" : "text-neutral-400"}`}>
+                                                            {s.title}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[9px] text-neutral-600 ml-5.5">
+                                                        {new Date(s.updated_at).toLocaleString()}
+                                                    </span>
+                                                </button>
+
+                                                <button
+                                                    onClick={(e) => deleteSession(s.id, e)}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-neutral-500 hover:text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center"
+                                                    title="Delete Session"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </motion.div>
+                        )
+                    }
+                </AnimatePresence>
             </main>
 
-            <ThoughtStream />
+            <ThoughtStream steps={thoughtSteps} />
         </div>
     );
 }
