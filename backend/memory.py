@@ -21,8 +21,9 @@ class MemoryManager:
             raise ValueError("GEMINI_API_KEY environment variable not set")
         
         self.client = genai.Client(api_key=api_key)
-        # Using the standard embedding model with full path
-        self.embedding_model = "models/text-embedding-004"
+        # Using the standard embedding model
+        # Available model found: models/gemini-embedding-001
+        self.embedding_model = "models/gemini-embedding-001"
 
     async def get_embedding(self, text: str) -> List[float]:
         """
@@ -41,12 +42,13 @@ class MemoryManager:
             )
             
             # Extract embedding from response
-            if result.embedding:
-                return result.embedding.values
+            # The structure is EmbedContentResponse(embeddings=[ContentEmbedding(values=[...])])
+            if result.embeddings:
+                return result.embeddings[0].values
             return []
             
         except Exception as e:
-            print(f"Error generating embedding: {e}")
+            print(f"Error generating embedding with {self.embedding_model}: {e}")
             return []
 
     async def add_memory(self, db_service, content: str, metadata: dict = None):

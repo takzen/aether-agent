@@ -1,84 +1,187 @@
 """
-Database Service using local ChromaDB for vector storage.
-This replaces the Supabase implementation to ensure data sovereignty and avoid cloud limits.
+Database Service using Qdrant Cloud for vector storage.
+This replaces the ChromaDB implementation for better scalability and cloud persistence.
 """
-import chromadb
+import os
+import uuid
 from typing import List, Dict, Any
 from datetime import datetime
-import uuid
+from dotenv import load_dotenv
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
+from qdrant_client.http.models import Distance, VectorParams, PointStruct
+
+load_dotenv()
 
 class DatabaseService:
     def __init__(self):
-        # Initialize local persistent client in ./aether_memory directory
-        self.client = chromadb.PersistentClient(path="./aether_memory")
+        # Initialize Qdrant client (Hybrid Mode: Cloud or Local Storage)
+        url = os.getenv("QDRANT_URL")
+        api_key = os.getenv("QDRANT_API_KEY")
+        local_path = os.getenv("QDRANT_LOCAL_PATH", "./qdrant_storage")
         
-        # Get or create the collection for memories
-        # Using cosine distance by default (hnsw:space usually defaults to l2, let's stick to defaults for now)
-        self.collection = self.client.get_or_create_collection(
-            name="memories",
-            metadata={"hnsw:space": "cosine"}
-        )
-        print("[Database] ChromaDB initialized locally at ./aether_memory")
+        if url and api_key:
+            print(f"[Database] Qdrant Cloud detected. Connecting to: {url}")
+            self.client = QdrantClient(url=url, api_key=api_key)
+        else:
+            print(f"[Database] Using Local Qdrant (No-Docker) at: {local_path}")
+            # This uses the embedded Qdrant engine (Rust) directly in the process
+            self.client = QdrantClient(path=local_path)
+        
+        # Dimensions for Gemini Embedding 001 are 768
+        self.vector_size = 768
+        
+        # Ensure collections exist
+        self._ensure_collection("memories")
+        self._ensure_collection("documents")
+        
+        print(f"[Database] Qdrant Cloud initialized. Base URL: {url}")
+
+    def _ensure_collection(self, collection_name: str):
+        """Creates the collection if it doesn't already exist."""
+        try:
+            collections = self.client.get_collections().collections
+            exists = any(c.name == collection_name for c in collections)
+            
+            if not exists:
+                print(f"[Database] Creating collection: '{collection_name}'")
+                self.client.create_collection(
+                    collection_name=collection_name,
+                    vectors_config=VectorParams(size=self.vector_size, distance=Distance.COSINE),
+                )
+            else:
+                print(f"[Database] Collection '{collection_name}' already exists.")
+        except Exception as e:
+            print(f"[Database] Error checking/creating collection '{collection_name}': {e}")
 
     def add_memory(self, content: str, embedding: List[float], metadata: Dict[str, Any] = None):
-        """
-        Adds a memory to the ChromaDB collection.
-        """
-        mem_id = str(uuid.uuid4())
+        """Adds a memory to the memories collection."""
+        return self._add_to_collection("memories", content, embedding, metadata, "memory")
+
+    def add_document_chunk(self, content: str, embedding: List[float], metadata: Dict[str, Any] = None):
+        """Adds a document chunk to the documents collection."""
+        return self._add_to_collection("documents", content, embedding, metadata, "document_chunk")
+
+    def _add_to_collection(self, collection_name: str, content: str, embedding: List[float], metadata: Dict[str, Any], item_type: str):
+        point_id = str(uuid.uuid4())
         timestamp = datetime.now().isoformat()
         
-        # Prepare metadata
-        meta = metadata or {}
-        meta["timestamp"] = timestamp
-        meta["type"] = "memory"
+        payload = metadata or {}
+        payload["content"] = content # Qdrant stores text in payload
+        payload["timestamp"] = timestamp
+        payload["type"] = item_type
 
         try:
-            self.collection.add(
-                documents=[content],
-                embeddings=[embedding],
-                metadatas=[meta],
-                ids=[mem_id]
+            self.client.upsert(
+                collection_name=collection_name,
+                points=[
+                    PointStruct(
+                        id=point_id,
+                        vector=embedding,
+                        payload=payload
+                    )
+                ]
             )
-            print(f"[Database] Memory added: {mem_id}")
-            return {"id": mem_id, "status": "success"}
+            print(f"[Database] {item_type.replace('_', ' ').capitalize()} added: {point_id}")
+            return {"id": point_id, "status": "success"}
         except Exception as e:
-            print(f"[Database] Error adding memory: {e}")
+            print(f"[Database] Error adding {item_type} to Qdrant: {e}")
             return {"status": "error", "message": str(e)}
 
     def search_memories(self, query_embedding: List[float], match_threshold: float = 0.5, match_count: int = 5):
-        """
-        Searches for similar memories using the query embedding.
-        Returns a list of simplified memory objects.
-        """
+        """Searches the memories collection."""
+        return self._search_collection("memories", query_embedding, match_threshold, match_count)
+
+    def search_documents(self, query_embedding: List[float], match_threshold: float = 0.5, match_count: int = 5):
+        """Searches the documents collection."""
+        return self._search_collection("documents", query_embedding, match_threshold, match_count)
+
+    def _search_collection(self, collection_name: str, query_embedding: List[float], match_threshold: float, match_count: int):
         try:
-            results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=match_count
-                # where={"metadata_field": "is_equal_to_this"}, # Optional filtering
+            results = self.client.search(
+                collection_name=collection_name,
+                query_vector=query_embedding,
+                limit=match_count,
+                with_payload=True
             )
             
-            # Format results to match previous interface
             formatted_results = []
-            
-            # Chroma returns lists of lists (one per query)
-            if results["ids"]:
-                for i, mem_id in enumerate(results["ids"][0]):
-                    distance = results["distances"][0][i]
-                    # Convert distance to similarity score (approximate for cosine)
-                    similarity = 1 - distance 
+            for hit in results:
+                if hit.score >= match_threshold:
+                    # hit.payload contains the original dict including 'content'
+                    payload = hit.payload
+                    content = payload.pop("content", "")
                     
-                    if similarity >= match_threshold:
-                        formatted_results.append({
-                            "id": mem_id,
-                            "content": results["documents"][0][i],
-                            "similarity": similarity,
-                            "metadata": results["metadatas"][0][i]
-                        })
+                    formatted_results.append({
+                        "id": hit.id,
+                        "content": content,
+                        "similarity": hit.score,
+                        "metadata": payload
+                    })
             
             return formatted_results
 
         except Exception as e:
-            print(f"[Database] Error searching memories: {e}")
+            print(f"[Database] Error searching Qdrant collection '{collection_name}': {e}")
             return []
-    
-    # Placeholder for non-vector methods if needed (e.g. simple key-value store in future)
+
+    def get_stats(self):
+        """Returns statistics about the database."""
+        try:
+            memories_count = self.client.count(collection_name="memories").count
+            documents_count = self.client.count(collection_name="documents").count
+            return {
+                "memories_count": memories_count,
+                "documents_count": documents_count
+            }
+        except Exception as e:
+            print(f"[Database] Error getting Qdrant stats: {e}")
+            return {"memories_count": 0, "documents_count": 0}
+
+    def delete_document(self, filename: str):
+        """Deletes all chunks associated with a specific file source."""
+        try:
+            self.client.delete(
+                collection_name="documents",
+                points_selector=models.Filter(
+                    must=[
+                        models.FieldCondition(
+                            key="source",
+                            match=models.MatchValue(value=filename),
+                        ),
+                    ],
+                ),
+            )
+            print(f"[Database] Deleted document from Qdrant: {filename}")
+            return True
+        except Exception as e:
+            print(f"[Database] Error deleting document {filename} from Qdrant: {e}")
+            return False
+
+    def list_documents(self):
+        """Returns a list of unique document sources (filenames) in the collection."""
+        try:
+            # Scroll through all points but only request 'source' metadata
+            # For simplicity, we limit to 1000 items as we don't expect millions yet
+            scroll_result = self.client.scroll(
+                collection_name="documents",
+                limit=1000,
+                with_payload=True,
+                with_vectors=False
+            )
+            
+            points = scroll_result[0]
+            if not points:
+                return []
+            
+            sources = {}
+            for point in points:
+                src = point.payload.get("source")
+                if src:
+                    # Store latest metadata for each source
+                    sources[src] = point.payload
+            
+            return [{"filename": src, "metadata": meta} for src, meta in sources.items()]
+        except Exception as e:
+            print(f"[Database] Error listing documents from Qdrant: {e}")
+            return []

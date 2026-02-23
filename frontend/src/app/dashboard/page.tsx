@@ -4,7 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import ThoughtStream from "@/components/ThoughtStream";
 import { Zap, Shield, Cpu, Clock, Activity, MessageSquare, Send, Brain, Database, Globe } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 interface DashboardMessage {
@@ -40,6 +40,23 @@ export default function Home() {
     }
   ]);
 
+  const [stats, setStats] = useState({ memories: 0, documents: 0 });
+
+  useEffect(() => {
+    // Fetch stats
+    fetch("http://localhost:8000/stats")
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          setStats({
+            memories: data.stats.memories_count,
+            documents: data.stats.documents_count
+          });
+        }
+      })
+      .catch(err => console.error("Failed to fetch stats:", err));
+  }, []);
+
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
 
@@ -48,16 +65,42 @@ export default function Home() {
     setInput("");
     setIsProcessing(true);
 
-    // Mock AI "Processing" flow
-    setTimeout(() => {
-      const aiMsg: DashboardMessage = {
-        id: (Date.now() + 1).toString(),
+    try {
+      const res = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMsg.content }),
+      });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        // Simple heuristic to extract "sources" or "extra" from text if formatted in a specific way
+        // For now, we just dump the text. PydanticAI structured output needed for better UI mapping.
+        const aiMsg: DashboardMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.response,
+        };
+        setMessages(prev => [...prev, aiMsg]);
+      } else {
+        const errorMsg: DashboardMessage = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: `Error: ${data.message}`,
+        };
+        setMessages(prev => [...prev, errorMsg]);
+      }
+    } catch (err) {
+      console.error("Chat error:", err);
+      const errorMsg: DashboardMessage = {
+        id: Date.now().toString(),
         role: "assistant",
-        content: `I've analyzed the query "${userMsg.content}". Routing through neural core... Results matching context find 2 significant associations in recent logs.`,
+        content: "Error connecting to backend.",
       };
-      setMessages(prev => [...prev, aiMsg]);
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
       setIsProcessing(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -80,11 +123,9 @@ export default function Home() {
             </div>
             <span className="text-neutral-700">|</span>
             <div className="flex items-center gap-4 text-[11px] font-mono text-neutral-400">
-              <span><Shield className="w-3 h-3 inline mr-1 text-green-400/60" />AES-256</span>
+              <span><Shield className="w-3 h-3 inline mr-1 text-green-400/60" />Memories: {stats.memories}</span>
               <span className="text-neutral-700">•</span>
-              <span><Zap className="w-3 h-3 inline mr-1 text-yellow-400/60" />12ms</span>
-              <span className="text-neutral-700">•</span>
-              <span><Cpu className="w-3 h-3 inline mr-1 text-blue-400/60" />1.2 TB</span>
+              <span><Database className="w-3 h-3 inline mr-1 text-blue-400/60" />Docs: {stats.documents}</span>
               <span className="text-neutral-700">•</span>
               <span><Activity className="w-3 h-3 inline mr-1 text-purple-400/60" />99.9%</span>
             </div>

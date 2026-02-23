@@ -1,6 +1,0 @@
-{
-    "worker_enabled": false,
-    "last_run": "2026-02-10T13:51:22.396255",
-    "cron_schedule": "0 6 * * *",
-    "last_run_status": "success"
-}

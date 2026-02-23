@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-
-# Do not track sensitive paths or legal documents if requested
-Disallow: /privacy
-Disallow: /admin
-Disallow: /api/
-
-Sitemap: https://biegwsteczny.pl/sitemap.xml
