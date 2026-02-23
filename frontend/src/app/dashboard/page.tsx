@@ -21,20 +21,14 @@ export default function Home() {
   const [messages, setMessages] = useState<DashboardMessage[]>([
     {
       id: "initial-1",
-      role: "user",
-      content: "What did we discuss about the authentication system last week?",
-      isInitial: true
-    },
-    {
-      id: "initial-2",
       role: "assistant",
-      content: "Last Tuesday, you outlined a JWT-based auth flow with refresh token rotation.",
+      content: "Aether Core zaktualizowany. Zakończono fuzję pamięci po nocnym przepięciu.",
       extra: [
-        "Supabase Auth for session management",
-        "RLS policies on all public tables",
-        "Custom claims for role-based access"
+        "Skonsolidowano 4 luźne zapytania dot. testów integracyjnych.",
+        "Zidentyfikowano potencjalny błąd w architekturze wektorów (Qdrant). Sugeruję optymalizację.",
+        "Strategia na dzisiaj wygenerowana i oczekuje na Twój wgląd."
       ],
-      sources: ["conversation_feb_08.md", "auth_architecture.pdf"],
+      sources: ["aether.sleep_cycle", "constellation.log"],
       isInitial: true
     }
   ]);
@@ -176,7 +170,7 @@ export default function Home() {
           {/* Row 3: Chat + Activity */}
           <div className="flex-1 grid grid-cols-12 gap-4 min-h-0 min-w-0">
 
-            {/* Left: Chat with Agent (Terminal Style) */}
+            {/* Left: Command Center / Morning Brief (Terminal Style) */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -195,7 +189,7 @@ export default function Home() {
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[9px] text-green-500/70 font-mono font-bold tracking-tighter">CONNECTED</span>
                   <Link href="/chat" className="ml-3 text-[9px] bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-0.5 rounded transition-colors text-neutral-400 font-mono">
-                    PRO TERMINAL
+                    OPEN TECHNICAL CHAT
                   </Link>
                 </div>
               </div>
@@ -216,13 +210,13 @@ export default function Home() {
                         {/* Status lines (only for AI) */}
                         <div className="space-y-1 opacity-70">
                           <div className="text-blue-400/80">
-                            <span>[aether]</span> <span className="text-neutral-500 italic">Accessing neural associations...</span>
+                            <span>[aether]</span> <span className="text-neutral-500 italic">Evaluating system context & logs...</span>
                           </div>
                           <div className="flex items-center gap-2 text-[11px] text-neutral-600">
                             <span className="text-blue-400/50">[aether]</span>
-                            <span className="text-green-400/60">Search complete</span>
+                            <span className="text-green-400/60">Report synthesized</span>
                             <span>•</span>
-                            <span>lat: {msg.isInitial ? "23ms" : "41ms"}</span>
+                            <span>sys.time: {msg.isInitial ? "07:12:00" : "now"}</span>
                           </div>
                         </div>
 
@@ -230,7 +224,7 @@ export default function Home() {
                         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
                           <div className="flex items-center gap-2 text-[10px] text-green-400/70 font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            <span>Aether Terminal Output</span>
+                            <span>Aether Morning Brief / Terminal Return</span>
                           </div>
                           <div className="text-neutral-300 space-y-3">
                             <p>{msg.content}</p>
@@ -281,7 +275,7 @@ export default function Home() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Type command..."
+                    placeholder="Execute system command or run task..."
                     className="flex-1 bg-transparent text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleSend();
