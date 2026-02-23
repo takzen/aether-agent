@@ -18,20 +18,7 @@ interface DashboardMessage {
 export default function Home() {
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [messages, setMessages] = useState<DashboardMessage[]>([
-    {
-      id: "initial-1",
-      role: "assistant",
-      content: "Aether Core zaktualizowany. Zakończono fuzję pamięci po nocnym przepięciu.",
-      extra: [
-        "Skonsolidowano 4 luźne zapytania dot. testów integracyjnych.",
-        "Zidentyfikowano potencjalny błąd w architekturze wektorów (Qdrant). Sugeruję optymalizację.",
-        "Strategia na dzisiaj wygenerowana i oczekuje na Twój wgląd."
-      ],
-      sources: ["aether.sleep_cycle", "constellation.log"],
-      isInitial: true
-    }
-  ]);
+  const [messages, setMessages] = useState<DashboardMessage[]>([]);
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
   const [activities, setActivities] = useState<any[]>([]);
@@ -80,8 +67,57 @@ export default function Home() {
       })
       .catch(err => console.error("Activity error:", err));
 
+    // Fetch Morning Brief (Night Cycle Output)
+    fetch("http://localhost:8000/system/morning-brief")
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success" && data.report) {
+          setMessages([{
+            id: "initial-" + Date.now(),
+            role: "assistant",
+            content: data.report.brief,
+            extra: data.report.points,
+            sources: ["aether.sleep_cycle", "system.logs"],
+            isInitial: true
+          }]);
+        }
+      })
+      .catch(err => console.error("Morning Brief fetch error:", err));
+
     return () => window.removeEventListener("configUpdated", fetchConfig);
   }, []);
+
+  const triggerSleepCycle = async () => {
+    setIsProcessing(true);
+    try {
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: "user",
+        content: "EXECUTE SYSTEM OVERRIDE: run_sleep_cycle()"
+      }]);
+      const res = await fetch("http://localhost:8000/system/sleep-cycle", { method: "POST" });
+      const data = await res.json();
+      if (data.status === "success" && data.report) {
+        setMessages(prev => [...prev, {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.report.brief,
+          extra: data.report.points,
+          sources: ["aether.sleep_cycle", "analysis.engine"]
+        }]);
+      } else {
+        throw new Error(data.message || "Unknown error");
+      }
+    } catch (err: any) {
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: `Error running night cycle: ${err.message}`
+      }]);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -188,7 +224,14 @@ export default function Home() {
                 <div className="ml-auto flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[9px] text-green-500/70 font-mono font-bold tracking-tighter">CONNECTED</span>
-                  <Link href="/chat" className="ml-3 text-[9px] bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-0.5 rounded transition-colors text-neutral-400 font-mono">
+                  <button
+                    onClick={triggerSleepCycle}
+                    disabled={isProcessing}
+                    className="ml-3 text-[9px] bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-0.5 rounded transition-colors font-mono disabled:opacity-50"
+                  >
+                    FORCE SLEEP CYCLE
+                  </button>
+                  <Link href="/chat" className="ml-2 text-[9px] bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-0.5 rounded transition-colors text-neutral-400 font-mono">
                     OPEN TECHNICAL CHAT
                   </Link>
                 </div>

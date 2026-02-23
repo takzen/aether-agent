@@ -1,0 +1,12 @@
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Traceback (most recent call last):
+  File "C:\Users\takze\OneDrive\Pulpit\project\aether-agent\backend\sleep_cycle.py", line 36, in run_sleep_cycle
+    raw_text = result.data.strip()
+               ^^^^^^^^^^^
+AttributeError: 'AgentRunResult' object has no attribute 'data'
+[Database] Qdrant Cloud detected. Connecting to: https://434d90a7-5814-4b5c-bbbb-74276563704f.eu-central-1-0.aws.cloud.qdrant.io
+[Database] Collection 'memories' already exists.
+[Database] Collection 'documents' already exists.
+[Database] Qdrant Cloud initialized. Base URL: https://434d90a7-5814-4b5c-bbbb-74276563704f.eu-central-1-0.aws.cloud.qdrant.io
+[SleepCycle] Error running night cycle: AttributeError("'AgentRunResult' object has no attribute 'data'")
+{'brief': '<ERROR> Aether Core zaktualizowany, lecz proces konsolidacji wektorowej zosta³ przerwany przez awariê parsowania.', 'points': ["Debug Stack: 'AgentRunResult' object has no attribute 'data'", 'Proszê zainicjowaæ diagnostykê PydanticAI (Model nie zwróci³ poprawnego JSON-a).']}

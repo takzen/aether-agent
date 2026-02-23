@@ -421,6 +421,40 @@ async def approve_action(request: ActionApproval):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+from sleep_cycle import run_sleep_cycle
+
+@app.get("/system/morning-brief")
+async def get_morning_brief():
+    """Fetches the latest Morning Brief from the database."""
+    try:
+        from local_db import sqlite_service
+        import json
+        
+        # Pobierz logi uzywajac istniejacej funkcji serwisu i znajdz raport
+        logs = await sqlite_service.get_logs(limit=200)
+        for log in logs:
+            if log["type"] == "brief":
+                return {"status": "success", "report": json.loads(log["message"])}
+                    
+        return {
+            "status": "success", 
+            "report": {
+                "brief": "Aether Core zaktualizowany. Brak ostatnich raportów z cyklu nocnego (Sleep Cycle). Uruchom ręcznie z kokpitu.",
+                "points": ["System działa w trybie ciągłym.", "Naciśnij 'Force Sleep Cycle' aby zasymulować nową konsolidację."]
+            }
+        }
+    except Exception as e:
+        return {"status": "error", "message": f"Nie udało się załadować wczesnego raportu: {e}"}
+
+@app.post("/system/sleep-cycle")
+async def force_sleep_cycle():
+    """Forces the Night Cycle processing to generate a new Morning Brief."""
+    try:
+        result = await run_sleep_cycle()
+        return {"status": "success", "report": result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
