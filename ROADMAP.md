@@ -82,6 +82,7 @@ Cel: "Aether w pudełku" — łatwy start dla każdego bez chmury.
 - [ ] **5.2** Skrypt `setup.bat / .sh` — instalacja wszystkiego jedną komendą
 - [ ] **5.3** **Electron / Desktop App** — opakowanie Aethera w ikonkę na pulpicie
 - [ ] **5.4** `docker-compose` — dla fanów self-hostingu i NASów
+- [ ] **5.5** **Integracja MCP (Model Context Protocol)** — eksport wiedzy do innych asystentów (np. Claude Code, Cursor)
 
 ---
 
@@ -103,10 +104,10 @@ Faza 1  [████████████]   8 / 8
 Faza 2  [████████████]   8 / 8
 Faza 3  [█████████░░░]   5 / 6
 Faza 4  [████████████]   6 / 6
-Faza 5  [███░░░░░░░░░]   1 / 4
+Faza 5  [██░░░░░░░░░░]   1 / 5
 Faza 6  [██████░░░░░░]   2 / 4
 
-TOTAL   [███████████░]   30 / 36 zadań
+TOTAL   [██████████l░]   30 / 37 zadań
 ```
 
 ---
