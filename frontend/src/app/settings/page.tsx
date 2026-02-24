@@ -107,7 +107,8 @@ export default function Settings() {
                                     </label>
                                     <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for primary cognitive reasoning using Google&apos;s Gemini models.</p>
                                     <input
-                                        type="password"
+                                        type="text"
+                                        style={{ WebkitTextSecurity: "disc" } as any}
                                         value={config.GEMINI_API_KEY}
                                         onChange={(e) => setConfig({ ...config, GEMINI_API_KEY: e.target.value })}
                                         placeholder="AIzaSy..."
@@ -122,7 +123,8 @@ export default function Settings() {
                                     </label>
                                     <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for giving the agent live internet access and search capabilities.</p>
                                     <input
-                                        type="password"
+                                        type="text"
+                                        style={{ WebkitTextSecurity: "disc" } as any}
                                         value={config.TAVILY_API_KEY}
                                         onChange={(e) => setConfig({ ...config, TAVILY_API_KEY: e.target.value })}
                                         placeholder="tvly-..."
@@ -189,7 +191,8 @@ export default function Settings() {
                                             className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-yellow-500/50 transition-colors"
                                         />
                                         <input
-                                            type="password"
+                                            type="text"
+                                            style={{ WebkitTextSecurity: "disc" } as any}
                                             value={config.QDRANT_API_KEY}
                                             onChange={(e) => setConfig({ ...config, QDRANT_API_KEY: e.target.value })}
                                             placeholder="Qdrant API Key (Optional)"
