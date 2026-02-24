@@ -506,7 +506,7 @@ export default function ChatPage() {
                             >
                                 <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#1e1e1e]">
                                     <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                                        <Database className="w-4 h-4 text-purple-500" />
+                                        <MessageSquare className="w-4 h-4 text-cyan-500" />
                                         Chronicles
                                     </h3>
                                     <div className="flex items-center gap-2">

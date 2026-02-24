@@ -221,7 +221,7 @@ export default function KnowledgeBase() {
                 {/* Header — Aligned with Dashboard Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                         <div>
                             <h3 className="text-sm font-bold tracking-wider text-white uppercase">Knowledge Base</h3>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
@@ -243,7 +243,7 @@ export default function KnowledgeBase() {
                         <button
                             onClick={handleFileClick}
                             disabled={isUploading}
-                            className="px-3 py-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-[11px] font-mono font-bold text-purple-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-[11px] font-mono font-bold text-blue-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
                             {isUploading ? "INDEXING..." : "ADD_SOURCE"}
@@ -289,7 +289,7 @@ export default function KnowledgeBase() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className="group relative p-5 rounded-2xl bg-[#252526] border border-[#303030] hover:bg-[#2d2d2d] hover:border-purple-500/30 transition-all cursor-pointer overflow-hidden"
+                                className="group relative p-5 rounded-2xl bg-[#252526] border border-[#303030] hover:bg-[#2d2d2d] hover:border-blue-500/30 transition-all cursor-pointer overflow-hidden"
                             >
                                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 p-1 rounded-lg">
                                     <button
@@ -301,7 +301,7 @@ export default function KnowledgeBase() {
                                     </button>
                                     <button
                                         onClick={(e) => handlePreview(e, item.title)}
-                                        className="p-1.5 hover:bg-white/10 text-purple-400 rounded transition-colors"
+                                        className="p-1.5 hover:bg-white/10 text-blue-400 rounded transition-colors"
                                         title="Preview Document"
                                     >
                                         <ExternalLink className="w-3.5 h-3.5" />
@@ -309,7 +309,7 @@ export default function KnowledgeBase() {
                                 </div>
 
                                 <div className="flex items-start gap-4 mb-4">
-                                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-purple-400 group-hover:bg-purple-500/20 transition-colors shrink-0">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400 group-hover:bg-blue-500/20 transition-colors shrink-0">
                                         <item.icon className="w-5 h-5" />
                                     </div>
                                     <div className="min-w-0 pr-16 text-left">
@@ -341,7 +341,7 @@ export default function KnowledgeBase() {
                                     {item.added === 'ON_DISK' && (
                                         <button
                                             onClick={(e) => handleIndex(e, item.title)}
-                                            className="text-[10px] font-bold font-mono text-purple-400 hover:text-white bg-purple-500/10 hover:bg-purple-500 px-3 py-1 rounded transition-all flex items-center gap-2 border border-purple-500/30"
+                                            className="text-[10px] font-bold font-mono text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1 rounded transition-all flex items-center gap-2 border border-blue-500/30"
                                         >
                                             <Zap className="w-3 h-3" /> INDEX_NOW
                                         </button>
@@ -349,7 +349,7 @@ export default function KnowledgeBase() {
                                 </div>
 
                                 {/* Card Status Strip */}
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                             </motion.div>
                         ))}
 
@@ -359,7 +359,7 @@ export default function KnowledgeBase() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
                             onClick={handleFileClick}
-                            className={`p-5 rounded-2xl border border-dashed border-white/5 flex flex-col items-center justify-center gap-3 text-neutral-600 hover:text-purple-400 hover:border-purple-500/40 hover:bg-purple-500/5 transition-all cursor-pointer min-h-[140px] ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                            className={`p-5 rounded-2xl border border-dashed border-white/5 flex flex-col items-center justify-center gap-3 text-neutral-600 hover:text-blue-400 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all cursor-pointer min-h-[140px] ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
                         >
                             <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
                                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
