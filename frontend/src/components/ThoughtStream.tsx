@@ -28,7 +28,7 @@ export default function ThoughtStream({ steps = [] }: ThoughtStreamProps) {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4">
                 <AnimatePresence>
                     {steps.map((step, index) => (
                         <motion.div
@@ -58,9 +58,6 @@ export default function ThoughtStream({ steps = [] }: ThoughtStreamProps) {
                 </AnimatePresence>
             </div>
 
-            <div className="p-4 bg-black/20 text-[10px] font-mono text-muted-foreground truncate italic">
-                {">"} system.aether.core_stable_v1.0.4
-            </div>
         </div>
     );
 }

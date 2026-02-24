@@ -77,7 +77,7 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            <div className="mt-auto pt-6 border-t border-white/5 font-sans">
+            <div className="mt-auto pt-6 border-t border-white/5 font-sans flex flex-col gap-4">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
                         <span className="text-[10px] font-bold text-purple-400">AI</span>
@@ -86,6 +86,9 @@ export default function Sidebar() {
                         <p className="text-xs font-semibold text-white">{modelName}</p>
                         <p className="text-[10px] text-neutral-500 uppercase tracking-wider">Online</p>
                     </div>
+                </div>
+                <div className="text-center">
+                    <span className="text-[10px] text-neutral-600 font-mono tracking-widest">AETHER v1.0.0-beta</span>
                 </div>
             </div>
         </div>

@@ -186,11 +186,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-4 px-5 py-3 bg-[#181818] border border-[#303030] rounded-xl shrink-0"
           >
-            <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[11px] font-mono text-green-400 uppercase">Online</span>
-            </div>
-            <span className="text-neutral-700">|</span>
+
             <div className="flex items-center gap-4 text-[11px] font-mono text-neutral-400">
               <span><Shield className="w-3 h-3 inline mr-1 text-green-400/60" />Memories: {stats.memories}</span>
               <span className="text-neutral-700">•</span>
@@ -222,10 +218,9 @@ export default function Home() {
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
                 </div>
-                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — session_live</span>
+                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — root@dashboard</span>
                 <div className="ml-auto flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[9px] text-green-500/70 font-mono font-bold tracking-tighter">CONNECTED</span>
+
                   <button
                     onClick={triggerSleepCycle}
                     disabled={isProcessing}
@@ -350,7 +345,7 @@ export default function Home() {
                   View All →
                 </Link>
               </div>
-              <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden divide-y divide-white/5">
                 {activities.map((activity, i) => {
                   let Icon = Activity;
                   if (activity.icon === "Brain") Icon = Brain;
@@ -379,18 +374,7 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="flex items-center justify-between px-2 text-[10px] font-mono text-neutral-600 uppercase tracking-wider shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-green-400/60">Online</span>
-              </div>
-              <span className="text-neutral-700">•</span>
-              <span>Command Center</span>
-            </div>
-            <span>Aether v0.1.0-alpha</span>
-          </div>
+
 
         </div>
 

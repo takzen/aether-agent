@@ -304,26 +304,24 @@ export default function ChatPage() {
                             <h3 className="text-sm font-bold text-white">Aether Agent</h3>
                         </div>
                         <div className="flex items-center gap-3 text-[10px] text-neutral-500 font-mono uppercase tracking-widest overflow-hidden">
-
-
+                            {/* New Chat Button */}
+                            <button
+                                onClick={startNewSession}
+                                className="flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">New Chat</span>
+                            </button>
                             {/* History Toggle */}
                             <button
                                 onClick={() => setIsHistoryOpen(!isHistoryOpen)}
                                 className={`flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all
-                                    ${isHistoryOpen ? "bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-purple-400 font-bold border-purple-500/30" : "bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"}
-                                `}
+                                        ${isHistoryOpen ? "bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-purple-400 font-bold border-purple-500/30" : "bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"}
+                                    `}
                             >
                                 <History className="w-3.5 h-3.5" />
                                 <span className="hidden sm:inline">HISTORY Logs</span>
                             </button>
-
-                            <span className="hidden sm:inline">•</span>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                                <span className={`w-1.5 h-1.5 rounded-full ${selectedModel === 'gemini' ? 'bg-purple-500/50' : 'bg-blue-500/50'}`} />
-                                <span>{selectedModel === 'gemini' ? 'Core Online' : 'Local Edge'}</span>
-                            </div>
-                            <span className="hidden md:inline">•</span>
-                            <span className="hidden md:inline">Latency: ~12ms</span>
                         </div>
                     </div>
 
@@ -486,20 +484,7 @@ export default function ChatPage() {
                         </div>
                     </div>
 
-                    {/* Bottom Bar — System Status */}
-                    <div className="flex items-center justify-between px-6 py-4 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0 w-full">
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/30 animate-pulse" />
-                                <span className="text-green-500/40">Local Instance</span>
-                            </div>
-                            <span className="text-neutral-800">•</span>
-                            <span>Aether v0.1.0</span>
-                        </div>
-                        <div className="hidden md:block">
-                            System Ready // <span className="text-neutral-700">Aether Workspace</span>
-                        </div>
-                    </div>
+
                 </div >
 
                 {/* Right History Drawer */}
@@ -517,12 +502,22 @@ export default function ChatPage() {
                                         <Database className="w-4 h-4 text-purple-500" />
                                         Chronicles
                                     </h3>
-                                    <button
-                                        onClick={startNewSession}
-                                        className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-white transition-colors"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={startNewSession}
+                                            className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white transition-colors"
+                                            title="New Session"
+                                        >
+                                            <Plus className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => setIsHistoryOpen(false)}
+                                            className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors"
+                                            title="Close History"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
@@ -565,10 +560,10 @@ export default function ChatPage() {
                             </motion.div>
                         )
                     }
-                </AnimatePresence>
-            </main>
+                </AnimatePresence >
+            </main >
 
             <ThoughtStream steps={thoughtSteps} />
-        </div>
+        </div >
     );
 }

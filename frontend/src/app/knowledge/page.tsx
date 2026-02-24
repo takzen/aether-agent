@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Search, FileText, Upload, Filter, ExternalLink, Code, Loader2, Trash, Zap } from "lucide-react";
+import { Search, FileText, Upload, ExternalLink, Code, Loader2, Trash, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
@@ -216,9 +216,7 @@ export default function KnowledgeBase() {
                             onChange={handleFileChange}
                             accept=".md,.txt,.pdf"
                         />
-                        <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono transition-colors flex items-center gap-2 text-neutral-400">
-                            <Filter className="w-3.5 h-3.5" /> FILTER
-                        </button>
+
                         <button
                             onClick={handleFileClick}
                             disabled={isUploading}
@@ -340,18 +338,7 @@ export default function KnowledgeBase() {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar — VSCode Style */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-1 h-1 rounded-full bg-green-500" />
-                            <span>KNOWLEDGE_NODE: STABLE</span>
-                        </div>
-                        <span className="text-neutral-800">|</span>
-                        <span>LATENCY: 0.8MS</span>
-                    </div>
-                    <span>aether.core_stable_v1.0.4</span>
-                </div>
+
 
             </main>
 
