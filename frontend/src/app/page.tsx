@@ -72,10 +72,7 @@ export default function LandingPage() {
                     <span className="font-bold tracking-tighter text-xl">AETHER</span>
                 </button>
                 <div className="flex gap-8 items-center">
-                    <div className="hidden md:flex items-center gap-2 group cursor-default">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" />
-                        <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-[0.3em] group-hover:text-green-500 transition-colors">System: Online</span>
-                    </div>
+
                     <Link href="https://github.com/takzen/aether-agent" target="_blank" className="hidden lg:block text-neutral-400 hover:text-white transition-colors text-sm font-medium">GitHub</Link>
                     <Link href="/dashboard" className="px-6 py-2 border border-white/20 rounded-full hover:bg-white hover:text-black transition-all text-sm font-medium backdrop-blur-md">
                         Access Terminal
@@ -83,61 +80,101 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* --- HERO SECTION: THE ORB --- */}
+            {/* --- HERO SECTION: AETHER HYPER-CORE --- */}
             <section className="relative h-screen flex flex-col items-center justify-center perspective-1000 overflow-hidden">
-
                 <motion.div
                     style={{ scale: orbScale, opacity: orbOpacity, y: orbY }}
-                    className="absolute z-0 w-[600px] h-[600px] md:w-[800px] md:h-[800px]"
+                    className="absolute z-0 w-[500px] h-[500px] md:w-[800px] md:h-[800px] pointer-events-none"
                 >
-                    {/* THE CORE - Multiple spinning layers */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/30 to-blue-600/30 rounded-full blur-[80px] animate-pulse" />
-                    <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-[10%] border border-white/10 rounded-full border-t-white/50 border-r-transparent"
-                    />
-                    <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-[20%] border border-white/10 rounded-full border-b-white/50 border-l-transparent"
-                    />
-                    <motion.div
-                        animate={{ rotate: 180 }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-[30%] border border-dashed border-white/20 rounded-full"
-                    />
-                    {/* Inner Glow */}
+                    {/* Tło luminescencyjne */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/20 via-transparent to-blue-600/20 rounded-full blur-[90px] animate-pulse" />
+
+                    {/* Pierścienie Obwodowe */}
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute inset-[5%] border border-white/[0.03] rounded-full border-t-purple-500/40" />
+                    <motion.div animate={{ rotate: -360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute inset-[15%] border border-white/[0.05] rounded-full border-b-cyan-500/40" />
+                    <motion.div animate={{ rotate: 180 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-[25%] border border-dashed border-white/10 rounded-full" />
+
+                    {/* Węzły Wektorowe (Neuronowe Ścieżki Pamięci) */}
+                    <svg className="absolute inset-0 w-full h-full overflow-visible opacity-60">
+                        {Array.from({ length: 12 }).map((_, i) => {
+                            const angle = (i * Math.PI * 2) / 12;
+                            // Dynamika odległości satelitów
+                            const distMain = 38;
+                            const distSub = 25;
+                            return (
+                                <g key={i}>
+                                    {/* Linia Główna z Centrum */}
+                                    <line
+                                        x1="50%" y1="50%"
+                                        x2={`${50 + Math.cos(angle) * distMain}%`} y2={`${50 + Math.sin(angle) * distMain}%`}
+                                        stroke="rgba(168,85,247,0.3)" strokeWidth="1" strokeDasharray="2 4"
+                                    />
+                                    {/* Główny Węzeł Sfery */}
+                                    <motion.circle
+                                        cx={`${50 + Math.cos(angle) * distMain}%`} cy={`${50 + Math.sin(angle) * distMain}%`} r="3" fill="rgba(168,85,247,0.8)"
+                                        animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0.9, 0.4] }}
+                                        transition={{ duration: 3 + (i % 3), repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
+                                    />
+                                    {/* Sub-Ścieżki i Nody Satelitarne */}
+                                    <line
+                                        x1={`${50 + Math.cos(angle) * distMain}%`} y1={`${50 + Math.sin(angle) * distMain}%`}
+                                        x2={`${50 + Math.cos(angle + 0.3) * distSub}%`} y2={`${50 + Math.sin(angle + 0.3) * distSub}%`}
+                                        stroke="rgba(6,182,212,0.2)" strokeWidth="0.5"
+                                    />
+                                    <circle cx={`${50 + Math.cos(angle + 0.3) * distSub}%`} cy={`${50 + Math.sin(angle + 0.3) * distSub}%`} r="1.5" fill="rgba(6,182,212,0.6)" />
+                                </g>
+                            )
+                        })}
+                    </svg>
+
+                    {/* Fale Tętniące Wewnątrz Rdzenia */}
                     <div className="absolute inset-[35%] bg-white/5 rounded-full blur-2xl flex items-center justify-center">
-                        <div className="w-full h-full bg-white/10 rounded-full animate-ping opacity-20" />
+                        <div className="w-full h-full bg-purple-500/20 rounded-full animate-ping opacity-30" />
+                    </div>
+
+                    {/* Wewnętrzny Motyl: Ukryty za światłem */}
+                    <div className="absolute inset-[30%] flex items-center justify-center pointer-events-none drop-shadow-[0_0_30px_rgba(168,85,247,0.8)]">
+                        <motion.div
+                            animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.6, 1, 0.6] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-full h-full flex items-center justify-center"
+                        >
+                            <AetherLogo className="w-full h-full opacity-80 mix-blend-screen" />
+                        </motion.div>
                     </div>
                 </motion.div>
 
-                <div className="relative z-10 text-center space-y-6 mix-blend-normal">
+                <div className="relative z-10 text-center space-y-8 mix-blend-normal mt-[5vh]">
+
                     <motion.h1
                         initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 1 }}
-                        className="text-7xl md:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40"
+                        transition={{ duration: 1, type: "spring", damping: 20 }}
+                        className="text-7xl md:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40 drop-shadow-2xl relative"
                     >
-                        SECOND <br /> BRAIN.
+                        SECOND <br /> BRAIN
                     </motion.h1>
+
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5, duration: 1 }}
-                        className="text-xl md:text-2xl text-neutral-400 max-w-xl mx-auto uppercase tracking-[0.2em]"
+                        className="text-lg md:text-2xl text-neutral-400 max-w-2xl mx-auto uppercase tracking-[0.2em] font-light flex items-center justify-center gap-4 flex-wrap"
                     >
-                        Infinite Memory • Local Privacy
+                        <span>Infinite Memory</span>
+                        <span className="text-purple-500/50">•</span>
+                        <span>Local Privacy</span>
+                        <span className="text-purple-500/50">•</span>
+                        <span className="text-neutral-300">Autonomy</span>
                     </motion.p>
                 </div>
 
                 <motion.div
                     style={{ opacity: orbOpacity }}
-                    className="absolute bottom-12 flex flex-col items-center gap-2 text-neutral-500 animate-bounce"
+                    className="absolute bottom-12 flex flex-col items-center gap-3 text-neutral-600 animate-bounce cursor-pointer font-mono"
                 >
-                    <span className="text-xs uppercase tracking-widest">Scroll to Initialize</span>
-                    <ArrowRight className="rotate-90 w-4 h-4" />
+                    <span className="text-[10px] uppercase tracking-[0.3em]">Initialize Sequence</span>
+                    <ArrowRight className="rotate-90 w-4 h-4 text-purple-400" />
                 </motion.div>
             </section>
 
@@ -701,44 +738,85 @@ export default function LandingPage() {
                 </div>
             </motion.section>
 
-            {/* --- FOOTER (COMPACT & PROFESSIONAL) --- */}
-            <section className="relative w-full border-t border-white/10 bg-[#050505] py-16 flex flex-col items-center justify-center overflow-hidden">
+            {/* --- CTA & FOOTER --- */}
+            <section className="relative w-full border-t border-white/10 bg-[#020202] pt-32 pb-12 flex flex-col items-center justify-center overflow-hidden font-sans">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5" />
 
-                {/* Footer Glow - Subtle */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-purple-900/10 blur-[80px] rounded-full pointer-events-none" />
+                {/* Środkowy blask na dolnej krawędzi */}
+                <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-900/10 blur-[120px] rounded-full pointer-events-none" />
 
-                <div className="relative z-10 text-center space-y-8 max-w-4xl px-6">
-                    <div className="space-y-4">
-                        <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                            Not just a wrapper. <span className="text-neutral-500">Structured Engineering.</span>
+                <div className="relative z-10 w-full max-w-7xl px-8 flex flex-col items-center">
+
+                    {/* Główny blok Call To Action */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center space-y-8 mb-32"
+                    >
+                        <AetherLogo className="w-16 h-16 mx-auto opacity-70 mb-4" />
+                        <h2 className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/30">
+                            Initialize Engine.
                         </h2>
-                        <p className="text-base text-neutral-400 leading-relaxed max-w-xl mx-auto">
-                            Aether is an engineering scaffold that turns raw algorithms into a capable, personal agent.
+                        <p className="text-lg text-neutral-400 max-w-2xl mx-auto font-light leading-relaxed">
+                            Aether is an engineering scaffold that turns raw algorithms into a capable, personal agent. Fully transparent. Totally private.
                         </p>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+                            <Link href="/dashboard" className="px-8 py-4 bg-white text-black font-bold rounded-xl flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] group">
+                                <span>Access Terminal</span>
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                            <Link href="https://github.com/takzen/aether-agent" target="_blank" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-xl flex items-center gap-3 hover:bg-white/10 transition-colors">
+                                <Github className="w-4 h-4" />
+                                <span>Source Code</span>
+                            </Link>
+                        </div>
+                    </motion.div>
+
+                    {/* Siatka Linków Stopki */}
+                    <div className="w-full grid grid-cols-2 lg:grid-cols-5 gap-12 border-t border-white/10 pt-16 pb-16">
+                        <div className="col-span-2 flex flex-col gap-6">
+                            <span className="font-bold tracking-tighter text-2xl text-white flex items-center gap-3">
+                                <AetherLogo className="w-6 h-6" /> AETHER
+                            </span>
+                            <p className="text-sm text-neutral-500 leading-relaxed max-w-sm">
+                                Advanced autonomous agent architecture with long-term memory, dual-core reasoning, and transparent thought streams. Built for the modern builder.
+                            </p>
+                            <div className="flex gap-4">
+                                <span className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-neutral-500 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"><Github className="w-4 h-4" /></span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <h4 className="text-white text-sm font-bold tracking-wider mb-2">Capabilities</h4>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Long-Term Memory</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Vector Knowledge Base</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Hybrid Reasoning</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Thought Stream</Link>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <h4 className="text-white text-sm font-bold tracking-wider mb-2">Architecture</h4>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">FastAPI Engine</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Next.js UI Shell</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Qdrant Graph</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">SQLite State</Link>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <h4 className="text-white text-sm font-bold tracking-wider mb-2">Ecosystem</h4>
+                            <Link href="https://github.com/takzen/aether-agent" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Repository</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Documentation</Link>
+                            <Link href="/dashboard" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Dashboard</Link>
+                            <Link href="/settings" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">System Config</Link>
+                        </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                        <Link href="/dashboard" className="px-6 py-3 bg-white text-black font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.1)] text-sm">
-                            <span>Initialize Aether</span>
-                            <ArrowRight className="w-4 h-4" />
-                        </Link>
-                        <Link href="https://github.com/takzen/aether-agent" className="px-6 py-3 bg-white/5 border border-white/10 text-white font-medium rounded-xl flex items-center gap-2 hover:bg-white/10 transition-colors text-sm">
-                            <Github className="w-4 h-4" />
-                            <span>View Source</span>
-                        </Link>
+                    {/* Najniższy Panel i Prawa Autorskie */}
+                    <div className="w-full flex flex-col items-center justify-center text-neutral-600 text-[10px] uppercase tracking-widest font-mono border-t border-white/5 pt-8 pb-4">
+                        <span>&copy; AETHER</span>
                     </div>
-                </div>
 
-                <div className="mt-16 w-full px-6 flex flex-col md:flex-row justify-between items-center text-neutral-600 text-[10px] uppercase tracking-widest font-mono border-t border-white/5 pt-6 max-w-7xl">
-                    <span>&copy; 2026 Aether Protocol</span>
-                    <div className="flex gap-6 mt-4 md:mt-0">
-                        <span className="flex items-center gap-2 text-neutral-500">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                            System Healthy
-                        </span>
-                        <span className="text-neutral-500">v0.1.0-alpha</span>
-                    </div>
                 </div>
             </section>
 
