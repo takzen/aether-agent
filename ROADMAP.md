@@ -25,7 +25,7 @@ Cel: działający agent, który myśli, odpowiada i korzysta z pierwszych narzę
 - [x] **1.1** Inicjalizacja projektu — struktura katalogów, `pyproject.toml`, `venv`
 - [x] **1.2** Konfiguracja **FastAPI** — aplikacja startowa, health-check endpoint `/ping`
 - [x] **1.3** Integracja **PydanticAI** — pierwsza pętla agenta (input → reasoning → output)
-- [x] **1.4** Podpięcie **Gemini 2.0/3.0 Flash** jako głównego modelu logicznego
+- [x] **1.4** Podpięcie **Gemini 2.5/3.0 Flash** jako głównego modelu logicznego
 - [x] **1.5** Podpięcie **Ollama / Llama 3** jako lokalnego fallbacku (Prywatność)
 - [x] **1.6** Pierwsza **PydanticAI Tool** — `get_current_time()`
 - [x] **1.7** Tool — `web_search(query)` przez **Tavily**
@@ -91,8 +91,8 @@ Cel: "Aether w pudełku" — łatwy start dla każdego bez chmury.
 
 Cel: To, co czyni Aethera unikalnym na skalę światową.
 
-- [ ] **6.1** **Active World Model** — agent przeprowadza symulacje w tle (Self-Reflection)
-- [ ] **6.2** **Digital Circadian Rhythm** — zmiana trybu pracy (Strateg/Philosopher) zależnie od pory dnia
+- [x] **6.1** **Active World Model** — agent przeprowadza symulacje w tle (Self-Reflection)
+- [x] **6.2** **Digital Circadian Rhythm** — zmiana trybu pracy (Strateg/Philosopher) zależnie od pory dnia
 - [x] **6.3** **Concept Constellations** — pamięć grafowa zamiast prostych wektorów
 - [x] **6.4** **Sleep Cycle** — nocna konsolidacja i optymalizacja bazy wiedzy
 
@@ -106,9 +106,9 @@ Faza 2  [████████████]   8 / 8
 Faza 3  [████████████]   6 / 6
 Faza 4  [████████████]   6 / 6
 Faza 5  [██████████░░]   5 / 6
-Faza 6  [██████░░░░░░]   2 / 4
+Faza 6  [████████████]   4 / 4
 
-TOTAL   [████████████]   35 / 38 zadań
+TOTAL   [███████████░]   37 / 38 zadań
 ```
 
 ---

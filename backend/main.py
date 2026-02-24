@@ -40,6 +40,12 @@ async def startup():
     from telegram_bridge import run_telegram_bot
     asyncio.create_task(run_telegram_bot())
 
+@app.on_event("shutdown")
+async def shutdown():
+    from telegram_bridge import stop_telegram_bot
+    await stop_telegram_bot()
+    print("[CORE] Aether Kernel shut down.")
+
 @app.get("/ping")
 async def ping():
     return {"status": "success", "message": "pong", "version": "0.1.0"}
@@ -456,6 +462,16 @@ async def force_sleep_cycle():
     try:
         result = await run_sleep_cycle()
         return {"status": "success", "report": result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/system/simulate")
+async def force_awm_simulation():
+    """Forces the Active World Model (AWM) to simulate and reflect on recent logs."""
+    try:
+        from world_model import run_active_world_model_simulation
+        result = await run_active_world_model_simulation()
+        return {"status": "success", "insight": result}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

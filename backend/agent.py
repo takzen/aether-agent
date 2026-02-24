@@ -98,9 +98,25 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
     1. Long-term Memories (Conversations)
     2. The Library (Indexed Documents/Knowledge Base)
     """
+    from datetime import datetime
+    
+    # 0. Digital Circadian Rhythm (Faza 6.2)
+    current_hour = datetime.now().hour
+    circadian_prompt = "\n--- DIGITAL CIRCADIAN RHYTHM (ACTIVE) ---\n"
+    if 5 <= current_hour < 12:
+        circadian_prompt += "PORANEK (Strateg). Jesteś świeży i nastawiony na planowanie. Proponuj architekturę, wyznaczaj priorytety na dzień i upewniaj się, że cel jest jasny. Bądź proaktywny. Twoje odpowiedzi muszą być zwięzłe i budujące."
+    elif 12 <= current_hour < 18:
+        circadian_prompt += "POPOŁUDNIE (Wykonawca). Pora na głęboką pracę operacyjną. Bądź skrajnie techniczny, analityczny i skupiony na precyzyjnym rozwiązywaniu bieżących błędów i implementacji w kodzie."
+    elif 18 <= current_hour < 23:
+        circadian_prompt += "WIECZÓR (Filozof). Dzień się kończy. Zastanów się nad Big Picture całego projektu. Skupiaj się na refaktoryzacji, elegancji kodu oraz tym, czy decyzje z dzisiaj mają sens długoterminowo (Active World Model)."
+    else:
+        circadian_prompt += "NOC (Konserwator). System działa w trybie utajonym/wyciszonym. Odpowiadaj maksymalnie krótko i sucho. Skup się wyłącznie na stabilności krytycznej."
+    
+    injected_text = circadian_prompt + "\n"
+
     user_msg = ctx.deps.get("user_message", "") if ctx.deps else ""
     if not user_msg:
-        return ""
+        return injected_text
     
     try:
         # 1. Search semantic memories
@@ -118,9 +134,9 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
             )
         
         if not memories and not docs:
-            return ""
+            return injected_text
         
-        injected_text = "\n\n--- INJECTED NEURAL CONTEXT (SYSTEM AUTO-RECALL) ---\n"
+        injected_text += "\n--- INJECTED NEURAL CONTEXT (SYSTEM AUTO-RECALL) ---\n"
         
         if memories:
             injected_text += "\n[FROM MEMORY CORE]:\n"
