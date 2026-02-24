@@ -39,3 +39,19 @@ frontend/src/components/WaveLogo.tsx
 # Roadmap (private, not for open source)
 ROADMAP.md
 ROADMAP_TEST.md
+
+# Debug & test artifacts (not for open source)
+response.json
+response2.json
+auth_test.json
+*.pyc
+__pycache__/
+err.log
+*debug*.txt
+eslint_full.txt
+**/eslint_ascii*
+**/eslint_report*
+lint_output.txt
+
+*/_backup_knowledge/
+*/knowledge_source/
