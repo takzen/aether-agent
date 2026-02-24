@@ -1,0 +1,41 @@
+<svg width="120" height="120" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="butterflyGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.6" />
+    </linearGradient>
+    <linearGradient id="butterflyBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(50, 50)">
+    <!-- Left Wing -->
+    <path
+      d="M 0 -25 C -45 -60, -70 -10, -20 5 C -60 15, -45 60, 0 35 Z"
+      fill="url(#butterflyGlow)"
+      stroke="url(#butterflyBorder)"
+      stroke-width="1.5"
+    />
+    <!-- Inner veins left -->
+    <path d="M 0 -25 Q -25 -15 -20 5" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
+    <path d="M -20 5 Q -25 25 0 35" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
+
+    <!-- Right Wing -->
+    <path
+      d="M 0 -25 C 45 -60, 70 -10, 20 5 C 60 15, 45 60, 0 35 Z"
+      fill="url(#butterflyGlow)"
+      stroke="url(#butterflyBorder)"
+      stroke-width="1.5"
+    />
+    <!-- Inner veins right -->
+    <path d="M 0 -25 Q 25 -15 20 5" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
+    <path d="M 20 5 Q 25 25 0 35" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/>
+
+    <!-- Body -->
+    <ellipse cx="0" cy="5" rx="2.5" ry="16" fill="white" />
+    <circle cx="0" cy="-20" r="4" fill="white" />
+  </g>
+</svg>

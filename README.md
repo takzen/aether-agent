@@ -1,12 +1,12 @@
 <div align="center">
+  <img src="assets/aether_logo.svg" width="160" alt="Aether Logo">
 
 ```
- █████╗ ███████╗████████╗██╗  ██╗███████╗██████╗
-██╔══██╗██╔════╝╚══██╔══╝██║  ██║██╔════╝██╔══██╗
-███████║█████╗     ██║   ███████║█████╗  ██████╔╝
-██╔══██║██╔══╝     ██║   ██╔══██║██╔══╝  ██╔══██╗
-██║  ██║███████╗   ██║   ██║  ██║███████╗██║  ██║
-╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+    ___    ______ ______ _   _  _____ ____  
+   /   |  / ____//_  __/| | | || ____||  _ \ 
+  / /| | / __/    / /   | |_| ||  _|  | |_) |
+ / ___ |/ /___   / /    |  _  || |___ |  _ < 
+/_/  |_/_____/  /_/     |_| |_||_____||_| \_\
 ```
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
@@ -60,7 +60,7 @@ graph TD
     
     Agent <--> LLM["🤖 Gemini 3 / Local Ollama"]
     Agent <--> Qdrant[("🌌 Qdrant Vector Space")]
-    Agent <--> SQLite[("�️ SQLite Brain (Logs/Sessions)")]
+    Agent <--> SQLite[("🧠 SQLite Brain (Logs/Sessions)")]
     
     SubAgent1["🌙 Sleep Cycle Processor"] --> SQLite
     SubAgent2["🌍 Active World Model"] --> SQLite
@@ -100,7 +100,7 @@ graph TD
 <td>Next.js 15 (App Router), Tailwind CSS, Framer Motion</td>
 </tr>
 <tr>
-<td>� <strong>Desktop Shell</strong></td>
+<td>💻 <strong>Desktop Shell</strong></td>
 <td>Electron, electron-builder</td>
 </tr>
 <tr>
@@ -108,7 +108,7 @@ graph TD
 <td>Qdrant (Local Docker or Cloud Hybrid)</td>
 </tr>
 <tr>
-<td>� <strong>APIs & Protocol</strong></td>
+<td>🔌 <strong>APIs & Protocol</strong></td>
 <td>FastMCP (Anthropic Protocol), python-telegram-bot, Tavily Search</td>
 </tr>
 </table>
