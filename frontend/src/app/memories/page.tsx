@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
+import ConceptGraph from "@/components/ConceptGraph";
 import { Brain, Network, Database, X, Trash2, List, Zap, ChevronRight, FileText, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -434,105 +435,10 @@ export default function Memories() {
                                         <p className="text-neutral-500 font-mono text-xs uppercase tracking-widest">Aether is searching for semantic synapsis...</p>
                                     </div>
                                 ) : (
-                                    <div className="relative w-[1000px] h-[700px] shrink-0">
-                                        {/* Mind Map Canvas (1000x700 center stage) */}
-
-                                        {/* Core Node (Center of the Map) */}
-                                        <div className="absolute top-[350px] left-[500px] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-10 w-32 h-32 bg-[#1e1e1e] rounded-full border border-[#303030]">
-                                            <div className="w-10 h-10 bg-[#181818] border border-[#3c3c3c] rounded-full flex items-center justify-center text-amber-500/50">
-                                                <Share2 className="w-4 h-4" />
-                                            </div>
-                                            <div className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mt-2 text-center">
-                                                World Model
-                                            </div>
-                                        </div>
-
-                                        {/* Physical Connection Lines (Draws BEFORE Nodes) */}
-                                        <svg width="1000" height="700" className="absolute inset-0 pointer-events-none z-0">
-                                            {/* Draw Core connections (Center to all Nodes) */}
-                                            {constellationLayout.nodes.map((node) => (
-                                                <line
-                                                    key={`core-line-${node.id}`}
-                                                    x1="500" y1="350" x2={node.x} y2={node.y}
-                                                    stroke="#f59e0b"
-                                                    strokeWidth="0.5"
-                                                    strokeDasharray="3 6"
-                                                    className="opacity-20"
-                                                />
-                                            ))}
-
-                                            {/* Draw Semantic Relation Links between Concept Nodes */}
-                                            {constellationLayout.links.map((link, idx) => {
-                                                const isHovered = hoveredConcept === link.source_id || hoveredConcept === link.target_id;
-                                                return (
-                                                    <g key={`link-${idx}`}>
-                                                        <line
-                                                            x1={link.sourceX} y1={link.sourceY}
-                                                            x2={link.targetX} y2={link.targetY}
-                                                            stroke="#fbbf24"
-                                                            strokeWidth={isHovered ? 1.5 : 0.5}
-                                                            className={`${isHovered ? 'opacity-60' : 'opacity-20'} transition-all duration-300`}
-                                                        />
-                                                        {isHovered && (
-                                                            <circle r="2" fill="#fff" className="animate-ping">
-                                                                <animateMotion dur="2s" repeatCount="indefinite" path={`M ${link.sourceX} ${link.sourceY} L ${link.targetX} ${link.targetY}`} />
-                                                            </circle>
-                                                        )}
-                                                    </g>
-                                                )
-                                            })}
-                                        </svg>
-
-                                        {/* Render Semantic Nodes */}
-                                        {constellationLayout.nodes.map((node, i) => {
-                                            const isHovered = hoveredConcept === node.id;
-                                            return (
-                                                <motion.button
-                                                    key={node.id}
-                                                    initial={{ scale: 0, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    transition={{ delay: i * 0.05, type: "spring", damping: 15 }}
-                                                    onMouseEnter={() => setHoveredConcept(node.id)}
-                                                    onMouseLeave={() => setHoveredConcept(null)}
-                                                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all group pointer-events-auto ${isHovered ? "z-50" : "z-20"}`}
-                                                    style={{ left: node.x, top: node.y }}
-                                                >
-                                                    {/* Central Dot Matching Memories Graph Design Exactly */}
-                                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${isHovered ? "bg-amber-500 scale-150 shadow-[0_0_15px_rgba(245,158,11,0.6)]" : "bg-amber-500/20 border border-amber-500/40"}`}>
-                                                        <div className={`w-1.5 h-1.5 rounded-full ${isHovered ? "bg-white animate-pulse" : "bg-amber-400/60"}`} />
-                                                    </div>
-
-                                                    {/* Base Label (Matches existing node labels) */}
-                                                    <div className="absolute top-6 font-mono text-[9px] text-[#9ca3af] whitespace-nowrap text-center transition-opacity opacity-70 group-hover:opacity-100">
-                                                        {node.name}
-                                                    </div>
-
-                                                    {/* Hover connection labels matching exact modal clean styles */}
-                                                    <div className={`absolute top-full mt-4 left-1/2 -translate-x-1/2 text-[9px] text-neutral-300 w-max pointer-events-none transition-opacity bg-[#181818]/90 backdrop-blur-sm border border-[#303030] p-2 rounded shadow-xl font-mono ${isHovered ? 'opacity-100 z-50' : 'opacity-0'}`}>
-                                                        {constellationLayout.links.filter(l => l.source_id === node.id || l.target_id === node.id).map((link, li) => (
-                                                            <div key={li} className="mb-0.5 whitespace-nowrap">
-                                                                {link.source_id === node.id ? (
-                                                                    <>
-                                                                        <span className="text-amber-400/70">{link.relation}</span>
-                                                                        <span className="mx-1 text-neutral-600">{"->"}</span>
-                                                                        <span className="text-neutral-200">{link.target_name}</span>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <span className="text-neutral-200">{link.source_name}</span>
-                                                                        <span className="mx-1 text-neutral-600">{"->"}</span>
-                                                                        <span className="text-amber-400/70">{link.relation}</span>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </motion.button>
-                                            )
-                                        })}
+                                    <div className="absolute inset-0 pt-20">
+                                        <ConceptGraph conceptGraph={conceptGraph} />
                                     </div>
                                 )}
-
                             </div>
                         </motion.div>
                     )}

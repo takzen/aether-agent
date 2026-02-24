@@ -266,40 +266,40 @@ export default function Home() {
                     ) : (
                       <div className="space-y-4">
                         {/* Status lines (only for AI) */}
-                        <div className="space-y-1">
-                          <div className="text-blue-400">
-                            <span>[aether]</span> <span className="text-neutral-300 italic">Evaluating system context & logs...</span>
+                        <div className="space-y-1 opacity-70">
+                          <div className="text-blue-400/80">
+                            <span>[aether]</span> <span className="text-neutral-500 italic">Evaluating system context & logs...</span>
                           </div>
-                          <div className="flex items-center gap-2 text-[11px] text-neutral-400">
-                            <span className="text-blue-400/80">[aether]</span>
-                            <span className="text-green-400">Report synthesized</span>
+                          <div className="flex items-center gap-2 text-[11px] text-neutral-600">
+                            <span className="text-blue-400/50">[aether]</span>
+                            <span className="text-green-400/60">Report synthesized</span>
                             <span>•</span>
                             <span>sys.time: {msg.isInitial ? "07:12:00" : "now"}</span>
                           </div>
                         </div>
 
                         {/* Main Response Box */}
-                        <div className="bg-black/40 border border-white/10 rounded-xl p-4 space-y-3 shadow-lg">
-                          <div className="flex items-center gap-2 text-[10px] text-green-400 font-bold uppercase tracking-widest border-b border-white/10 pb-2 mb-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-[10px] text-green-400/70 font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                             <span>Aether Morning Brief / Terminal Return</span>
                           </div>
-                          <div className="text-white space-y-3 leading-relaxed">
-                            <p className="text-[14px]">{msg.content}</p>
+                          <div className="text-neutral-300 space-y-3">
+                            <p>{msg.content}</p>
                             {msg.extra && (
-                              <ul className="space-y-1.5 text-neutral-200">
+                              <ul className="space-y-1 text-neutral-400">
                                 {msg.extra.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-2.5">
-                                    <span className="text-purple-500 font-bold mt-1">→</span>
+                                    <span className="text-purple-600 mt-1">→</span>
                                     <span>{item}</span>
                                   </li>
                                 ))}
                               </ul>
                             )}
                             {msg.sources && (
-                              <div className="pt-2 flex flex-wrap gap-2 text-[10px] text-neutral-400">
+                              <div className="pt-2 flex flex-wrap gap-2 text-[10px] text-neutral-600">
                                 {msg.sources.map((src, idx) => (
-                                  <span key={idx} className="px-1.5 py-0.5 border border-white/10 rounded bg-white/5">{src}</span>
+                                  <span key={idx} className="px-1.5 py-0.5 border border-white/5 rounded">{src}</span>
                                 ))}
                               </div>
                             )}
