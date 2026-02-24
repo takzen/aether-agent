@@ -70,6 +70,14 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
+
+:: Ensure landing page exists (open source template)
+if not exist src\app\page.tsx (
+    echo [INFO] Setting up default landing page...
+    copy src\app\page.opensource.tsx src\app\page.tsx >nul
+    echo [OK] Landing page created from template.
+)
+
 cd ..
 echo [OK] Frontend ready.
 echo.

@@ -12,6 +12,12 @@ echo Checking dependencies...
 start "Aether Backend" cmd /c "cd backend && uv run python main.py"
 echo [OK] Backend Started.
 
+:: Ensure landing page exists (open source template)
+if not exist frontend\src\app\page.tsx (
+    echo [INFO] Setting up default landing page...
+    copy frontend\src\app\page.opensource.tsx frontend\src\app\page.tsx >nul
+)
+
 :: Initialize Frontend
 start "Aether Frontend" cmd /c "cd frontend && pnpm dev"
 echo [OK] Frontend Started.
