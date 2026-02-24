@@ -35,3 +35,7 @@ frontend/src/app/page.opensource.tsx
 frontend/src/components/AetherLogo.tsx
 frontend/src/components/LogoConcepts.tsx
 frontend/src/components/WaveLogo.tsx
+
+# Roadmap (private, not for open source)
+ROADMAP.md
+ROADMAP_TEST.md
