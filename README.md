@@ -14,7 +14,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
-[![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
 [![Qdrant](https://img.shields.io/badge/Qdrant-Vector_Memory-3ECF8E?style=flat-square&logo=qdrant&logoColor=white)](https://qdrant.tech)
 [![MCP](https://img.shields.io/badge/MCP-Server-4A154B?style=flat-square)](https://modelcontextprotocol.io/)
 [![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
@@ -39,13 +39,13 @@ Where traditional AI tools simply react to text, **Aether simulates and anticipa
 
 | System / Feature | Description |
 | ---------------- | ----------- |
-| � **Active World Model** | Aether runs silent background simulations (`world_model.py`) to reflect on your daily actions, generating overarching insights and proactive architectural suggestions without you asking. |
+| 🧠 **Active World Model** | Aether runs silent background simulations (`world_model.py`) to reflect on your daily actions, generating overarching insights and proactive architectural suggestions without you asking. |
 | 🌙 **Sleep Cycle** | When you log off, the *NightCycleProcessor* consolidates your daily files and logs, reducing noise and preparing a **Morning Brief** for your Dashboard Command Center. |
 | ⏱️ **Digital Circadian Rhythm** | Aether dynamically alters its persona based on local system time. *Strategist* in the morning, *Executor* at noon, *Philosopher* in the evening, and *Maintainer* at night. |
 | 🕸️ **Concept Constellations** | Moving beyond standard RAG vectors. Aether links memories and facts into a dense relational graph within its core SQLite + Qdrant architecture. |
 | 📱 **Telegram Bridge** | Operate your entire codebase and read system briefings via an encrypted, native-feeling CLI bridge straight from the Telegram app on your phone. |
-| � **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory with other AIs. |
-| � **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
+| 🔌 **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory with other AIs. |
+| 💻 **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
 
 ---
 
