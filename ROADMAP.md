@@ -99,15 +99,26 @@ Cel: To, co czyni Aethera unikalnym na skalę światową.
 
 ---
 
-## 🧪 Faza 7 — Poligon Doświadczalny (Weryfikacja Architektury)
+## 🧪 Faza 7 — Testy Dogłębne i Poligon (Weryfikacja Architektury)
 
-Cel: Zrozumienie przez użytkownika pełnego ekosystemu poprzez wykonanie zestawu wyizolowanych testów logiki.
+Cel: Precyzyjna weryfikacja stabilności kodu na każdym poziomie - od niskopoziomowych funkcji (Unit), przez integrację modułów, aż po końcowe testy funkcjonalne (E2E). Obejmuje pokrycie dziesiątek funkcji i zachowań systemu.
 
-- [ ] **7.1** **Test Pamięci i Wektorów (Qdrant & SQLite)** — wymuszenie retencji długoterminowej
-- [ ] **7.2** **Test Komunikacji (Telegram Bridge)** — sprawdzenie autoryzacji i przekierowania asynchronicznego
-- [ ] **7.3** **Test Mózgu Tła (AWM & Sleep Cycle)** — weryfikacja automatycznych symulacji w tle
-- [ ] **7.4** **Test Złącza Obcego (MCP)** — odpytanie Aethera z zewnętrznego klienta
-- [ ] **7.5** **Podsumowanie Dashboardu** — przegląd integracji modułów na interfejsie graficznym
+### 7.A Testy Jednostkowe (Unit) - Logika Wewnętrzna
+- [ ] **7.1** **Baza Danych (SQLite)** — weryfikacja funkcji `add_log`, `get_logs`, poprawności parserów JSON w logikach bazy.
+- [ ] **7.2** **Menedżer Pamięci (Qdrant)** — testy jednostkowe dla wektoryzacji tekstów i logiki progów podobieństwa (similarity thresholds).
+- [ ] **7.3** **Cykl Dobowy (Circadian Rhythm)** — weryfikacja wstrzykiwania odpowiednich promptów persony w zależności od manipulacji czasem systemowym w `agent.py`.
+
+### 7.B Testy Integracyjne (API i Moduły)
+- [ ] **7.4** **Endpointy FastAPI** — weryfikacja bezbłędnej obsługi żądań i kodów błędów w `/chat`, `/system/simulate`, `/system/sleep-cycle` i `/system/morning-brief`.
+- [ ] **7.5** **Walidacja Narzędzi (Tools)** — sprawdzanie poprawnego działania `web_search` (Tavily), bezpiecznego zapisu plików (`prepare_write_file`), indeksacji i wyciągania dokumentów.
+- [ ] **7.6** **Złącze Modelu (PydanticAI)** — walidacja poprawności formatowania zapytań Structured Outputs do Gemini / LLaMA.
+- [ ] **7.7** **Serwer MCP** — testowanie wystawionych narzędzi (`get_latest_aether_thoughts`, `get_aether_morning_brief`) przez skrypty testowe symulujące inne AI.
+
+### 7.C Testy End-to-End (E2E) i Scenariusze Użytkowe
+- [ ] **7.8** **Retencja Wiedzy (Odrzucenie Kontekstu)** — weryfikacja czy Aether potrafi przywołać specyficzny fakt o użytkowniku po twardym zresetowaniu serwera (oparcie wyłącznie na Qdrant).
+- [ ] **7.9** **Telegram Bridge** — testowanie przekierowania powiadomień i autoryzacji wiadomości (odrzucanie obcych ID).
+- [ ] **7.10** **Mózg Tła (AWM & Raport Poranny)** — weryfikacja czy zaplanowany cykl symulacji wyciąga trafne wnioski w backgroundzie.
+- [ ] **7.11** **Spójność Frontendu (Dashboard)** — testowanie renderowania widoków, statusów i łączności WebSocket/HTTP w Next.js.
 
 ---
 
@@ -120,9 +131,9 @@ Faza 3  [████████████]   6 / 6
 Faza 4  [████████████]   6 / 6
 Faza 5  [██████████░░]   5 / 6
 Faza 6  [████████████]   4 / 4
-Faza 7  [░░░░░░░░░░░░]   0 / 5
+Faza 7  [░░░░░░░░░░░░]   0 / 11
 
-TOTAL   [██████████░░]   37 / 43 zadań
+TOTAL   [██████████░░]   37 / 49 zadań
 ```
 
 ---
