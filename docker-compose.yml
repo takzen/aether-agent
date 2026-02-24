@@ -1,0 +1,40 @@
+# aether-agent
+version: "3"
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aether_backend
+    volumes:
+      - ./backend/aether.db:/app/aether.db
+      - ./backend/qdrant_storage:/app/qdrant_storage
+    environment:
+      - QDRANT_LOCAL_PATH=/app/qdrant_storage
+      - PORT=8000
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - aether_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aether_frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - aether_net
+
+networks:
+  aether_net:
+    driver: bridge

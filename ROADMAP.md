@@ -81,7 +81,7 @@ Cel: "Aether w pudełku" — łatwy start dla każdego bez chmury.
 - [x] **5.1** **Qdrant Embedded** — domyślne uruchamianie bez konta w chmurze
 - [x] **5.2** Skrypt `setup.bat / .sh` — instalacja wszystkiego jedną komendą
 - [ ] **5.3** **Electron / Desktop App** — opakowanie Aethera w ikonkę na pulpicie
-- [ ] **5.4** `docker-compose` — dla fanów self-hostingu i NASów
+- [x] **5.4** `docker-compose` — dla fanów self-hostingu i NASów
 - [ ] **5.5** **Integracja MCP (Model Context Protocol)** — eksport wiedzy do innych asystentów (np. Claude Code, Cursor)
 
 ---
@@ -104,10 +104,10 @@ Faza 1  [████████████]   8 / 8
 Faza 2  [████████████]   8 / 8
 Faza 3  [████████████]   6 / 6
 Faza 4  [████████████]   6 / 6
-Faza 5  [████░░░░░░░░]   2 / 5
+Faza 5  [██████░░░░░░]   3 / 5
 Faza 6  [██████░░░░░░]   2 / 4
 
-TOTAL   [███████████░]   32 / 37 zadań
+TOTAL   [███████████░]   33 / 37 zadań
 ```
 
 ---
