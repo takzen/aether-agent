@@ -1,13 +1,14 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Search, FileText, Upload, Filter, ExternalLink, Globe, Code, Loader2, Trash, Zap } from "lucide-react";
+import { Search, FileText, Upload, Filter, ExternalLink, Code, Loader2, Trash, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import NotificationModal from "@/components/modals/NotificationModal";
 
 export default function KnowledgeBase() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [items, setItems] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [isUploading, setIsUploading] = useState(false);
@@ -40,6 +41,7 @@ export default function KnowledgeBase() {
             const data = await res.json();
             if (data.status === "success") {
                 // Map DB documents to UI format
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const dbItems = data.documents.map((doc: any, index: number) => ({
                     id: `db-${index}-${doc.filename}`,
                     type: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? 'code' : 'doc',

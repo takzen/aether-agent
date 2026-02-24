@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Terminal, AlertCircle, CheckCircle2, Info, Hash, Clock, Cpu, Shield, Zap, Search, ChevronRight } from "lucide-react";
+import { AlertCircle, CheckCircle2, Hash, Clock, Cpu, Zap, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -32,6 +32,7 @@ export default function AgentLogs() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchLogs();
         const logsInterval = setInterval(fetchLogs, 3000); // Poll every 3 seconds
 

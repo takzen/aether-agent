@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Zap, Shield, Cpu, Clock, Activity, MessageSquare, Send, Brain, Database, Globe } from "lucide-react";
+import { Shield, Activity, MessageSquare, Send, Brain, Database } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -21,6 +21,7 @@ export default function Home() {
   const [messages, setMessages] = useState<DashboardMessage[]>([]);
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [activities, setActivities] = useState<any[]>([]);
   const [modelName, setModelName] = useState("Loading...");
 
@@ -108,6 +109,7 @@ export default function Home() {
       } else {
         throw new Error(data.message || "Unknown error");
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),

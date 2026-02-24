@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 try:
     from mcp.server.fastmcp import FastMCP
 except ImportError:
-    print("Błąd: Pudełko mcp-server-sdk nie jest zainstalowane. Uruchom: uv add mcp")
+    print("Error: The mcp-server-sdk package is not installed. Run: uv add mcp")
     sys.exit(1)
 
 # Ensure paths correctly resolve to Aether backend modules
@@ -17,18 +17,18 @@ from local_db import sqlite_service
 # Load Aether environments
 load_dotenv()
 
-# Inicjalizacja serwera MCP
+# Initialize MCP server
 mcp = FastMCP("Aether Core MCP")
 
 @mcp.tool()
 async def get_latest_aether_thoughts(limit: int = 20) -> str:
     """
-    Pobiera najświeższe logi systemowe i działania z Mózgu Aethera (Z pamięci krótkotrwałej SQLite).
-    Używaj tego, by sprawdzić co przed chwilą robił system i do jakich doszedł technicznych wniosków.
+    Retrieves the freshest system logs and actions from Aether's Brain (Short-term SQLite memory).
+    Use this to check what the system was recently doing and its technical conclusions.
     """
     logs = await sqlite_service.get_logs(limit=limit)
     if not logs:
-        return "Brak zapisów w pamięci Mózgu Aethera."
+        return "No records found in Aether's Brain memory."
     
     result = []
     for log in logs:
@@ -39,16 +39,16 @@ async def get_latest_aether_thoughts(limit: int = 20) -> str:
 @mcp.tool()
 async def get_aether_morning_brief() -> str:
     """
-    Pobiera najnowszy Raport Poranny z cyklu nocnego (Sleep Cycle).
-    To niezwykle ważne podsumowanie stanu systemu po wektorowej konsolidacji grafu wiedzy.
+    Retrieves the latest Morning Brief from the Sleep Cycle.
+    This is an extremely important summary of the system state after vector knowledge graph consolidation.
     """
     logs = await sqlite_service.get_logs(limit=100)
     for log in logs:
         if log["type"] == "brief":
             return log["message"]
             
-    return "Nie odbył się jeszcze żaden Sleep Cycle (Brak Raportu w bazie)."
+    return "No Sleep Cycle has occurred yet (No Report in database)."
 
 if __name__ == "__main__":
-    print("[MCP Server] Uruchamiam złącze Model Context Protocol dla Aether Core...")
+    print("[MCP Server] Starting Model Context Protocol connection for Aether Core...")
     mcp.run()

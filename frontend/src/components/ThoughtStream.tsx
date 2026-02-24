@@ -1,6 +1,6 @@
 "use client";
 
-import { Terminal, Search, Code, CheckCircle2 } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 import { LucideIcon } from "lucide-react";

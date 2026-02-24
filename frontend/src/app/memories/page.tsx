@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
-import { Brain, Network, Clock, Database, X, Trash2, List, Zap, ChevronRight, FileText, Share2 } from "lucide-react";
+import { Brain, Network, Database, X, Trash2, List, Zap, ChevronRight, FileText, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Memories() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [memories, setMemories] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [selectedMemory, setSelectedMemory] = useState<any | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [conceptGraph, setConceptGraph] = useState<{ nodes: any[], links: any[] }>({ nodes: [], links: [] });
     const [showConstellation, setShowConstellation] = useState(false);
     const [hoveredConcept, setHoveredConcept] = useState<string | null>(null);

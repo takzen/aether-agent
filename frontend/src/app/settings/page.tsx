@@ -1,11 +1,11 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { User, Lock, Bell, Moon, Database, LogOut, ChevronRight, Shield, Cpu, Zap, Clock, Save, Settings2, Globe } from "lucide-react";
-import { motion } from "framer-motion";
+import { Database, Cpu, Save, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Settings() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [currentTime, setCurrentTime] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [config, setConfig] = useState({
@@ -109,7 +109,7 @@ export default function Settings() {
                                         <Database className="w-4 h-4 text-purple-400" />
                                         GEMINI_API_KEY
                                     </label>
-                                    <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for primary cognitive reasoning using Google's Gemini models.</p>
+                                    <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for primary cognitive reasoning using Google&apos;s Gemini models.</p>
                                     <input
                                         type="password"
                                         value={config.GEMINI_API_KEY}

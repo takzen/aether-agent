@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, useSpring, useMotionTemplate, useMotio
 import Link from "next/link";
 import { ArrowRight, Globe, Zap, Shield, Database, Cpu, Network, Lock, Github } from "lucide-react";
 import { AetherLogo } from "@/components/AetherLogo";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 
 function Spotlight({ children, className = "" }: { children: React.ReactNode; className?: string }) {
     const mouseX = useMotionValue(0);
@@ -48,9 +48,9 @@ export default function LandingPage() {
     const orbOpacity = useTransform(smoothScroll, [0, 0.3], [1, 0]);
     const orbY = useTransform(smoothScroll, [0, 0.5], [0, 500]);
 
-    // Content Reveal
-    const contentY = useTransform(smoothScroll, [0.1, 0.5], [100, 0]);
-    const contentOpacity = useTransform(smoothScroll, [0.1, 0.4], [0, 1]);
+    // Content Reveal (unused but kept for future use)
+    // const contentY = useTransform(smoothScroll, [0.1, 0.5], [100, 0]);
+    // const contentOpacity = useTransform(smoothScroll, [0.1, 0.4], [0, 1]);
 
     return (
         <div ref={containerRef} className="bg-[#020202] text-white min-h-screen selection:bg-purple-500/30 font-sans overflow-x-hidden">
@@ -192,7 +192,7 @@ export default function LandingPage() {
                                             transition={{
                                                 duration: 3,
                                                 repeat: Infinity,
-                                                delay: Math.random() * 2,
+                                                delay: i * 0.1,
                                                 ease: "easeInOut"
                                             }}
                                         />
@@ -314,7 +314,7 @@ export default function LandingPage() {
                                         animate={{ y: [0, -120] }}
                                         transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                                     >
-                                        <div className="text-neutral-500 text-[9px] mb-2">// INITIATING REASONING CHAIN</div>
+                                        <div className="text-neutral-500 text-[9px] mb-2">{"// INITIATING REASONING CHAIN"}</div>
 
                                         <div className="flex gap-2">
                                             <span className="text-blue-500">[00:01]</span>
@@ -343,7 +343,7 @@ export default function LandingPage() {
                                             <span className="text-green-400">Generating final response.</span>
                                         </div>
 
-                                        <div className="text-neutral-500 text-[9px] mt-2 mb-2">// NEW CYCLE START</div>
+                                        <div className="text-neutral-500 text-[9px] mt-2 mb-2">{"// NEW CYCLE START"}</div>
 
                                         <div className="flex gap-2">
                                             <span className="text-blue-500">[00:12]</span>

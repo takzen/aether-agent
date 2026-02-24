@@ -11,7 +11,9 @@ interface Message {
     role: "user" | "assistant";
     content: string;
     timestamp: Date;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tools?: { name: string; detail: string; icon: any; latency: number }[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
 }
 
@@ -30,7 +32,8 @@ export default function ChatPage() {
     const [thoughtSteps, setThoughtSteps] = useState<ThoughtStep[]>([
         { id: 1, type: "thought", message: "Neural core active and waiting for instructions.", icon: Terminal, time: "just now" }
     ]);
-    const [selectedModel, setSelectedModel] = useState<"gemini" | "ollama">("gemini");
+    const [selectedModel] = useState<"gemini" | "ollama">("gemini");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [agentHistory, setAgentHistory] = useState<any[]>([]);
 
     // Session History State
@@ -57,6 +60,7 @@ export default function ChatPage() {
             const res = await fetch(`http://localhost:8000/sessions/${sessionId}/messages`);
             const data = await res.json();
             if (data.status === "success") {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const loadedMsgs = data.messages.map((m: any) => ({
                     id: m.id,
                     role: m.role,
@@ -186,11 +190,14 @@ export default function ChatPage() {
             const data = await response.json();
 
             if (data.status === "success") {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const usedTools: { name: string; detail: string; icon: any; latency: number }[] = [];
                 const newThoughts: ThoughtStep[] = [];
                 if (data.new_messages) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     data.new_messages.forEach((msg: any) => {
                         if (msg.parts) {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             msg.parts.forEach((part: any, index: number) => {
                                 if (part.part_kind === "tool-call") {
                                     let detail = "";

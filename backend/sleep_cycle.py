@@ -6,27 +6,27 @@ from agent import model
 sleep_agent = Agent(
     model=model,
     system_prompt=(
-        "Jesteś modułem Aether NightCycleProcessor. Twoim zadaniem jest konsolidacja logów i wydarzeń z minionego dnia. "
-        "Przeanalizuj surowe dane i przygotuj Zwięzły Poranny Raport (Morning Brief). Raport ma mieć charakter technicznego, "
-        "krótkiego posumowania z perspektywy fuzji danych. Dołącz 2-3 konkretne punkty (wnioski, ostrzeżenia, propozycje akcji). "
-        "Zwróć wynik DOKŁADNIE jako obiekt JSON z kluczami: 'brief' (tekst główny) oraz 'points' (lista stringów). "
-        "Nie dodawaj żadnego innego tekstu, tagów takich jak ```json itp. Formatem ma być surowy JSON, a językiem Polski."
+        "You are the Aether NightCycleProcessor module. Your task is to consolidate logs and events from the past day. "
+        "Analyze the raw data and prepare a Concise Morning Brief. The report should be a technical, "
+        "short summary from a data fusion perspective. Include 2-3 specific points (insights, warnings, action proposals). "
+        "Return the result EXACTLY as a JSON object with keys: 'brief' (main text) and 'points' (list of strings). "
+        "Do not add any other text, tags such as ```json etc. The format must be raw JSON, and the language English."
     ),
     retries=3,
     output_type=str
 )
 
 async def run_sleep_cycle():
-    # Pobierz najświeższe logi systemowe
+    # Fetch the newest system logs
     logs = await sqlite_service.get_logs(limit=50)
     
     if not logs:
         return {
-            "brief": "Aether Core zaktualizowany. Brak nowych logów z minionego cyklu. Moduły w stanie spoczynku.",
-            "points": ["Systemy bazowe Online.", "Pamięć wektorowa zsynchronizowana."]
+            "brief": "Aether Core updated. No new logs from the past cycle. Modules are in standby.",
+            "points": ["Core systems Online.", "Vector memory synchronized."]
         }
         
-    prompt = "Przeanalizuj te dane telemetryczne i wygeneruj raport JSON:\n"
+    prompt = "Analyze this telemetry data and generate a JSON report:\n"
     for log in logs:
         prompt += f"[{log['type'].upper()}|{log['source']}] {log['message']}\n"
         
@@ -45,11 +45,11 @@ async def run_sleep_cycle():
             
         data = json.loads(raw_text)
         
-        # Zapisujemy nasz poranny raport w bazie lokalnej jako specjalny log
+        # Save our morning report to local database as a special log
         await sqlite_service.add_log("brief", "SLEEP_CYCLE", json.dumps(data))
         
-        # Zapisz standardowy log info, że cykl się zakończył
-        await sqlite_service.add_log("info", "SLEEP_CYCLE", "Zakończono nocną konsolidację grafu i logów.")
+        # Save standard info log indicating cycle completion
+        await sqlite_service.add_log("info", "SLEEP_CYCLE", "Completed nightly graph and log consolidation.")
         
         return data
         

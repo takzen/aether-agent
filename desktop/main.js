@@ -17,11 +17,11 @@ function createWindow() {
     });
 
     const url = 'http://localhost:3000';
-    console.log(`[Aether Desktop] Łączenie z jądrem na ${url}...`);
+    console.log(`[Aether Desktop] Connecting to kernel at ${url}...`);
 
     const tryLoad = () => {
         mainWindow.loadURL(url).catch((err) => {
-            console.log('[Aether Desktop] Frontend jeszcze nie wstał. Ponawiam za 2 sekundy...');
+            console.log('[Aether Desktop] Frontend is not ready yet. Retrying in 2 seconds...');
             setTimeout(tryLoad, 2000);
         });
     };

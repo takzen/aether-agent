@@ -104,13 +104,13 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
     current_hour = datetime.now().hour
     circadian_prompt = "\n--- DIGITAL CIRCADIAN RHYTHM (ACTIVE) ---\n"
     if 5 <= current_hour < 12:
-        circadian_prompt += "PORANEK (Strateg). Jesteś świeży i nastawiony na planowanie. Proponuj architekturę, wyznaczaj priorytety na dzień i upewniaj się, że cel jest jasny. Bądź proaktywny. Twoje odpowiedzi muszą być zwięzłe i budujące."
+        circadian_prompt += "MORNING (Strategist). You are fresh and focused on planning. Propose architecture, set daily priorities, and ensure clarity of goals. Be proactive. Your answers must be concise and constructive."
     elif 12 <= current_hour < 18:
-        circadian_prompt += "POPOŁUDNIE (Wykonawca). Pora na głęboką pracę operacyjną. Bądź skrajnie techniczny, analityczny i skupiony na precyzyjnym rozwiązywaniu bieżących błędów i implementacji w kodzie."
+        circadian_prompt += "AFTERNOON (Executor). Deep operational work time. Be highly technical, analytical, and focused on precisely resolving current errors and code implementation."
     elif 18 <= current_hour < 23:
-        circadian_prompt += "WIECZÓR (Filozof). Dzień się kończy. Zastanów się nad Big Picture całego projektu. Skupiaj się na refaktoryzacji, elegancji kodu oraz tym, czy decyzje z dzisiaj mają sens długoterminowo (Active World Model)."
+        circadian_prompt += "EVENING (Philosopher). The day is ending. Reflect on the Big Picture of the entire project. Focus on refactoring, code elegance, and whether today's decisions make sense long-term (Active World Model)."
     else:
-        circadian_prompt += "NOC (Konserwator). System działa w trybie utajonym/wyciszonym. Odpowiadaj maksymalnie krótko i sucho. Skup się wyłącznie na stabilności krytycznej."
+        circadian_prompt += "NIGHT (Maintainer). System operating in stealth/quiet mode. Keep answers extremely short and dry. Focus exclusively on critical stability."
     
     injected_text = circadian_prompt + "\n"
 

@@ -1,0 +1,122 @@
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\chat\page.tsx
+   14:51  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   15:22  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   33:27  warning  'setSelectedModel' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   34:54  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   60:58  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  189:72  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  192:53  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  194:54  error    Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\dashboard\page.tsx
+    4:10  warning  'Zap' is defined but never used           @typescript-eslint/no-unused-vars
+    4:23  warning  'Cpu' is defined but never used           @typescript-eslint/no-unused-vars
+    4:28  warning  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
+    4:83  warning  'Globe' is defined but never used         @typescript-eslint/no-unused-vars
+   24:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\knowledge\page.tsx
+   4:58  warning  'Globe' is defined but never used         @typescript-eslint/no-unused-vars
+  11:40  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\logs\page.tsx
+   4:10  warning  'Terminal' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   4:47  warning  'Info' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+   4:71  warning  'Shield' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   4:92  warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  35:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\logs\page.tsx:35:9
+  33 |
+  34 |     useEffect(() => {
+> 35 |         fetchLogs();
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  36 |         const logsInterval = setInterval(fetchLogs, 3000); // Poll every 3 seconds
+  37 |
+  38 |         const timer = setInterval(() => {  react-hooks/set-state-in-effect
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\memories\page.tsx
+   5:26  warning  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
+   9:46  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  12:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:63  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:77  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\page.tsx
+    7:18  warning  'useState' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    7:28  warning  'useEffect' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   52:11  warning  'contentY' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   53:11  warning  'contentOpacity' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  195:56  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\page.tsx:195:56
+  193 |                                                 duration: 3,
+  194 |                                                 repeat: Infinity,
+> 195 |                                                 delay: Math.random() * 2,
+      |                                                        ^^^^^^^^^^^^^ Cannot call impure function
+  196 |                                                 ease: "easeInOut"
+  197 |                                             }}
+  198 |                                         />  react-hooks/purity
+  317:91  error    Comments inside children section of tag should be placed inside braces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react/jsx-no-comment-textnodes
+  346:96  error    Comments inside children section of tag should be placed inside braces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react/jsx-no-comment-textnodes
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\settings\page.tsx
+    4:10   warning  'User' is defined but never used                                 @typescript-eslint/no-unused-vars
+    4:16   warning  'Lock' is defined but never used                                 @typescript-eslint/no-unused-vars
+    4:22   warning  'Bell' is defined but never used                                 @typescript-eslint/no-unused-vars
+    4:28   warning  'Moon' is defined but never used                                 @typescript-eslint/no-unused-vars
+    4:44   warning  'LogOut' is defined but never used                               @typescript-eslint/no-unused-vars
+    4:52   warning  'ChevronRight' is defined but never used                         @typescript-eslint/no-unused-vars
+    4:66   warning  'Shield' is defined but never used                               @typescript-eslint/no-unused-vars
+    4:79   warning  'Zap' is defined but never used                                  @typescript-eslint/no-unused-vars
+    4:84   warning  'Clock' is defined but never used                                @typescript-eslint/no-unused-vars
+    4:97   warning  'Settings2' is defined but never used                            @typescript-eslint/no-unused-vars
+    5:10   warning  'motion' is defined but never used                               @typescript-eslint/no-unused-vars
+    9:12   warning  'currentTime' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  112:156  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\components\NeuralHub.tsx
+  62:42  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\components\NeuralHub.tsx:62:42
+  60 |                         className="absolute w-1 h-1 bg-white rounded-full blur-[1px]"
+  61 |                         style={{
+> 62 |                             top: `${40 + Math.random() * 20}%`,
+     |                                          ^^^^^^^^^^^^^ Cannot call impure function
+  63 |                             left: `${40 + Math.random() * 20}%`
+  64 |                         }}
+  65 |                     />  react-hooks/purity
+  63:43  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\components\NeuralHub.tsx:63:43
+  61 |                         style={{
+  62 |                             top: `${40 + Math.random() * 20}%`,
+> 63 |                             left: `${40 + Math.random() * 20}%`
+     |                                           ^^^^^^^^^^^^^ Cannot call impure function
+  64 |                         }}
+  65 |                     />
+  66 |                 ))}                                                                   react-hooks/purity
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\components\ThoughtStream.tsx
+  3:10  warning  'Terminal' is defined but never used      @typescript-eslint/no-unused-vars
+  3:20  warning  'Search' is defined but never used        @typescript-eslint/no-unused-vars
+  3:28  warning  'Code' is defined but never used          @typescript-eslint/no-unused-vars
+  3:34  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+??? 53 problems (22 errors, 31 warnings)
+
