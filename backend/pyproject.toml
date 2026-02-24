@@ -13,6 +13,7 @@ dependencies = [
     "pydantic-ai>=1.58.0",
     "python-dotenv>=1.2.1",
     "python-multipart>=0.0.22",
+    "python-telegram-bot>=22.6",
     "qdrant-client>=1.16.2",
     "supabase>=2.28.0",
     "tavily-python>=0.7.21",
