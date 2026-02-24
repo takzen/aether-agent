@@ -11,7 +11,9 @@ interface Message {
     role: "user" | "assistant";
     content: string;
     timestamp: Date;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tools?: { name: string; detail: string; icon: any; latency: number }[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
 }
 
@@ -30,7 +32,8 @@ export default function ChatPage() {
     const [thoughtSteps, setThoughtSteps] = useState<ThoughtStep[]>([
         { id: 1, type: "thought", message: "Neural core active and waiting for instructions.", icon: Terminal, time: "just now" }
     ]);
-    const [selectedModel, setSelectedModel] = useState<"gemini" | "ollama">("gemini");
+    const [selectedModel] = useState<"gemini" | "ollama">("gemini");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [agentHistory, setAgentHistory] = useState<any[]>([]);
 
     // Session History State
@@ -57,6 +60,7 @@ export default function ChatPage() {
             const res = await fetch(`http://localhost:8000/sessions/${sessionId}/messages`);
             const data = await res.json();
             if (data.status === "success") {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const loadedMsgs = data.messages.map((m: any) => ({
                     id: m.id,
                     role: m.role,
@@ -168,7 +172,7 @@ export default function ChatPage() {
         setInput("");
         setIsLoading(true);
         setThoughtSteps([
-            { id: Date.now(), type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "just now" }
+            { id: `${Date.now()}-start`, type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "just now" }
         ]);
 
         try {
@@ -186,12 +190,15 @@ export default function ChatPage() {
             const data = await response.json();
 
             if (data.status === "success") {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const usedTools: { name: string; detail: string; icon: any; latency: number }[] = [];
                 const newThoughts: ThoughtStep[] = [];
                 if (data.new_messages) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     data.new_messages.forEach((msg: any) => {
                         if (msg.parts) {
-                            msg.parts.forEach((part: any, index: number) => {
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            msg.parts.forEach((part: any) => {
                                 if (part.part_kind === "tool-call") {
                                     let detail = "";
                                     let icon = Database;
@@ -230,7 +237,7 @@ export default function ChatPage() {
                                         });
 
                                         newThoughts.push({
-                                            id: Date.now() + index,
+                                            id: `${Date.now()}-${Math.random()}`,
                                             type: "tool",
                                             message: messageStr,
                                             icon: icon,
@@ -248,7 +255,7 @@ export default function ChatPage() {
                 }
 
                 setThoughtSteps(prev => [...prev, {
-                    id: Date.now() + 1000,
+                    id: `${Date.now()}-complete`,
                     type: "complete",
                     message: "Response synthesized with high confidence",
                     icon: CheckCircle2,
@@ -290,33 +297,38 @@ export default function ChatPage() {
 
                 {/* Chat Column */}
                 <div className="flex-1 flex flex-col relative overflow-hidden">
-                    {/* Chat Header — VSCode Style */}
-                    <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0">
-                        <div className="flex items-center gap-2">
+                    {/* Chat Header — Standardized Style */}
+                    <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
+                        <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-                            <h3 className="text-sm font-bold text-white">Aether Agent</h3>
+                            <div>
+                                <h3 className="text-sm font-bold tracking-wider text-white uppercase">Aether Agent</h3>
+                                <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                                    <span>SYSTEM.NEURAL_CORE</span>
+                                    <span className="text-neutral-700">|</span>
+                                    <span>ACTIVE_SESSION</span>
+                                </div>
+                            </div>
                         </div>
                         <div className="flex items-center gap-3 text-[10px] text-neutral-500 font-mono uppercase tracking-widest overflow-hidden">
-
-
+                            {/* New Chat Button */}
+                            <button
+                                onClick={startNewSession}
+                                className="flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">New Chat</span>
+                            </button>
                             {/* History Toggle */}
                             <button
                                 onClick={() => setIsHistoryOpen(!isHistoryOpen)}
                                 className={`flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all
-                                    ${isHistoryOpen ? "bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-purple-400 font-bold border-purple-500/30" : "bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"}
-                                `}
+                                        ${isHistoryOpen ? "bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-purple-400 font-bold border-purple-500/30" : "bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"}
+                                    `}
                             >
                                 <History className="w-3.5 h-3.5" />
                                 <span className="hidden sm:inline">HISTORY Logs</span>
                             </button>
-
-                            <span className="hidden sm:inline">•</span>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                                <span className={`w-1.5 h-1.5 rounded-full ${selectedModel === 'gemini' ? 'bg-purple-500/50' : 'bg-blue-500/50'}`} />
-                                <span>{selectedModel === 'gemini' ? 'Core Online' : 'Local Edge'}</span>
-                            </div>
-                            <span className="hidden md:inline">•</span>
-                            <span className="hidden md:inline">Latency: ~12ms</span>
                         </div>
                     </div>
 
@@ -479,20 +491,7 @@ export default function ChatPage() {
                         </div>
                     </div>
 
-                    {/* Bottom Bar — System Status */}
-                    <div className="flex items-center justify-between px-6 py-4 text-[10px] font-mono text-neutral-600 uppercase tracking-widest shrink-0 w-full">
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500/30 animate-pulse" />
-                                <span className="text-green-500/40">Local Instance</span>
-                            </div>
-                            <span className="text-neutral-800">•</span>
-                            <span>Aether v0.1.0</span>
-                        </div>
-                        <div className="hidden md:block">
-                            System Ready // <span className="text-neutral-700">Aether Workspace</span>
-                        </div>
-                    </div>
+
                 </div >
 
                 {/* Right History Drawer */}
@@ -507,15 +506,25 @@ export default function ChatPage() {
                             >
                                 <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#1e1e1e]">
                                     <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                                        <Database className="w-4 h-4 text-purple-500" />
+                                        <MessageSquare className="w-4 h-4 text-cyan-500" />
                                         Chronicles
                                     </h3>
-                                    <button
-                                        onClick={startNewSession}
-                                        className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-white transition-colors"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={startNewSession}
+                                            className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white transition-colors"
+                                            title="New Session"
+                                        >
+                                            <Plus className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => setIsHistoryOpen(false)}
+                                            className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors"
+                                            title="Close History"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-white/10">
@@ -523,7 +532,7 @@ export default function ChatPage() {
                                         <div className="p-4 text-center text-xs text-neutral-600 italic">No previous sessions found.</div>
                                     ) : (
                                         sessions.map(s => (
-                                            <div key={s.id} className="group flex items-center gap-1 relative">
+                                            <div key={`session-${s.id}`} className="group flex items-center gap-1 relative mb-2">
                                                 <button
                                                     onClick={() => loadSession(s.id)}
                                                     className={`w-full text-left px-3 py-3 rounded-lg flex flex-col gap-1 transition-all
@@ -558,10 +567,10 @@ export default function ChatPage() {
                             </motion.div>
                         )
                     }
-                </AnimatePresence>
-            </main>
+                </AnimatePresence >
+            </main >
 
             <ThoughtStream steps={thoughtSteps} />
-        </div>
+        </div >
     );
 }

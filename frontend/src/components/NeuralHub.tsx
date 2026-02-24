@@ -59,8 +59,8 @@ export default function NeuralHub() {
                         }}
                         className="absolute w-1 h-1 bg-white rounded-full blur-[1px]"
                         style={{
-                            top: `${40 + Math.random() * 20}%`,
-                            left: `${40 + Math.random() * 20}%`
+                            top: `${40 + (i % 3) * 10}%`,
+                            left: `${40 + (i % 2) * 20}%`
                         }}
                     />
                 ))}

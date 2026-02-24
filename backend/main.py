@@ -205,6 +205,24 @@ async def index_existing_file(filename: str):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.get("/knowledge/content/{filename}")
+async def get_document_content(filename: str):
+    """
+    Retrieves the raw text content of a document from the disk.
+    """
+    from ingest import SOURCE_DIR
+    try:
+        file_path = os.path.join(SOURCE_DIR, filename)
+        if not os.path.exists(file_path):
+            return {"status": "error", "message": f"File '{filename}' not found on disk."}
+            
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            
+        return {"status": "success", "content": content}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/memories")
 async def list_memories():
     """Returns a list of all memories."""

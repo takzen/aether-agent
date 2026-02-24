@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Terminal, AlertCircle, CheckCircle2, Info, Hash, Clock, Cpu, Shield, Zap, Search, ChevronRight } from "lucide-react";
+import { Hash, Clock, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -32,6 +32,7 @@ export default function AgentLogs() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchLogs();
         const logsInterval = setInterval(fetchLogs, 3000); // Poll every 3 seconds
 
@@ -69,37 +70,39 @@ export default function AgentLogs() {
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] select-none">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 select-none">
 
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                         <div>
-                            <h1 className="text-sm font-bold tracking-wider text-white uppercase">System Execution Logs</h1>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">System Execution Logs</h3>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
                                 <span>SYSTEM.KERNEL_LOGS</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>PID: 8392</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>TRACE_STATUS: ACTIVE</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <div className="flex gap-3">
-                            <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-red-500/10 bg-red-500/5 text-red-500/80 text-[10px]">
-                                <AlertCircle className="w-3 h-3" /> 1_ERR
-                            </div>
-                            <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-yellow-500/10 bg-yellow-500/5 text-yellow-500/80 text-[10px]">
-                                <AlertCircle className="w-3 h-3" /> 1_WARN
-                            </div>
-                            <div className="flex items-center gap-1.5 px-2.2 py-0.5 rounded border border-green-500/10 bg-green-500/5 text-green-500 text-[10px]">
-                                <CheckCircle2 className="w-3 h-3" /> SYSTEM_OK
-                            </div>
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 text-[9px] font-mono whitespace-nowrap">
+                            <span className="text-blue-500/80">
+                                [ INFO ] SYSTEM_INFO
+                            </span>
+                            <span className="text-neutral-700 select-none">•</span>
+                            <span className="text-green-500/80">
+                                [  OK  ] SUCCESS_LOG
+                            </span>
+                            <span className="text-neutral-700 select-none">•</span>
+                            <span className="text-yellow-500/80">
+                                [ WARN ] WARNING_EVENT
+                            </span>
+                            <span className="text-neutral-700 select-none">•</span>
+                            <span className="text-red-500/80">
+                                [ ERR! ] CRITICAL_ERROR
+                            </span>
                         </div>
-                        <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-6 flex items-center gap-2">
+                        <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 flex items-center gap-2 font-mono">
                             <Clock className="w-3 h-3" /> {currentTime}
                         </div>
                     </div>
@@ -152,11 +155,13 @@ export default function AgentLogs() {
                                 className="group flex gap-4 py-1 border-l border-white/5 pl-4 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all cursor-crosshair"
                             >
                                 <span className="text-neutral-600 w-24 shrink-0 select-none">{formatTime(log.timestamp)}</span>
-                                <span className={`w-20 shrink-0 font-bold ${log.type === 'info' ? 'text-blue-500/70' :
-                                    log.type === 'success' ? 'text-green-500/70' :
-                                        log.type === 'warning' ? 'text-yellow-500/70' : 'text-red-500/70'
+                                <span className={`w-20 shrink-0 font-bold font-mono text-[9px] ${log.type === 'info' ? 'text-blue-500/50' :
+                                    log.type === 'success' ? 'text-green-500/50' :
+                                        log.type === 'warning' ? 'text-yellow-500/50' : 'text-red-400/60'
                                     }`}>
-                                    {log.type.toUpperCase()}
+                                    {log.type === 'info' ? '[ INFO ]' :
+                                        log.type === 'success' ? '[  OK  ]' :
+                                            log.type === 'warning' ? '[ WARN ]' : '[ ERR! ]'}
                                 </span>
                                 <span className="flex-1 text-neutral-400 group-hover:text-neutral-200 transition-colors">
                                     {log.message}
@@ -183,26 +188,7 @@ export default function AgentLogs() {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar — VSCode Style */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0 z-50">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-1 h-1 rounded-full bg-green-500" />
-                            <span>NODE_INFRA: CONNECTED</span>
-                        </div>
-                        <span className="text-neutral-800">|</span>
-                        <div className="flex items-center gap-2">
-                            <Cpu className="w-3 h-3 text-neutral-700" />
-                            <span>CPU: 12%</span>
-                        </div>
-                        <span className="text-neutral-800">|</span>
-                        <div className="flex items-center gap-2">
-                            <Zap className="w-3 h-3 text-neutral-700" />
-                            <span>UPTIME: 4H 21M</span>
-                        </div>
-                    </div>
-                    <span>aether.core_stable_v1.0.4</span>
-                </div>
+
 
             </main>
         </div>

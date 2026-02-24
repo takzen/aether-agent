@@ -6,34 +6,34 @@ from agent import model
 world_agent = Agent(
     model=model,
     system_prompt=(
-        "Jesteś modułem Aether Active World Model (AWM). "
-        "Twoim zadaniem jest przeprowadzenie cichej symulacji (Self-Reflection) na podstawie najnowszych, surowych logów systemowych "
-        "oraz podjętych niedawno rozmów/akcji (wymienionych poniżej). "
-        "Nie rozmawiasz z użytkownikiem, lecz tworzysz mapę kierunku rozwoju projektu, wskazując ukryte połączenia, "
-        "na które użytkownik mógł nie zwrócić uwagi."
-        "\n\nWYTYCZNE:\n"
-        "1. Szukaj powtarzających się wzorców i blokerów.\n"
-        "2. Zaproponuj jeden główny WNIOSEK (Insight) dla całej struktury na podstawie tych logów.\n"
-        "3. Zaproponuj jedną potencjalną AKCJĘ naprawczą/optymalizującą, którą Aether mógłby podjąć proaktywnie.\n\n"
-        "Zwróć odpowiedź DOQŁADNIE jako obiekt JSON (bez znaczników Markdown, kodowania, itp.) z dwoma kluczami:\n"
-        "'insight' (string - twój główny wniosek)\n"
-        "'suggested_action' (string - twoja propozycja optymalizacji)"
+        "You are the Aether Active World Model (AWM) module. "
+        "Your task is to conduct a silent background simulation (Self-Reflection) based on the latest raw system logs "
+        "and recently taken conversations/actions (listed below). "
+        "You are not talking to the user. Instead, you map out the project's development direction, pointing out hidden connections "
+        "that the user might have missed."
+        "\n\nGUIDELINES:\n"
+        "1. Look for recurring patterns and blockers.\n"
+        "2. Propose one primary INSIGHT for the entire structure based on these logs.\n"
+        "3. Propose one suggested ACTION (optimization/fix) that Aether could proactively take.\n\n"
+        "Return the response EXACTLY as a JSON object (no Markdown tags, encoding, etc.) with two keys:\n"
+        "'insight' (string - your main conclusion)\n"
+        "'suggested_action' (string - your proposed optimization action)"
     ),
     retries=3,
     output_type=str
 )
 
 async def run_active_world_model_simulation():
-    # Pobierz 30 ostatnich logów jako bazę do przemyśleń
+    # Fetch the last 30 logs for reflection basis
     logs = await sqlite_service.get_logs(limit=30)
     
     if len(logs) < 5:
         return {
-            "insight": "Zbyt mało danych telemetrycznych do przeprowadzenia głębokiej symulacji AWM.",
-            "suggested_action": "Kontynuuj pracę, zbieraj więcej logów informacyjnych i zgłoszeń od użykownika."
+            "insight": "Insufficient telemetry data to run a deep AWM simulation.",
+            "suggested_action": "Continue working, gather more informational logs and user inputs."
         }
         
-    prompt = "--- ROZPOCZYNAM SYMULACJĘ AWM NA BAZIE PONIŻSZYCH ZDARZEŃ ---\n"
+    prompt = "--- INITIATING AWM SIMULATION BASED ON THE FOLLOWING EVENTS ---\n"
     for log in logs:
         prompt += f"[{log['type'].upper()}|{log['source']}] {log['message']}\n"
         
@@ -51,7 +51,7 @@ async def run_active_world_model_simulation():
             
         data = json.loads(raw_text)
         
-        # Zapisujemy nasz wniosek AWM w bazie lokalnej
+        # Save our AWM insight to the local database
         await sqlite_service.add_log(
             type="awm", 
             source="WORLD_MODEL", 
@@ -61,10 +61,10 @@ async def run_active_world_model_simulation():
         return data
         
     except Exception as e:
-        print(f"[ActiveWorldModel] Błąd symulacji w tle: {repr(e)}")
+        print(f"[ActiveWorldModel] Background simulation error: {repr(e)}")
         import traceback
         traceback.print_exc()
         return {
-            "insight": f"<BŁĄD AWM> Symulacja załamała się podczas parsowania logiki: {str(e)}",
-            "suggested_action": "Oczekuję na diagnozę PydanticAI by powrócić do sprawnego myślenia w tle."
+            "insight": f"<AWM ERROR> Simulation crashed during logic parsing: {str(e)}",
+            "suggested_action": "Awaiting PydanticAI diagnosis to restore background thinking."
         }

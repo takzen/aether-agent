@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Zap, Shield, Cpu, Clock, Activity, MessageSquare, Send, Brain, Database, Globe } from "lucide-react";
+import { Shield, Activity, MessageSquare, Send, Brain, Database } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -21,6 +21,7 @@ export default function Home() {
   const [messages, setMessages] = useState<DashboardMessage[]>([]);
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [activities, setActivities] = useState<any[]>([]);
   const [modelName, setModelName] = useState("Loading...");
 
@@ -108,6 +109,7 @@ export default function Home() {
       } else {
         throw new Error(data.message || "Unknown error");
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
@@ -175,32 +177,46 @@ export default function Home() {
 
       <Sidebar />
 
-      <main className="flex-1 flex min-w-0 relative overflow-hidden bg-background">
-        <div className="flex-1 flex flex-col min-w-0 relative z-10 p-6 gap-4">
+      <main className="flex-1 flex flex-col min-w-0 relative overflow-hidden bg-background">
+        {/* Standardized Header */}
+        <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+            <div>
+              <h3 className="text-sm font-bold tracking-wider text-white uppercase">Command Center</h3>
+              <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                <span>SYSTEM.OVERVIEW_V1</span>
+                <span className="text-neutral-700">|</span>
+                <span className="text-green-500/80">CORE_ACTIVE</span>
+              </div>
+            </div>
+          </div>
 
-          {/* System Info Strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 px-5 py-3 bg-[#181818] border border-[#303030] rounded-xl shrink-0"
-          >
-            <div className="flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[11px] font-mono text-green-400 uppercase">Online</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
+              <span className="flex items-center gap-1.5 text-blue-400/80">
+                <Database className="w-3 h-3" /> DOCS: {stats.documents}
+              </span>
+              <span className="text-neutral-700 select-none">•</span>
+              <span className="flex items-center gap-1.5 text-purple-400/80">
+                <Brain className="w-3 h-3" /> MEMS: {stats.memories}
+              </span>
+              <span className="text-neutral-700 select-none">•</span>
+              <span className="flex items-center gap-1.5 text-cyan-400/80">
+                <MessageSquare className="w-3 h-3" /> SESS: {stats.sessions}
+              </span>
+              <span className="text-neutral-700 select-none">•</span>
+              <span className="flex items-center gap-1.5 text-green-500/80">
+                <Shield className="w-3 h-3" /> {stats.reliability}%
+              </span>
             </div>
-            <span className="text-neutral-700">|</span>
-            <div className="flex items-center gap-4 text-[11px] font-mono text-neutral-400">
-              <span><Shield className="w-3 h-3 inline mr-1 text-green-400/60" />Memories: {stats.memories}</span>
-              <span className="text-neutral-700">•</span>
-              <span><Database className="w-3 h-3 inline mr-1 text-blue-400/60" />Docs: {stats.documents}</span>
-              <span className="text-neutral-700">•</span>
-              <span><MessageSquare className="w-3 h-3 inline mr-1 text-cyan-400/60" />Sessions: {stats.sessions}</span>
-              <span className="text-neutral-700">•</span>
-              <span><Activity className="w-3 h-3 inline mr-1 text-purple-400/60" />{stats.reliability}%</span>
+            <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 font-mono hidden lg:block">
+              {modelName}
             </div>
-            <span className="text-neutral-700">|</span>
-            <span className="text-[11px] font-mono text-neutral-500">{modelName}</span>
-          </motion.div>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col min-w-0 relative z-10 p-6 gap-4 overflow-y-auto">
 
 
           {/* Row 3: Chat + Activity */}
@@ -220,10 +236,9 @@ export default function Home() {
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
                 </div>
-                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — session_live</span>
+                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — root@dashboard</span>
                 <div className="ml-auto flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[9px] text-green-500/70 font-mono font-bold tracking-tighter">CONNECTED</span>
+
                   <button
                     onClick={triggerSleepCycle}
                     disabled={isProcessing}
@@ -348,7 +363,7 @@ export default function Home() {
                   View All →
                 </Link>
               </div>
-              <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden divide-y divide-white/5">
                 {activities.map((activity, i) => {
                   let Icon = Activity;
                   if (activity.icon === "Brain") Icon = Brain;
@@ -377,18 +392,7 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="flex items-center justify-between px-2 text-[10px] font-mono text-neutral-600 uppercase tracking-wider shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-green-400/60">Online</span>
-              </div>
-              <span className="text-neutral-700">•</span>
-              <span>Command Center</span>
-            </div>
-            <span>Aether v0.1.0-alpha</span>
-          </div>
+
 
         </div>
 

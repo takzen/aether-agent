@@ -15,6 +15,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Aether | Personal AI Intelligence",
   description: "The proactive, type-safe personal intelligence layer.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

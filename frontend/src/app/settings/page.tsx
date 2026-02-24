@@ -1,11 +1,12 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { User, Lock, Bell, Moon, Database, LogOut, ChevronRight, Shield, Cpu, Zap, Clock, Save, Settings2, Globe } from "lucide-react";
-import { motion } from "framer-motion";
+import { Database, Cpu, Save, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
+import NotificationModal from "@/components/modals/NotificationModal";
 
 export default function Settings() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [currentTime, setCurrentTime] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [config, setConfig] = useState({
@@ -14,6 +15,12 @@ export default function Settings() {
         QDRANT_URL: "",
         QDRANT_API_KEY: "",
         MODEL_OVERRIDE: ""
+    });
+    const [notification, setNotification] = useState<{ isOpen: boolean; title: string; message: string; type: "success" | "error" }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        type: "success"
     });
 
     useEffect(() => {
@@ -47,13 +54,28 @@ export default function Settings() {
             const data = await res.json();
             if (data.status === "success") {
                 window.dispatchEvent(new Event("configUpdated"));
-                alert("Configuration saved successfully! Environment reloaded.");
+                setNotification({
+                    isOpen: true,
+                    title: "System Configured",
+                    message: "Configuration saved successfully! Environment reloaded.",
+                    type: "success"
+                });
             } else {
-                alert("Error saving: " + data.message);
+                setNotification({
+                    isOpen: true,
+                    title: "Configuration Error",
+                    message: "Error saving: " + data.message,
+                    type: "error"
+                });
             }
         } catch (err) {
             console.error("Save error:", err);
-            alert("Failed to connect to backend.");
+            setNotification({
+                isOpen: true,
+                title: "Connection Error",
+                message: "Failed to connect to backend.",
+                type: "error"
+            });
         } finally {
             setIsSaving(false);
         }
@@ -63,20 +85,16 @@ export default function Settings() {
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] select-none">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 select-none">
 
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                         <div>
-                            <h1 className="text-sm font-bold tracking-wider text-white uppercase">Neural System Configuration</h1>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural System Configuration</h3>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
                                 <span>SYSTEM.CONFIG_V1</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>LAST_MODIFIED: {new Date().toLocaleDateString()}</span>
-                                <span className="text-neutral-700">|</span>
-                                <span className="text-green-500/80">ENCRYPTION: AES-256</span>
                             </div>
                         </div>
                     </div>
@@ -104,14 +122,19 @@ export default function Settings() {
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex flex-col gap-2 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
-                                    <label className="text-xs font-bold text-white tracking-wider flex items-center gap-2">
-                                        <Database className="w-4 h-4 text-purple-400" />
-                                        GEMINI_API_KEY
-                                    </label>
-                                    <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for primary cognitive reasoning using Google's Gemini models.</p>
+                                <div className="flex flex-col gap-4 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg shrink-0">
+                                            <Database className="w-5 h-5 text-purple-400" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">GEMINI_API_KEY</h4>
+                                            <p className="text-[10px] text-neutral-500 italic font-sans">Required for primary cognitive reasoning using Google&apos;s Gemini models.</p>
+                                        </div>
+                                    </div>
                                     <input
-                                        type="password"
+                                        type="text"
+                                        style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
                                         value={config.GEMINI_API_KEY}
                                         onChange={(e) => setConfig({ ...config, GEMINI_API_KEY: e.target.value })}
                                         placeholder="AIzaSy..."
@@ -119,14 +142,19 @@ export default function Settings() {
                                     />
                                 </div>
 
-                                <div className="flex flex-col gap-2 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
-                                    <label className="text-xs font-bold text-white tracking-wider flex items-center gap-2">
-                                        <Globe className="w-4 h-4 text-blue-400" />
-                                        TAVILY_API_KEY
-                                    </label>
-                                    <p className="text-[10px] text-neutral-500 italic font-sans mb-2">Required for giving the agent live internet access and search capabilities.</p>
+                                <div className="flex flex-col gap-4 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg shrink-0">
+                                            <Globe className="w-5 h-5 text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">TAVILY_API_KEY</h4>
+                                            <p className="text-[10px] text-neutral-500 italic font-sans">Required for giving the agent live internet access and search capabilities.</p>
+                                        </div>
+                                    </div>
                                     <input
-                                        type="password"
+                                        type="text"
+                                        style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
                                         value={config.TAVILY_API_KEY}
                                         onChange={(e) => setConfig({ ...config, TAVILY_API_KEY: e.target.value })}
                                         placeholder="tvly-..."
@@ -146,7 +174,9 @@ export default function Settings() {
                                 <div className="space-y-3">
                                     <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl relative">
                                         <div className="flex items-center gap-4 mb-4">
-                                            <div className="p-2 bg-blue-500/10 rounded-lg"><Cpu className="w-5 h-5 text-blue-400" /></div>
+                                            <div className="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg shrink-0">
+                                                <Cpu className="w-5 h-5 text-cyan-400" />
+                                            </div>
                                             <div>
                                                 <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Model Cluster</h4>
                                                 <p className="text-[10px] text-neutral-500">SELECT RUNTIME ENGINE</p>
@@ -155,7 +185,7 @@ export default function Settings() {
                                         <select
                                             value={config.MODEL_OVERRIDE}
                                             onChange={(e) => setConfig({ ...config, MODEL_OVERRIDE: e.target.value })}
-                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500/50 transition-colors uppercase cursor-pointer"
+                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-colors uppercase cursor-pointer"
                                         >
                                             <optgroup label="Google Gemini (SOTA 2026)" className="bg-[#1e1e1e]">
                                                 <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Latest Preview)</option>
@@ -179,10 +209,15 @@ export default function Settings() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="p-5 bg-[#252526] border border-[#303030] rounded-xl flex flex-col gap-4">
-                                        <div>
-                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-1">Qdrant Cloud Mode</h4>
-                                            <p className="text-[10px] text-neutral-500 leading-tight">Leave blank to force fallback to <span className="text-yellow-400">Local Embedded Qdrant</span> mode (No server needed, 100% private).</p>
+                                    <div className="p-6 bg-[#252526] border border-[#303030] rounded-2xl flex flex-col gap-4">
+                                        <div className="flex items-center gap-4 mb-2">
+                                            <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg shrink-0">
+                                                <Database className="w-5 h-5 text-yellow-400" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-[11px] font-bold text-white uppercase tracking-wider mb-0.5">Qdrant Cloud Mode</h4>
+                                                <p className="text-[10px] text-neutral-500 leading-tight">Leave blank to force fallback to <span className="text-yellow-400">Local Embedded Qdrant</span> mode (No server needed, 100% private).</p>
+                                            </div>
                                         </div>
 
                                         <input
@@ -193,7 +228,8 @@ export default function Settings() {
                                             className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-yellow-500/50 transition-colors"
                                         />
                                         <input
-                                            type="password"
+                                            type="text"
+                                            style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
                                             value={config.QDRANT_API_KEY}
                                             onChange={(e) => setConfig({ ...config, QDRANT_API_KEY: e.target.value })}
                                             placeholder="Qdrant API Key (Optional)"
@@ -206,22 +242,17 @@ export default function Settings() {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar — VSCode Style */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0 z-50">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-1 h-1 rounded-full bg-green-500" />
-                            <span>CONFIG_STATE: {isSaving ? "SAVING..." : "LIVE"}</span>
-                        </div>
-                        <span className="text-neutral-800">|</span>
-                        <div className="flex items-center gap-2">
-                            <span>ENV_PATH: .env</span>
-                        </div>
-                    </div>
-                    <span>aether.core_stable_v1.0.4</span>
-                </div>
+
 
             </main>
+
+            <NotificationModal
+                isOpen={notification.isOpen}
+                onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
+                title={notification.title}
+                message={notification.message}
+                type={notification.type}
+            />
         </div>
     );
 }

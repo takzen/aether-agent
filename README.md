@@ -1,13 +1,7 @@
 <div align="center">
   <img src="assets/aether_logo.svg" width="160" alt="Aether Logo">
 
-```
-    ___    ______ ______ _   _  _____ ____  
-   /   |  / ____//_  __/| | | || ____||  _ \ 
-  / /| | / __/    / /   | |_| ||  _|  | |_) |
- / ___ |/ /___   / /    |  _  || |___ |  _ < 
-/_/  |_/_____/  /_/     |_| |_||_____||_| \_\
-```
+  <h1>A E T H E R</h1>
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
@@ -200,6 +194,6 @@ The final frontier is purely packing this immense ecosystem into a single `Aethe
 <div align="center">
 <br>
 
-_Built with obsession. Designed for autonomy._
+_"This is my small contribution to the development of local AI. It is a humble beginning of a concept that will soon evolve into something much greater. If you want to witness the transformation, follow my next steps."_
 
 </div>
