@@ -1,0 +1,34 @@
+{
+    "name": "aether-desktop",
+    "version": "1.0.0",
+    "description": "Desktop wrapper for Aether Core",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "build:win": "electron-builder --win --x64",
+        "build:mac": "electron-builder --mac",
+        "build:linux": "electron-builder --linux"
+    },
+    "author": "Krzysztof Pika",
+    "license": "MIT",
+    "devDependencies": {
+        "electron": "^28.2.0",
+        "electron-builder": "^24.9.1"
+    },
+    "build": {
+        "appId": "com.aether.core",
+        "productName": "Aether Core",
+        "directories": {
+            "output": "dist"
+        },
+        "win": {
+            "target": "nsis"
+        },
+        "mac": {
+            "target": "dmg"
+        },
+        "linux": {
+            "target": "AppImage"
+        }
+    }
+}
