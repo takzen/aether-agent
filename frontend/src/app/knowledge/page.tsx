@@ -1,8 +1,8 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Search, FileText, Upload, ExternalLink, Code, Loader2, Trash, Zap } from "lucide-react";
-import { motion } from "framer-motion";
+import { Search, FileText, Upload, ExternalLink, Code, Loader2, Trash, Zap, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import NotificationModal from "@/components/modals/NotificationModal";
@@ -26,6 +26,12 @@ export default function KnowledgeBase() {
         title: "",
         message: "",
         type: "success"
+    });
+    const [previewModal, setPreviewModal] = useState<{ isOpen: boolean; filename: string | null; content: string; isLoading: boolean }>({
+        isOpen: false,
+        filename: null,
+        content: "",
+        isLoading: false
     });
 
     // Filtered items based on search query
@@ -188,6 +194,23 @@ export default function KnowledgeBase() {
         }
     };
 
+    const handlePreview = async (e: React.MouseEvent, filename: string) => {
+        e.stopPropagation();
+        setPreviewModal({ isOpen: true, filename, content: "", isLoading: true });
+        try {
+            const res = await fetch(`http://localhost:8000/knowledge/content/${filename}`);
+            const data = await res.json();
+            if (data.status === "success") {
+                setPreviewModal({ isOpen: true, filename, content: data.content, isLoading: false });
+            } else {
+                setPreviewModal({ isOpen: true, filename, content: `Error: ${data.message}`, isLoading: false });
+            }
+        } catch (err) {
+            console.error(err);
+            setPreviewModal({ isOpen: true, filename, content: "Error connecting to the neural core.", isLoading: false });
+        }
+    };
+
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
@@ -233,15 +256,21 @@ export default function KnowledgeBase() {
 
                     {/* Search Bar — VSCode Style */}
                     <div className="relative max-w-2xl bg-[#252526] border border-[#3c3c3c] rounded-xl px-4 py-3 focus-within:border-[#007acc]/50 transition-all flex items-center gap-3">
-                        <span className="text-[#858585] font-mono text-[10px] font-bold shrink-0">QUERY_CORE:</span>
+                        <Search className="h-4 w-4 text-[#858585]" />
                         <input
-                            type="text"
+                            type="search"
+                            name="neural_search_query"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-transparent w-full text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
-                            placeholder="Explore documents, code, or neural nodes..."
+                            className="bg-transparent w-full text-[#cccccc] text-sm placeholder:text-[#858585] focus:outline-none"
+                            placeholder="Type a message..."
+                            autoComplete="off"
+                            autoCorrect="off"
+                            spellCheck="false"
+                            data-lpignore="true"
+                            data-form-type="other"
+                            data-keepass="ignore"
                         />
-                        <Search className="h-4 w-4 text-[#858585]" />
                     </div>
 
                     {/* Content Grid */}
@@ -270,9 +299,13 @@ export default function KnowledgeBase() {
                                     >
                                         <Trash className="w-3.5 h-3.5" />
                                     </button>
-                                    <div className="p-1.5 hover:bg-white/10 text-purple-400 rounded transition-colors">
+                                    <button
+                                        onClick={(e) => handlePreview(e, item.title)}
+                                        className="p-1.5 hover:bg-white/10 text-purple-400 rounded transition-colors"
+                                        title="Preview Document"
+                                    >
                                         <ExternalLink className="w-3.5 h-3.5" />
-                                    </div>
+                                    </button>
                                 </div>
 
                                 <div className="flex items-start gap-4 mb-4">
@@ -360,6 +393,54 @@ export default function KnowledgeBase() {
                 message={notification.message}
                 type={notification.type}
             />
+
+            {/* Preview Modal */}
+            <AnimatePresence>
+                {previewModal.isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setPreviewModal(prev => ({ ...prev, isOpen: false }))}
+                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-[#1e1e1e] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl"
+                        >
+                            <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#1e1e1e]">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                                    <h2 className="text-sm font-bold uppercase tracking-widest text-white">
+                                        {previewModal.filename}
+                                    </h2>
+                                </div>
+                                <button
+                                    onClick={() => setPreviewModal(prev => ({ ...prev, isOpen: false }))}
+                                    className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-6 bg-[#1e1e1e] scrollbar-thin scrollbar-thumb-white/10">
+                                {previewModal.isLoading ? (
+                                    <div className="flex flex-col items-center justify-center h-full text-neutral-500 space-y-4">
+                                        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+                                        <span className="font-mono text-xs">DECRYPTING_DATA...</span>
+                                    </div>
+                                ) : (
+                                    <pre className="text-xs font-mono text-neutral-300 whitespace-pre-wrap leading-relaxed">
+                                        {previewModal.content}
+                                    </pre>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
