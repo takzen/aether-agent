@@ -63,20 +63,16 @@ export default function Settings() {
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 border-l border-[#303030] select-none">
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 select-none">
 
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                         <div>
-                            <h1 className="text-sm font-bold tracking-wider text-white uppercase">Neural System Configuration</h1>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural System Configuration</h3>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
                                 <span>SYSTEM.CONFIG_V1</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>LAST_MODIFIED: {new Date().toLocaleDateString()}</span>
-                                <span className="text-neutral-700">|</span>
-                                <span className="text-green-500/80">ENCRYPTION: AES-256</span>
                             </div>
                         </div>
                     </div>
@@ -206,20 +202,7 @@ export default function Settings() {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar — VSCode Style */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0 z-50">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5">
-                            <div className="w-1 h-1 rounded-full bg-green-500" />
-                            <span>CONFIG_STATE: {isSaving ? "SAVING..." : "LIVE"}</span>
-                        </div>
-                        <span className="text-neutral-800">|</span>
-                        <div className="flex items-center gap-2">
-                            <span>ENV_PATH: .env</span>
-                        </div>
-                    </div>
-                    <span>aether.core_stable_v1.0.4</span>
-                </div>
+
 
             </main>
         </div>

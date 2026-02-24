@@ -177,28 +177,46 @@ export default function Home() {
 
       <Sidebar />
 
-      <main className="flex-1 flex min-w-0 relative overflow-hidden bg-background">
-        <div className="flex-1 flex flex-col min-w-0 relative z-10 p-6 gap-4">
-
-          {/* System Info Strip */}
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 px-5 py-3 bg-[#181818] border border-[#303030] rounded-xl shrink-0"
-          >
-
-            <div className="flex items-center gap-4 text-[11px] font-mono text-neutral-400">
-              <span><Shield className="w-3 h-3 inline mr-1 text-green-400/60" />Memories: {stats.memories}</span>
-              <span className="text-neutral-700">•</span>
-              <span><Database className="w-3 h-3 inline mr-1 text-blue-400/60" />Docs: {stats.documents}</span>
-              <span className="text-neutral-700">•</span>
-              <span><MessageSquare className="w-3 h-3 inline mr-1 text-cyan-400/60" />Sessions: {stats.sessions}</span>
-              <span className="text-neutral-700">•</span>
-              <span><Activity className="w-3 h-3 inline mr-1 text-purple-400/60" />{stats.reliability}%</span>
+      <main className="flex-1 flex flex-col min-w-0 relative overflow-hidden bg-background">
+        {/* Standardized Header */}
+        <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+            <div>
+              <h3 className="text-sm font-bold tracking-wider text-white uppercase">Command Center</h3>
+              <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                <span>SYSTEM.OVERVIEW_V1</span>
+                <span className="text-neutral-700">|</span>
+                <span className="text-green-500/80">CORE_ACTIVE</span>
+              </div>
             </div>
-            <span className="text-neutral-700">|</span>
-            <span className="text-[11px] font-mono text-neutral-500">{modelName}</span>
-          </motion.div>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
+              <span className="flex items-center gap-1.5 text-blue-400/80">
+                <Database className="w-3 h-3" /> DOCS: {stats.documents}
+              </span>
+              <span className="text-neutral-700 select-none">•</span>
+              <span className="flex items-center gap-1.5 text-purple-400/80">
+                <Brain className="w-3 h-3" /> MEMS: {stats.memories}
+              </span>
+              <span className="text-neutral-700 select-none">•</span>
+              <span className="flex items-center gap-1.5 text-cyan-400/80">
+                <MessageSquare className="w-3 h-3" /> SESS: {stats.sessions}
+              </span>
+              <span className="text-neutral-700 select-none">•</span>
+              <span className="flex items-center gap-1.5 text-green-500/80">
+                <Shield className="w-3 h-3" /> {stats.reliability}%
+              </span>
+            </div>
+            <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 font-mono hidden lg:block">
+              {modelName}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col min-w-0 relative z-10 p-6 gap-4 overflow-y-auto">
 
 
           {/* Row 3: Chat + Activity */}
@@ -248,40 +266,40 @@ export default function Home() {
                     ) : (
                       <div className="space-y-4">
                         {/* Status lines (only for AI) */}
-                        <div className="space-y-1 opacity-70">
-                          <div className="text-blue-400/80">
-                            <span>[aether]</span> <span className="text-neutral-500 italic">Evaluating system context & logs...</span>
+                        <div className="space-y-1">
+                          <div className="text-blue-400">
+                            <span>[aether]</span> <span className="text-neutral-300 italic">Evaluating system context & logs...</span>
                           </div>
-                          <div className="flex items-center gap-2 text-[11px] text-neutral-600">
-                            <span className="text-blue-400/50">[aether]</span>
-                            <span className="text-green-400/60">Report synthesized</span>
+                          <div className="flex items-center gap-2 text-[11px] text-neutral-400">
+                            <span className="text-blue-400/80">[aether]</span>
+                            <span className="text-green-400">Report synthesized</span>
                             <span>•</span>
                             <span>sys.time: {msg.isInitial ? "07:12:00" : "now"}</span>
                           </div>
                         </div>
 
                         {/* Main Response Box */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
-                          <div className="flex items-center gap-2 text-[10px] text-green-400/70 font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        <div className="bg-black/40 border border-white/10 rounded-xl p-4 space-y-3 shadow-lg">
+                          <div className="flex items-center gap-2 text-[10px] text-green-400 font-bold uppercase tracking-widest border-b border-white/10 pb-2 mb-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
                             <span>Aether Morning Brief / Terminal Return</span>
                           </div>
-                          <div className="text-neutral-300 space-y-3">
-                            <p>{msg.content}</p>
+                          <div className="text-white space-y-3 leading-relaxed">
+                            <p className="text-[14px]">{msg.content}</p>
                             {msg.extra && (
-                              <ul className="space-y-1 text-neutral-400">
+                              <ul className="space-y-1.5 text-neutral-200">
                                 {msg.extra.map((item, idx) => (
                                   <li key={idx} className="flex items-start gap-2.5">
-                                    <span className="text-purple-600 mt-1">→</span>
+                                    <span className="text-purple-500 font-bold mt-1">→</span>
                                     <span>{item}</span>
                                   </li>
                                 ))}
                               </ul>
                             )}
                             {msg.sources && (
-                              <div className="pt-2 flex flex-wrap gap-2 text-[10px] text-neutral-600">
+                              <div className="pt-2 flex flex-wrap gap-2 text-[10px] text-neutral-400">
                                 {msg.sources.map((src, idx) => (
-                                  <span key={idx} className="px-1.5 py-0.5 border border-white/5 rounded">{src}</span>
+                                  <span key={idx} className="px-1.5 py-0.5 border border-white/10 rounded bg-white/5">{src}</span>
                                 ))}
                               </div>
                             )}

@@ -297,11 +297,18 @@ export default function ChatPage() {
 
                 {/* Chat Column */}
                 <div className="flex-1 flex flex-col relative overflow-hidden">
-                    {/* Chat Header — VSCode Style */}
-                    <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0">
-                        <div className="flex items-center gap-2">
+                    {/* Chat Header — Standardized Style */}
+                    <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
+                        <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-                            <h3 className="text-sm font-bold text-white">Aether Agent</h3>
+                            <div>
+                                <h3 className="text-sm font-bold tracking-wider text-white uppercase">Aether Agent</h3>
+                                <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                                    <span>SYSTEM.NEURAL_CORE</span>
+                                    <span className="text-neutral-700">|</span>
+                                    <span>ACTIVE_SESSION</span>
+                                </div>
+                            </div>
                         </div>
                         <div className="flex items-center gap-3 text-[10px] text-neutral-500 font-mono uppercase tracking-widest overflow-hidden">
                             {/* New Chat Button */}

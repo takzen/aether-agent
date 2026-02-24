@@ -115,9 +115,9 @@ export default function Memories() {
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                         <div>
-                            <h1 className="text-sm font-bold tracking-wider text-white uppercase">Neural Memory Core</h1>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural Memory Core</h3>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
                                 <span>SYSTEM.MEM_GRAPH</span>
                                 <span className="text-neutral-700">|</span>
@@ -126,21 +126,23 @@ export default function Memories() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-[#252525] p-1 rounded-lg border border-[#303030]">
-                        <button
-                            onClick={() => setViewMode("graph")}
-                            className={`p-1.5 rounded-md transition-colors flex items-center justify-center ${viewMode === "graph" ? "bg-blue-500/20 text-blue-400" : "text-neutral-500 hover:text-neutral-300"}`}
-                            title="Graph View"
-                        >
-                            <Network className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => setViewMode("list")}
-                            className={`p-1.5 rounded-md transition-colors flex items-center justify-center ${viewMode === "list" ? "bg-blue-500/20 text-blue-400" : "text-neutral-500 hover:text-neutral-300"}`}
-                            title="List View"
-                        >
-                            <List className="w-4 h-4" />
-                        </button>
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 bg-[#252525] px-1 py-1.5 rounded-lg border border-[#303030]">
+                            <button
+                                onClick={() => setViewMode("graph")}
+                                className={`px-2 py-0.5 rounded-md transition-colors flex items-center justify-center ${viewMode === "graph" ? "bg-blue-500/20 text-blue-400" : "text-neutral-500 hover:text-neutral-300"}`}
+                                title="Graph View"
+                            >
+                                <Network className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode("list")}
+                                className={`px-2 py-0.5 rounded-md transition-colors flex items-center justify-center ${viewMode === "list" ? "bg-blue-500/20 text-blue-400" : "text-neutral-500 hover:text-neutral-300"}`}
+                                title="List View"
+                            >
+                                <List className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -494,20 +496,13 @@ export default function Memories() {
                                         })}
                                     </div>
                                 )}
-                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-neutral-700 font-mono text-[9px] uppercase tracking-[0.4em] flex items-center gap-3 bg-[#111] px-6 py-2 rounded-full border border-white/5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" /> Autonomous Cognitive Mapping Engine</div>
+
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* Bottom Status Bar */}
-                <div className="flex items-center justify-between px-6 py-2 border-t border-[#303030] bg-[#181818] text-[10px] font-mono text-neutral-500 uppercase tracking-widest shrink-0 z-50">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /><span>NODE_INFRA: CONNECTED</span></div>
-                        <span className="text-neutral-800">|</span><span>MEM_CORE: SYNCED</span>
-                    </div>
-                    <span>aether.core_stable_v1.0.4</span>
-                </div>
+
             </main>
         </div>
     );
