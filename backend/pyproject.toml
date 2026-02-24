@@ -10,6 +10,7 @@ dependencies = [
     "fastapi>=0.129.0",
     "google-genai>=1.63.0",
     "httpx>=0.28.1",
+    "mcp>=1.26.0",
     "pydantic-ai>=1.58.0",
     "python-dotenv>=1.2.1",
     "python-multipart>=0.0.22",

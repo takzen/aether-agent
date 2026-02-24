@@ -63,25 +63,41 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"Connection to Aether Core failed: {str(e)}")
 
+telegram_app = None
+
 async def run_telegram_bot():
+    global telegram_app
     if not TELEGRAM_TOKEN:
         print("[Telegram Link] Disabled. TELEGRAM_BOT_TOKEN not found in .env")
         return
         
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
+    telegram_app = Application.builder().token(TELEGRAM_TOKEN).build()
 
-    application.add_handler(CommandHandler("start", start_cmd))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    telegram_app.add_handler(CommandHandler("start", start_cmd))
+    telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     print("[Telegram Link] Connecting to Telegram Secure Bridge...")
     try:
-        await application.initialize()
-        await application.start()
-        await application.updater.start_polling(drop_pending_updates=True)
+        await telegram_app.initialize()
+        await telegram_app.start()
+        await telegram_app.updater.start_polling(drop_pending_updates=True)
         print("[Telegram Link] Telegram Listener Active.")
     except Exception as e:
         print(f"[Telegram Link] Failed to initialize: {e}")
 
+async def stop_telegram_bot():
+    global telegram_app
+    if telegram_app is not None:
+        try:
+            print("[Telegram Link] Disconnecting...")
+            await telegram_app.updater.stop()
+            await telegram_app.stop()
+            await telegram_app.shutdown()
+            print("[Telegram Link] Offline.")
+        except Exception as e:
+            print(f"[Telegram Link] Error during shutdown: {e}")
+        finally:
+            telegram_app = None
 if __name__ == "__main__":
     # Wait for Aether API to boot first if we run this as standalone module
     asyncio.run(run_telegram_bot())
