@@ -5,6 +5,7 @@
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
+[![Version](https://img.shields.io/badge/version-1.0.0--beta-blue?style=flat-square)](https://github.com/takzen/aether-agent)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
@@ -91,7 +92,7 @@ graph TD
 </tr>
 <tr>
 <td>🖥️ <strong>Command Center</strong></td>
-<td>Next.js 15 (App Router), Tailwind CSS, Framer Motion</td>
+<td>Next.js 16 (App Router), Tailwind CSS, Framer Motion</td>
 </tr>
 <tr>
 <td>💻 <strong>Desktop Shell</strong></td>
