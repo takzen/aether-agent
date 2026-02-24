@@ -1,7 +1,7 @@
 # 🗺️ Aether — Roadmapa Realizacji
 
 > Żywy dokument. Odznaczaj zadania w miarę postępów.  
-> Ostatnia aktualizacja: `2026-02-16`
+> Ostatnia aktualizacja: `2026-02-24`
 
 ---
 
@@ -9,12 +9,13 @@
 
 | Faza | Nazwa                          | Status            |
 | ---- | ------------------------------ | ----------------- |
-| 1    | Fundamenty i „Mózg"            | ✅ Ukończona (Bazowo) |
-| 2    | Pamięć i Kontekst (Qdrant)     | 🔄 W toku (Kluczowa) |
-| 3    | Operacje i „Ręce" (Tools)      | ✅ W toku         |
-| 4    | Interfejs i Monitoring         | ✅ W toku         |
-| 5    | Standalone & Deployment        | 🔲 Nie rozpoczęta |
-| 6    | **Wizja: Autonomia Poznawcza** | 🌑 Planowana (Etap końcowy) |
+| 1    | Fundamenty i „Mózg"            | ✅ Ukończona      |
+| 2    | Pamięć i Kontekst (Qdrant)     | ✅ Ukończona      |
+| 3    | Operacje i „Ręce" (Tools)      | ✅ Ukończona      |
+| 4    | Interfejs i Monitoring         | ✅ Ukończona      |
+| 5    | Standalone & Deployment        | ✅ Ukończona (1x TODO) |
+| 6    | **Wizja: Autonomia Poznawcza** | ✅ Ukończona      |
+| 7    | 🧪 Poligon Doświadczalny         | 🔄 Startujemy     |
 
 ---
 
@@ -98,6 +99,18 @@ Cel: To, co czyni Aethera unikalnym na skalę światową.
 
 ---
 
+## 🧪 Faza 7 — Poligon Doświadczalny (Weryfikacja Architektury)
+
+Cel: Zrozumienie przez użytkownika pełnego ekosystemu poprzez wykonanie zestawu wyizolowanych testów logiki.
+
+- [ ] **7.1** **Test Pamięci i Wektorów (Qdrant & SQLite)** — wymuszenie retencji długoterminowej
+- [ ] **7.2** **Test Komunikacji (Telegram Bridge)** — sprawdzenie autoryzacji i przekierowania asynchronicznego
+- [ ] **7.3** **Test Mózgu Tła (AWM & Sleep Cycle)** — weryfikacja automatycznych symulacji w tle
+- [ ] **7.4** **Test Złącza Obcego (MCP)** — odpytanie Aethera z zewnętrznego klienta
+- [ ] **7.5** **Podsumowanie Dashboardu** — przegląd integracji modułów na interfejsie graficznym
+
+---
+
 ## 📊 Postęp ogólny
 
 ```
@@ -107,8 +120,9 @@ Faza 3  [████████████]   6 / 6
 Faza 4  [████████████]   6 / 6
 Faza 5  [██████████░░]   5 / 6
 Faza 6  [████████████]   4 / 4
+Faza 7  [░░░░░░░░░░░░]   0 / 5
 
-TOTAL   [███████████░]   37 / 38 zadań
+TOTAL   [██████████░░]   37 / 43 zadań
 ```
 
 ---
