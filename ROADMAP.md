@@ -57,7 +57,7 @@ Cel: agent, który nie tylko mówi, ale działa w Twoim systemie plików.
 - [x] **3.3** Tool — `write_file(path, content)` — tworzenie plików i pisanie kodu
 - [x] **3.4** **Safe Execution** — system potwierdzania niebezpiecznych akcji (Confirmation Gate)
 - [x] **3.5** Custom Modals na UI — podstawa pod system akceptacji operacji
-- [ ] **3.6** Integracja **Telegram** — sterowanie agentem z telefonu (Mobilne "Ręce")
+- [x] **3.6** Integracja **Telegram** — sterowanie agentem z telefonu (Mobilne "Ręce")
 
 ---
 
@@ -102,12 +102,12 @@ Cel: To, co czyni Aethera unikalnym na skalę światową.
 ```
 Faza 1  [████████████]   8 / 8
 Faza 2  [████████████]   8 / 8
-Faza 3  [█████████░░░]   5 / 6
+Faza 3  [████████████]   6 / 6
 Faza 4  [████████████]   6 / 6
 Faza 5  [██░░░░░░░░░░]   1 / 5
 Faza 6  [██████░░░░░░]   2 / 4
 
-TOTAL   [██████████l░]   30 / 37 zadań
+TOTAL   [███████████░]   31 / 37 zadań
 ```
 
 ---

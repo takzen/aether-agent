@@ -35,6 +35,10 @@ from local_db import sqlite_service
 async def startup():
     await sqlite_service.init_db()
     await sqlite_service.add_log("success", "CORE", "Aether Kernel initialized. Core services operational.")
+    
+    # Start Telegram Bridge in background
+    from telegram_bridge import run_telegram_bot
+    asyncio.create_task(run_telegram_bot())
 
 @app.get("/ping")
 async def ping():
