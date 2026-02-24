@@ -9,18 +9,19 @@
 ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
 ```
 
-**The Proactive, Type-Safe Personal Intelligence Layer**
+**The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-latest-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![PydanticAI](https://img.shields.io/badge/PydanticAI-type--safe-E92063?style=flat-square)](https://ai.pydantic.dev)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
-[![Supabase](https://img.shields.io/badge/Supabase-pgvector-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector_Memory-3ECF8E?style=flat-square&logo=qdrant&logoColor=white)](https://qdrant.tech)
+[![MCP](https://img.shields.io/badge/MCP-Server-4A154B?style=flat-square)](https://modelcontextprotocol.io/)
+[![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
 
 ---
 
-_Aether doesn't wait for commands — it lives where you do._
+_Aether doesn't wait for commands — it lives, reflects, and anticipates where you do._
 
 </div>
 
@@ -28,48 +29,58 @@ _Aether doesn't wait for commands — it lives where you do._
 
 ## 🌌 What is Aether?
 
-Aether is a **next-generation personal AI assistant** that bridges the gap between passive chatbots and truly autonomous agents. Inspired by the vision of _Jarvis_, Aether combines structured reasoning, long-term memory, and proactive communication to become a **digital extension of yourself**.
+Aether is a **massive paradigm shift** in personal AI computing. It bridges the gap between passive RAG chatbots and truly autonomous, self-reflecting agents. Built upon the principles of an _Active World Model_, Aether is an entirely private, Local-First engine that actively monitors your workflow, connects concepts overnight, and alters its own persona based on the rhythm of your day.
 
-Where traditional AI tools react, **Aether anticipates**. Where others forget, **Aether remembers**. Where others hallucinate, **Aether validates**.
-
----
-
-## ✨ Key Features
-
-| Feature                        | Description                                                                                                         |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| 🤖 **Agentic Core**            | Powered by **PydanticAI** — every tool call and model response is validated, structured, and reliable               |
-| 🧠 **Hybrid Intelligence**     | Switch between **Gemini 3 Flash-preview** for cloud reasoning and **Llama 3 via Ollama** for local, private inference  |
-| 🗄️ **Infinite Memory**         | **Supabase Vector (pgvector)** stores long-term context, documents, and conversation history — nothing is forgotten |
-| ⚡ **Proactive Notifications** | Aether _initiates_ conversations via **Multi-channel Adapters** (Telegram, Discord, Webhooks, etc.) for briefings and alerts |
-| 🛠️ **Extensible Toolbelt**     | Built-in tools: file management, **Tavily** web search, calendar integration, terminal execution                    |
-| 🖥️ **Command Center**          | A sleek **Next.js 16** dashboard to monitor agent thought processes, manage knowledge, and configure settings       |
+Where traditional AI tools simply react to text, **Aether simulates and anticipates**. Where others suffer from context amnesia, **Aether builds Concept Constellations in Qdrant**. Where others hallucinate, **Aether grounds itself in type-safe Pydantic logic.**
 
 ---
 
-## 🏗️ Architecture
+## ✨ State-of-the-Art Features
+
+| System / Feature | Description |
+| ---------------- | ----------- |
+| � **Active World Model** | Aether runs silent background simulations (`world_model.py`) to reflect on your daily actions, generating overarching insights and proactive architectural suggestions without you asking. |
+| 🌙 **Sleep Cycle** | When you log off, the *NightCycleProcessor* consolidates your daily files and logs, reducing noise and preparing a **Morning Brief** for your Dashboard Command Center. |
+| ⏱️ **Digital Circadian Rhythm** | Aether dynamically alters its persona based on local system time. *Strategist* in the morning, *Executor* at noon, *Philosopher* in the evening, and *Maintainer* at night. |
+| 🕸️ **Concept Constellations** | Moving beyond standard RAG vectors. Aether links memories and facts into a dense relational graph within its core SQLite + Qdrant architecture. |
+| 📱 **Telegram Bridge** | Operate your entire codebase and read system briefings via an encrypted, native-feeling CLI bridge straight from the Telegram app on your phone. |
+| � **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory with other AIs. |
+| � **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
+
+---
+
+## 🏗️ Architecture Stack
+
+Aether operates as a massive distributed monolith on your local machine, driven by modern package managers (`uv` and `pnpm`).
 
 ```mermaid
 graph TD
-    User["👤 User / Telegram"] <--> API["⚡ FastAPI Gateway"]
-    API <--> Agent["🧠 PydanticAI Agent"]
-    Agent <--> LLM["🤖 Gemini / Llama 3"]
-    Agent <--> DB[("🗄️ Supabase + pgvector")]
-    Agent <--> Tools["🛠️ Local Tools / Web Search"]
-    Dashboard["🖥️ Next.js Dashboard"] <--> API
+    User["👤 User / Telegram"] <--> HTTP["⚡ FastAPI Kernel"]
+    HTTP <--> Agent["🧠 PydanticAI Agent"]
+    
+    Agent <--> LLM["🤖 Gemini 3 / Local Ollama"]
+    Agent <--> Qdrant[("🌌 Qdrant Vector Space")]
+    Agent <--> SQLite[("�️ SQLite Brain (Logs/Sessions)")]
+    
+    SubAgent1["🌙 Sleep Cycle Processor"] --> SQLite
+    SubAgent2["🌍 Active World Model"] --> SQLite
+    
+    Dashboard["🖥️ Next.js / Electron UI"] <--> HTTP
+    MCP_IDE["🔌 Claude/Cursor (via MCP)"] <--> SQLite
 
     style User fill:#1a1a2e,stroke:#e94560,color:#fff
-    style API fill:#16213e,stroke:#0f3460,color:#fff
+    style HTTP fill:#16213e,stroke:#0f3460,color:#fff
     style Agent fill:#0f3460,stroke:#e94560,color:#fff
     style LLM fill:#533483,stroke:#e94560,color:#fff
-    style DB fill:#16213e,stroke:#3ecf8e,color:#fff
-    style Tools fill:#16213e,stroke:#e2b96f,color:#fff
+    style Qdrant fill:#16213e,stroke:#3ecf8e,color:#fff
+    style SQLite fill:#16213e,stroke:#e2b96f,color:#fff
     style Dashboard fill:#1a1a2e,stroke:#e94560,color:#fff
+    style MCP_IDE fill:#4a154b,stroke:#e94560,color:#fff
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Core
 
 <table>
 <tr>
@@ -77,104 +88,108 @@ graph TD
 <td><strong>Technology</strong></td>
 </tr>
 <tr>
-<td>🐍 Backend</td>
-<td>Python 3.12+, FastAPI</td>
+<td>🐍 <strong>Backend Kernel</strong></td>
+<td>Python 3.12+, FastAPI, Uvicorn, SQLite3</td>
 </tr>
 <tr>
-<td>🤖 Agent Framework</td>
-<td>PydanticAI — model-agnostic, fully type-safe</td>
+<td>🤖 <strong>Cognition Frame</strong></td>
+<td>PydanticAI (Type-safe and dependency-injected)</td>
 </tr>
 <tr>
-<td>🖥️ Frontend</td>
-<td>Next.js 16 (App Router), Tailwind CSS, shadcn/ui</td>
+<td>🖥️ <strong>Command Center</strong></td>
+<td>Next.js 15 (App Router), Tailwind CSS, Framer Motion</td>
 </tr>
 <tr>
-<td>🗄️ Database & Auth</td>
-<td>Supabase (PostgreSQL + pgvector)</td>
+<td>� <strong>Desktop Shell</strong></td>
+<td>Electron, electron-builder</td>
 </tr>
 <tr>
-<td>🧠 LLM Providers</td>
-<td>Google Gemini 3 API, Ollama (local), OpenAI</td>
+<td>🗄️ <strong>Vector Memory</strong></td>
+<td>Qdrant (Local Docker or Cloud Hybrid)</td>
 </tr>
 <tr>
-<td>📡 Communication</td>
-<td>Universal Webhooks, Telegram, Discord, and Custom API Adapters</td>
+<td>� <strong>APIs & Protocol</strong></td>
+<td>FastMCP (Anthropic Protocol), python-telegram-bot, Tavily Search</td>
 </tr>
 </table>
 
 ---
 
-## 🚀 Getting Started
+## 🚀 One-Click Setup
+
+We have eliminated Docker-hell and requirement-txt conflicts. Aether uses `uv` for lightning-fast Python dependency syncing and `pnpm` for Node.
 
 ### Prerequisites
 
-- Python `3.12+`
-- Node.js `18+`
-- A [Supabase](https://supabase.com) project with `pgvector` enabled
-- A [Gemini API](https://aistudio.google.com) key or a local [Ollama](https://ollama.ai) instance
-- A communication channel token (e.g., Telegram Bot Token, Discord Webhook, etc.)
+- `curl -LsSf https://astral.sh/uv/install.sh | sh` (UV Python Manager)
+- `Node.js 20+` & `npm install -g pnpm`
+- A [Qdrant Cloud](https://cloud.qdrant.io/) Cluster (or local instance)
+- API Keys for Google Gemini / Tavily / Telegram.
 
-### Configuration
+### 1-Click Launch Windows / MacOS
+
+Simply clone the repository and run the installation script. It will setup both backend, frontend, build dependencies, and launch the Electron App:
 
 ```bash
-# Copy the example environment file
-cp .env.example .env
+# Windows
+.\start_desktop.bat
+
+# Linux / Mac 
+./setup.sh
 ```
 
-Fill in your credentials in `.env`:
-
+### Manual Configuration `.env`
+Place inside `/backend/.env`:
 ```env
-# LLM
-GEMINI_API_KEY=your_gemini_api_key
-OLLAMA_BASE_URL=http://localhost:11434   # optional
+# AI Models
+GEMINI_API_KEY=your_gemini_key
+MODEL_OVERRIDE=gemini-3.1-pro-preview
 
-# Database
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your_supabase_anon_key
+# Vector Storage
+QDRANT_API_KEY=your_qdrant_api_key
+QDRANT_URL=https://your-cluster.qdrant.io
 
-# Communication
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-
-# Web Search
+# Tools & Bridges
 TAVILY_API_KEY=your_tavily_api_key
+TELEGRAM_BOT_TOKEN=12345:ABCDEF
+TELEGRAM_USER_ID=your_id
 ```
-
-### Run
-
-```bash
-# Start backend
-cd backend
-uv run python main.py
-
-# Start frontend
-cd frontend
-pnpm dev
-
-```
-
-## 🧠 Philosophy
-
-> _"Aether aims to be more than just a software tool — it's a digital extension of yourself."_
-
-By combining **Structured Outputs** with **Long-term Memory**, Aether minimizes hallucinations and maximizes utility. The goal is simple: **automate the mundane, and focus on what matters.**
-
-The key architectural bets:
-
-- **Type-safety over chaos** — PydanticAI ensures every agent interaction is validated. No silent failures.
-- **Memory over context windows** — Conversations, documents, and preferences are persisted in vector storage. Aether remembers.
-- **Proactivity over passivity** — A true assistant doesn't wait to be asked. Aether reaches out.
 
 ---
 
-## 🤝 Contributing
+## 🔌 Using MCP (Model Context Protocol)
 
-Contributions, issues, and feature requests are welcome! Feel free to open an issue or submit a pull request.
+Aether isn't selfish with its memory. You can expose Aether's internal SQLite Brain and Morning Briefs directly to your IDE (like Cursor or Claude).
+Add the following to your `claude_desktop_config.json`:
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```json
+"mcpServers": {
+  "aether-core": {
+    "command": "uv",
+    "args": ["run", "python", "backend/mcp_server.py"]
+  }
+}
+```
+
+---
+
+## 🐳 Docker Compose (Self-Hosting)
+
+For NAS or VPS enthusiasts, Aether ships with an incredibly lightweight, production-ready `docker-compose.yml`.
+The frontend compiles to a Standalone Node instance, and the backend runs on Alpine Slim. Volume mounts persist your digital memories forever.
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
+## 📝 Roadmap & Philosophy
+
+> _"Aether aims to be more than just a software tool — it's an intelligent entity aware of its existence in time and space."_
+
+Aether is almost feature-complete based on our original 6-Phase Master Plan (37/38 Tasks Done). 
+The final frontier is purely packing this immense ecosystem into a single `AetherCore.exe` installer using PyInstaller and NSIS.
 
 ---
 
@@ -182,12 +197,9 @@ Contributions, issues, and feature requests are welcome! Feel free to open an is
 
 **MIT** © [Krzysztof Pika](https://github.com/takzen)
 
----
-
 <div align="center">
+<br>
 
 _Built with obsession. Designed for autonomy._
-
-⭐ **Star this repo** if Aether resonates with your vision of the future.
 
 </div>
