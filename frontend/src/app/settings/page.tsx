@@ -3,6 +3,7 @@
 import Sidebar from "@/components/Sidebar";
 import { Database, Cpu, Save, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
+import NotificationModal from "@/components/modals/NotificationModal";
 
 export default function Settings() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -14,6 +15,12 @@ export default function Settings() {
         QDRANT_URL: "",
         QDRANT_API_KEY: "",
         MODEL_OVERRIDE: ""
+    });
+    const [notification, setNotification] = useState<{ isOpen: boolean; title: string; message: string; type: "success" | "error" }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        type: "success"
     });
 
     useEffect(() => {
@@ -47,13 +54,28 @@ export default function Settings() {
             const data = await res.json();
             if (data.status === "success") {
                 window.dispatchEvent(new Event("configUpdated"));
-                alert("Configuration saved successfully! Environment reloaded.");
+                setNotification({
+                    isOpen: true,
+                    title: "System Configured",
+                    message: "Configuration saved successfully! Environment reloaded.",
+                    type: "success"
+                });
             } else {
-                alert("Error saving: " + data.message);
+                setNotification({
+                    isOpen: true,
+                    title: "Configuration Error",
+                    message: "Error saving: " + data.message,
+                    type: "error"
+                });
             }
         } catch (err) {
             console.error("Save error:", err);
-            alert("Failed to connect to backend.");
+            setNotification({
+                isOpen: true,
+                title: "Connection Error",
+                message: "Failed to connect to backend.",
+                type: "error"
+            });
         } finally {
             setIsSaving(false);
         }
@@ -223,6 +245,14 @@ export default function Settings() {
 
 
             </main>
+
+            <NotificationModal
+                isOpen={notification.isOpen}
+                onClose={() => setNotification(prev => ({ ...prev, isOpen: false }))}
+                title={notification.title}
+                message={notification.message}
+                type={notification.type}
+            />
         </div>
     );
 }

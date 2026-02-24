@@ -171,13 +171,13 @@ export default function Memories() {
                                         <rect width="1000" height="700" fill="url(#grid)" />
 
                                         {/* Unifying Orbit */}
-                                        <ellipse cx="400" cy="350" rx="280" ry="220" fill="none" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="2 10" className="opacity-20 animate-[spin_60s_linear_infinite]" style={{ transformOrigin: "400px 350px" }} />
+                                        <circle cx="400" cy="350" r="250" fill="none" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="2 10" className="opacity-20 animate-[spin_60s_linear_infinite]" style={{ transformOrigin: "400px 350px" }} />
 
                                         {/* Knowledge Base Node (Top) */}
-                                        <g transform="translate(400, 60)">
+                                        <g transform="translate(400, 100)">
                                             <circle cx="0" cy="0" r="28" fill="#181818" stroke="#10b981" strokeWidth="2" />
-                                            <path d="M 0 28 L 0 255" stroke="#10b981" strokeWidth="1" strokeDasharray="3 6" className="opacity-30" />
-                                            <circle r="3" fill="#10b981"><animateMotion dur="3s" repeatCount="indefinite" path="M 0 28 L 0 255" /></circle>
+                                            <path d="M 0 28 L 0 215" stroke="#10b981" strokeWidth="1" strokeDasharray="3 6" className="opacity-30" />
+                                            <circle r="3" fill="#10b981"><animateMotion dur="3s" repeatCount="indefinite" path="M 0 28 L 0 215" /></circle>
                                             <text x="0" y="-50" textAnchor="middle" fill="#10b981" fontSize="10" fontFamily="monospace" fontWeight="bold">The Library</text>
                                             <text x="0" y="-38" textAnchor="middle" fill="#34d399" fontSize="9" fontFamily="monospace" className="uppercase">Knowledge Base</text>
                                             <text x="60" y="140" textAnchor="middle" fill="#10b981" fontSize="9" fontFamily="monospace" className="opacity-70">Document Lookup</text>
@@ -213,11 +213,11 @@ export default function Memories() {
                                         </g>
 
                                         {/* Concept Constellation Node (Bottom) */}
-                                        <g transform="translate(400, 550)">
+                                        <g transform="translate(400, 600)">
                                             <circle cx="0" cy="0" r="28" fill="#181818" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" className="opacity-60" />
                                             <text x="0" y="-40" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="uppercase">Roadmap Context</text>
-                                            <circle r="2" fill="#f59e0b"><animateMotion dur="5s" repeatCount="indefinite" path="M 0 -28 L 0 -165" /></circle>
-                                            <path d="M 0 -28 L 0 -165" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="3 6" className="opacity-30" />
+                                            <circle r="2" fill="#f59e0b"><animateMotion dur="5s" repeatCount="indefinite" path="M 0 -28 L 0 -215" /></circle>
+                                            <path d="M 0 -28 L 0 -215" stroke="#f59e0b" strokeWidth="0.5" strokeDasharray="3 6" className="opacity-30" />
                                             <text x="70" y="-80" textAnchor="middle" fill="#f59e0b" fontSize="8" fontFamily="monospace" className="opacity-50">Sleep-cycle prep</text>
                                         </g>
 
@@ -251,14 +251,14 @@ export default function Memories() {
 
                                         {/* Icons Core Overlay */}
                                         <div className="absolute top-[350px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-purple-400"><Brain className="w-8 h-8" /></div>
-                                        <div className="absolute top-[60px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-green-400"><FileText className="w-5 h-5" /></div>
+                                        <div className="absolute top-[100px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-green-400"><FileText className="w-5 h-5" /></div>
                                         <div className="absolute top-[350px] left-[150px] -translate-x-1/2 -translate-y-1/2 text-neutral-400"><Database className="w-6 h-6" /></div>
                                         <div className="absolute top-[350px] left-[650px] -translate-x-1/2 -translate-y-1/2 text-blue-400"><Network className="w-6 h-6" /></div>
 
                                         {/* Concept Constellation Button - THE AMBER NODE */}
                                         <button
                                             onClick={() => setShowConstellation(true)}
-                                            className="absolute top-[550px] left-[400px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-amber-500 cursor-pointer flex items-center justify-center hover:scale-125 transition-all group/btn pointer-events-auto"
+                                            className="absolute top-[600px] left-[400px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-amber-500 cursor-pointer flex items-center justify-center hover:scale-125 transition-all group/btn pointer-events-auto"
                                         >
                                             <Share2 className="w-8 h-8" />
                                             <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-500 rounded-full animate-ping" />
@@ -348,23 +348,59 @@ export default function Memories() {
                     {/* Right Info Panel Sidebar */}
                     <AnimatePresence>
                         {selectedMemory && (
-                            <motion.div initial={{ x: 320, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 320, opacity: 0 }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="w-80 border-l border-[#303030] bg-[#181818] flex flex-col absolute right-0 top-0 bottom-0 shadow-2xl z-30">
-                                <div className="p-4 border-b border-[#303030] flex items-center justify-between bg-[#202020]">
-                                    <h3 className="text-[11px] font-mono font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Database className="w-3.5 h-3.5 text-blue-400" /> Vector Node Details
-                                    </h3>
-                                    <button onClick={() => setSelectedMemory(null)} className="p-1 text-neutral-500 hover:text-white transition-colors bg-white/5 rounded-md"><X className="w-4 h-4" /></button>
-                                </div>
-                                <div className="p-5 overflow-y-auto flex-1 space-y-6">
-                                    <div><div className="text-[9px] text-neutral-500 uppercase tracking-widest font-mono mb-2">Decoded Content</div><div className="text-sm text-neutral-200 leading-relaxed bg-[#252526] border border-[#3c3c3c] rounded-lg p-3">{selectedMemory.content}</div></div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div><div className="text-[9px] text-neutral-500 uppercase tracking-widest font-mono mb-1">Category</div><div className="text-[10px] font-mono text-blue-400 bg-blue-500/10 px-2 py-1 rounded inline-block">{selectedMemory.category || "GENERAL"}</div></div>
-                                        <div className="overflow-hidden"><div className="text-[9px] text-neutral-500 uppercase tracking-widest font-mono mb-1">ID Hash</div><div className="text-[10px] font-mono text-neutral-400 truncate">{selectedMemory.id.split('-')[0]}...</div></div>
+                            <motion.div initial={{ x: 384, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 384, opacity: 0 }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="w-96 border-l border-[#303030] bg-[#1e1e1e] flex flex-col absolute right-0 top-0 bottom-0 shadow-2xl z-30">
+                                <div className="p-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-blue-500/10 rounded-lg">
+                                            <Database className="w-4 h-4 text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Node Inspector</h3>
+                                            <div className="text-[9px] text-neutral-500 font-mono">VECTOR_MEMORY_DETAILS</div>
+                                        </div>
                                     </div>
-                                    <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 mt-8 relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50" />
-                                        <div className="text-[10px] text-red-500 font-mono mb-3 uppercase tracking-wide font-bold">Danger Zone</div>
-                                        <button onClick={() => deleteMemory(selectedMemory.id)} className="w-full flex items-center justify-center gap-2 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white text-[11px] uppercase tracking-wider font-bold rounded transition-all"><Trash2 className="w-3.5 h-3.5" /> Excision Protocol</button>
+                                    <button onClick={() => setSelectedMemory(null)} className="p-1.5 text-neutral-500 hover:bg-[#303030] hover:text-white transition-colors rounded-md">
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <div className="p-6 overflow-y-auto flex-1 space-y-6">
+                                    <div className="space-y-2">
+                                        <div className="text-[10px] text-neutral-500 uppercase tracking-[0.2em] font-mono font-bold flex items-center gap-2">
+                                            <Brain className="w-3.5 h-3.5 text-purple-400" />
+                                            Decoded Content
+                                        </div>
+                                        <div className="text-sm text-neutral-200 leading-relaxed bg-[#252526] border border-[#303030] rounded-xl p-4 shadow-inner">
+                                            {selectedMemory.content}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-[#252526] border border-[#303030] p-3 rounded-xl">
+                                            <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-mono mb-1">Category</div>
+                                            <div className="text-xs font-mono text-blue-400 font-bold uppercase truncate">{selectedMemory.category || "GENERAL"}</div>
+                                        </div>
+                                        <div className="bg-[#252526] border border-[#303030] p-3 rounded-xl overflow-hidden">
+                                            <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-mono mb-1">ID Hash</div>
+                                            <div className="text-[10px] font-mono text-neutral-400 truncate mt-0.5">{selectedMemory.id.split('-')[0]}...</div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-[#252526] border border-[#303030] p-3 rounded-xl">
+                                        <div className="text-[9px] text-neutral-500 uppercase tracking-widest font-mono mb-1">Temporal Data</div>
+                                        <div className="text-[10px] font-mono text-neutral-300">
+                                            {selectedMemory.timestamp ? new Date(selectedMemory.timestamp).toLocaleString('en-GB', { hour12: false }) : 'UNKNOWN_TIMESTAMP'}
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t border-[#303030] pt-6 mt-6">
+                                        <div className="rounded-xl border border-red-500/20 bg-[#252526] p-4 relative overflow-hidden group">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50 group-hover:bg-red-500 transition-colors" />
+                                            <div className="text-[10px] text-red-500 font-mono mb-2 uppercase tracking-wide font-bold flex items-center gap-2">
+                                                <Zap className="w-3.5 h-3.5" /> Danger Zone
+                                            </div>
+                                            <p className="text-[10px] text-neutral-500 leading-tight mb-4">Permanently delete this vector sequence from the memory core. This action cannot be undone.</p>
+                                            <button onClick={() => deleteMemory(selectedMemory.id)} className="w-full flex items-center justify-center gap-2 py-2.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 hover:border-red-500 text-red-400 hover:text-white text-[11px] uppercase tracking-wider font-bold rounded-lg transition-all">
+                                                <Trash2 className="w-3.5 h-3.5" /> Excision Protocol
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -378,17 +414,17 @@ export default function Memories() {
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#1e1e1e] z-[100] flex flex-col p-8">
                             {/* Absolute Floating Controls (Matches exact base styling style) */}
                             <div className="absolute top-8 left-8 flex items-center gap-4 z-50">
-                                <div className="p-2 bg-blue-500/10 rounded border border-blue-500/30 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                                <div className="p-2 bg-amber-500/10 rounded border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
                                     <Share2 className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h2 className="text-sm font-mono font-bold tracking-widest text-blue-400 uppercase">Concept Constellation</h2>
+                                    <h2 className="text-sm font-mono font-bold tracking-widest text-amber-500 uppercase">Concept Constellation</h2>
                                     <p className="text-[9px] text-neutral-500 font-mono uppercase tracking-widest">Active World Model</p>
                                 </div>
                             </div>
 
                             <div className="absolute top-8 right-8 flex items-center gap-3 z-50">
-                                <button onClick={fetchGraph} className="p-2 bg-[#181818]/80 hover:bg-blue-500/10 border border-[#303030] rounded backdrop-blur-sm text-neutral-400 hover:text-blue-400 transition-all"><Zap className="w-4 h-4" /></button>
+                                <button onClick={fetchGraph} className="p-2 bg-[#181818]/80 hover:bg-amber-500/10 border border-[#303030] rounded backdrop-blur-sm text-neutral-400 hover:text-amber-500 transition-all"><Zap className="w-4 h-4" /></button>
                                 <button onClick={() => setShowConstellation(false)} className="p-2 bg-[#181818]/80 hover:bg-red-500/10 border border-[#303030] rounded backdrop-blur-sm text-neutral-400 hover:text-red-400 transition-all"><X className="w-4 h-4" /></button>
                             </div>
 
@@ -401,13 +437,13 @@ export default function Memories() {
                                     <div className="relative w-[1000px] h-[700px] shrink-0">
                                         {/* Mind Map Canvas (1000x700 center stage) */}
 
-                                        {/* Brain Core Node (Center of the Map) */}
+                                        {/* Core Node (Center of the Map) */}
                                         <div className="absolute top-[350px] left-[500px] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-10 w-32 h-32 bg-[#1e1e1e] rounded-full border border-[#303030]">
-                                            <div className="w-10 h-10 bg-[#181818] border border-[#3c3c3c] rounded-full flex items-center justify-center">
-                                                <Brain className="w-4 h-4 text-neutral-400" />
+                                            <div className="w-10 h-10 bg-[#181818] border border-[#3c3c3c] rounded-full flex items-center justify-center text-amber-500/50">
+                                                <Share2 className="w-4 h-4" />
                                             </div>
                                             <div className="text-[9px] font-mono text-neutral-500 uppercase tracking-widest mt-2 text-center">
-                                                Aether Core
+                                                World Model
                                             </div>
                                         </div>
 
@@ -418,7 +454,7 @@ export default function Memories() {
                                                 <line
                                                     key={`core-line-${node.id}`}
                                                     x1="500" y1="350" x2={node.x} y2={node.y}
-                                                    stroke="#3b82f6"
+                                                    stroke="#f59e0b"
                                                     strokeWidth="0.5"
                                                     strokeDasharray="3 6"
                                                     className="opacity-20"
@@ -433,7 +469,7 @@ export default function Memories() {
                                                         <line
                                                             x1={link.sourceX} y1={link.sourceY}
                                                             x2={link.targetX} y2={link.targetY}
-                                                            stroke="#60a5fa"
+                                                            stroke="#fbbf24"
                                                             strokeWidth={isHovered ? 1.5 : 0.5}
                                                             className={`${isHovered ? 'opacity-60' : 'opacity-20'} transition-all duration-300`}
                                                         />
@@ -462,8 +498,8 @@ export default function Memories() {
                                                     style={{ left: node.x, top: node.y }}
                                                 >
                                                     {/* Central Dot Matching Memories Graph Design Exactly */}
-                                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${isHovered ? "bg-blue-500 scale-150 shadow-[0_0_15px_rgba(59,130,246,0.6)]" : "bg-blue-500/20 border border-blue-500/40"}`}>
-                                                        <div className={`w-1.5 h-1.5 rounded-full ${isHovered ? "bg-white animate-pulse" : "bg-blue-400/60"}`} />
+                                                    <div className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${isHovered ? "bg-amber-500 scale-150 shadow-[0_0_15px_rgba(245,158,11,0.6)]" : "bg-amber-500/20 border border-amber-500/40"}`}>
+                                                        <div className={`w-1.5 h-1.5 rounded-full ${isHovered ? "bg-white animate-pulse" : "bg-amber-400/60"}`} />
                                                     </div>
 
                                                     {/* Base Label (Matches existing node labels) */}
@@ -477,7 +513,7 @@ export default function Memories() {
                                                             <div key={li} className="mb-0.5 whitespace-nowrap">
                                                                 {link.source_id === node.id ? (
                                                                     <>
-                                                                        <span className="text-blue-400/70">{link.relation}</span>
+                                                                        <span className="text-amber-400/70">{link.relation}</span>
                                                                         <span className="mx-1 text-neutral-600">{"->"}</span>
                                                                         <span className="text-neutral-200">{link.target_name}</span>
                                                                     </>
@@ -485,7 +521,7 @@ export default function Memories() {
                                                                     <>
                                                                         <span className="text-neutral-200">{link.source_name}</span>
                                                                         <span className="mx-1 text-neutral-600">{"->"}</span>
-                                                                        <span className="text-blue-400/70">{link.relation}</span>
+                                                                        <span className="text-amber-400/70">{link.relation}</span>
                                                                     </>
                                                                 )}
                                                             </div>
