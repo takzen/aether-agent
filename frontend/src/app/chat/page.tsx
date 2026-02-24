@@ -172,7 +172,7 @@ export default function ChatPage() {
         setInput("");
         setIsLoading(true);
         setThoughtSteps([
-            { id: Date.now(), type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "just now" }
+            { id: `${Date.now()}-start`, type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "just now" }
         ]);
 
         try {
@@ -198,7 +198,7 @@ export default function ChatPage() {
                     data.new_messages.forEach((msg: any) => {
                         if (msg.parts) {
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            msg.parts.forEach((part: any, index: number) => {
+                            msg.parts.forEach((part: any) => {
                                 if (part.part_kind === "tool-call") {
                                     let detail = "";
                                     let icon = Database;
@@ -237,7 +237,7 @@ export default function ChatPage() {
                                         });
 
                                         newThoughts.push({
-                                            id: Date.now() + index,
+                                            id: `${Date.now()}-${Math.random()}`,
                                             type: "tool",
                                             message: messageStr,
                                             icon: icon,
@@ -255,7 +255,7 @@ export default function ChatPage() {
                 }
 
                 setThoughtSteps(prev => [...prev, {
-                    id: Date.now() + 1000,
+                    id: `${Date.now()}-complete`,
                     type: "complete",
                     message: "Response synthesized with high confidence",
                     icon: CheckCircle2,
@@ -532,7 +532,7 @@ export default function ChatPage() {
                                         <div className="p-4 text-center text-xs text-neutral-600 italic">No previous sessions found.</div>
                                     ) : (
                                         sessions.map(s => (
-                                            <div key={s.id} className="group flex items-center gap-1 relative">
+                                            <div key={`session-${s.id}`} className="group flex items-center gap-1 relative mb-2">
                                                 <button
                                                     onClick={() => loadSession(s.id)}
                                                     className={`w-full text-left px-3 py-3 rounded-lg flex flex-col gap-1 transition-all

@@ -5,7 +5,17 @@ import dynamic from 'next/dynamic';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
 
-export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGraph: any, onNodeClick?: (node: any) => void }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GraphNode = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GraphLink = Record<string, any>;
+
+interface ConceptGraphData {
+    nodes: GraphNode[];
+    links: GraphLink[];
+}
+
+export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGraph: ConceptGraphData, onNodeClick?: (node: GraphNode) => void }) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
@@ -29,8 +39,8 @@ export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGra
         if (!conceptGraph) return { nodes: [], links: [] };
 
         // Copy the objects to avoid modifying Next.js state
-        const nodes = (conceptGraph.nodes || []).map((n: any) => ({ ...n, val: 2 }));
-        const links = (conceptGraph.links || []).map((l: any) => ({
+        const nodes = (conceptGraph.nodes || []).map((n: GraphNode) => ({ ...n, val: 2 }));
+        const links = (conceptGraph.links || []).map((l: GraphLink) => ({
             ...l,
             source: l.source_id,
             target: l.target_id,
@@ -55,7 +65,7 @@ export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGra
                 linkDirectionalArrowRelPos={1}
                 onNodeClick={onNodeClick}
                 backgroundColor="#1e1e1e" // Match background color
-                nodeCanvasObject={(node: any, ctx: any, globalScale: number) => {
+                nodeCanvasObject={(node: GraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
                     // Setup basic node
                     const label = node.name || 'Unknown';
                     const fontSize = 12 / globalScale;
@@ -80,11 +90,11 @@ export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGra
                         ctx.fillStyle = 'rgba(24, 24, 24, 0.85)';
                         ctx.beginPath();
                         ctx.roundRect(
-                            node.x - bckgDimensions.width / 2 - 3,
-                            textY - fontSize / 2 - 3,
-                            bckgDimensions.width + 6,
-                            fontSize + 6,
-                            4 / globalScale // border radius
+                            node.x - bckgDimensions.width / 2 - 1,
+                            textY - fontSize / 2 - 1,
+                            bckgDimensions.width + 2,
+                            fontSize + 2,
+                            2 / globalScale // border radius
                         );
                         ctx.fill();
 
@@ -95,7 +105,7 @@ export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGra
                 }}
                 // Link label rendering
                 linkCanvasObjectMode={() => 'after'}
-                linkCanvasObject={(link: any, ctx: any, globalScale: number) => {
+                linkCanvasObject={(link: GraphLink, ctx: CanvasRenderingContext2D, globalScale: number) => {
                     if (globalScale < 1.2) return; // Only show link labels when zoomed in
 
                     const start = link.source;
@@ -127,7 +137,7 @@ export default function ConceptGraph({ conceptGraph, onNodeClick }: { conceptGra
                     const label = link.relation || '';
                     const bckgDimensions = ctx.measureText(label);
                     ctx.fillStyle = 'rgba(24, 24, 24, 0.8)'; // Dark background
-                    ctx.fillRect(- bckgDimensions.width / 2 - 2, - fontSize / 2 - 2, bckgDimensions.width + 4, fontSize + 4);
+                    ctx.fillRect(- bckgDimensions.width / 2, - fontSize / 2, bckgDimensions.width, fontSize);
 
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';

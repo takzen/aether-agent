@@ -16,7 +16,6 @@ export default function Memories() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [conceptGraph, setConceptGraph] = useState<{ nodes: any[], links: any[] }>({ nodes: [], links: [] });
     const [showConstellation, setShowConstellation] = useState(false);
-    const [hoveredConcept, setHoveredConcept] = useState<string | null>(null);
 
     const fetchMemories = async () => {
         try {
@@ -75,38 +74,7 @@ export default function Memories() {
         });
     }, [memories]);
 
-    // Layout logic for the Concept Constellation overlay (Mind Map)
-    const constellationLayout = useMemo(() => {
-        if (!conceptGraph.nodes.length) return { nodes: [], links: [] };
 
-        const centerX = 500;
-        const centerY = 350;
-
-        const nodesWithPos = conceptGraph.nodes.map((node, i) => {
-            const angle = (i / conceptGraph.nodes.length) * Math.PI * 2;
-            // Push nodes outward in a star pattern, creating visual depth
-            const dist = 180 + (i % 3 === 0 ? 80 : i % 2 === 0 ? -40 : 40);
-            return {
-                ...node,
-                x: centerX + Math.cos(angle) * dist,
-                y: centerY + Math.sin(angle) * dist,
-            };
-        });
-
-        const linksWithPos = conceptGraph.links.map(link => {
-            const source = nodesWithPos.find(n => n.id === link.source_id);
-            const target = nodesWithPos.find(n => n.id === link.target_id);
-            return {
-                ...link,
-                sourceX: source?.x || centerX,
-                sourceY: source?.y || centerY,
-                targetX: target?.x || centerX,
-                targetY: target?.y || centerY,
-            };
-        });
-
-        return { nodes: nodesWithPos, links: linksWithPos };
-    }, [conceptGraph]);
 
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">

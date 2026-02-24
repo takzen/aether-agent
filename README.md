@@ -1,13 +1,7 @@
 <div align="center">
+  <img src="assets/aether_logo.svg" width="160" alt="Aether Logo">
 
-```
- █████╗ ███████╗████████╗██╗  ██╗███████╗██████╗
-██╔══██╗██╔════╝╚══██╔══╝██║  ██║██╔════╝██╔══██╗
-███████║█████╗     ██║   ███████║█████╗  ██████╔╝
-██╔══██║██╔══╝     ██║   ██╔══██║██╔══╝  ██╔══██╗
-██║  ██║███████╗   ██║   ██║  ██║███████╗██║  ██║
-╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
-```
+  <h1>A E T H E R</h1>
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
@@ -60,7 +54,7 @@ graph TD
     
     Agent <--> LLM["🤖 Gemini 3 / Local Ollama"]
     Agent <--> Qdrant[("🌌 Qdrant Vector Space")]
-    Agent <--> SQLite[("�️ SQLite Brain (Logs/Sessions)")]
+    Agent <--> SQLite[("🧠 SQLite Brain (Logs/Sessions)")]
     
     SubAgent1["🌙 Sleep Cycle Processor"] --> SQLite
     SubAgent2["🌍 Active World Model"] --> SQLite
@@ -100,7 +94,7 @@ graph TD
 <td>Next.js 15 (App Router), Tailwind CSS, Framer Motion</td>
 </tr>
 <tr>
-<td>� <strong>Desktop Shell</strong></td>
+<td>💻 <strong>Desktop Shell</strong></td>
 <td>Electron, electron-builder</td>
 </tr>
 <tr>
@@ -108,7 +102,7 @@ graph TD
 <td>Qdrant (Local Docker or Cloud Hybrid)</td>
 </tr>
 <tr>
-<td>� <strong>APIs & Protocol</strong></td>
+<td>🔌 <strong>APIs & Protocol</strong></td>
 <td>FastMCP (Anthropic Protocol), python-telegram-bot, Tavily Search</td>
 </tr>
 </table>
@@ -200,6 +194,6 @@ The final frontier is purely packing this immense ecosystem into a single `Aethe
 <div align="center">
 <br>
 
-_Built with obsession. Designed for autonomy._
+_"This is my small contribution to the development of local AI. It is a humble beginning of a concept that will soon evolve into something much greater. If you want to witness the transformation, follow my next steps."_
 
 </div>

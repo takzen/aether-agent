@@ -405,6 +405,13 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
     """
     try:
         print(f"[Agent] Searching knowledge base for: '{query}'")
+        
+        # Zapobiega wpadaniu w nieskończoną pętlę narzędziową przez słabsze modele lokalne
+        search_count = ctx.deps.get("search_count", 0)
+        if search_count >= 2:
+            return "SYSTEM WARNING: Przekroczono limit wyszukiwań. Zakończ korzystanie z tego narzędzia i odpowiedz w oparciu o to, co już wiesz, uzywajac connect_concepts."
+        ctx.deps["search_count"] = search_count + 1
+
         await sqlite_service.add_log("info", "MEM", f"Knowledge base deep search: '{query}'")
         query_embedding = await memory_manager.get_embedding(query)
         if not query_embedding:

@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { AlertCircle, CheckCircle2, Hash, Clock, Cpu, Zap, Search, Database } from "lucide-react";
+import { Hash, Clock, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 

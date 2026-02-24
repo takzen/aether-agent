@@ -134,7 +134,7 @@ export default function Settings() {
                                     </div>
                                     <input
                                         type="text"
-                                        style={{ WebkitTextSecurity: "disc" } as any}
+                                        style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
                                         value={config.GEMINI_API_KEY}
                                         onChange={(e) => setConfig({ ...config, GEMINI_API_KEY: e.target.value })}
                                         placeholder="AIzaSy..."
@@ -154,7 +154,7 @@ export default function Settings() {
                                     </div>
                                     <input
                                         type="text"
-                                        style={{ WebkitTextSecurity: "disc" } as any}
+                                        style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
                                         value={config.TAVILY_API_KEY}
                                         onChange={(e) => setConfig({ ...config, TAVILY_API_KEY: e.target.value })}
                                         placeholder="tvly-..."
@@ -229,7 +229,7 @@ export default function Settings() {
                                         />
                                         <input
                                             type="text"
-                                            style={{ WebkitTextSecurity: "disc" } as any}
+                                            style={{ WebkitTextSecurity: "disc" } as React.CSSProperties}
                                             value={config.QDRANT_API_KEY}
                                             onChange={(e) => setConfig({ ...config, QDRANT_API_KEY: e.target.value })}
                                             placeholder="Qdrant API Key (Optional)"
