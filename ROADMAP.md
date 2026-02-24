@@ -83,6 +83,7 @@ Cel: "Aether w pudełku" — łatwy start dla każdego bez chmury.
 - [x] **5.3** **Electron / Desktop App** — opakowanie Aethera w ikonkę na pulpicie
 - [x] **5.4** `docker-compose` — dla fanów self-hostingu i NASów
 - [ ] **5.5** **Integracja MCP (Model Context Protocol)** — eksport wiedzy do innych asystentów (np. Claude Code, Cursor)
+- [ ] **5.6** **Produkcyjny Instalator (.exe)** — skompilowanie Pythona, Baz Danych i Node.js do pojedynczego, gotowego pliku instalacyjnego
 
 ---
 
@@ -104,10 +105,10 @@ Faza 1  [████████████]   8 / 8
 Faza 2  [████████████]   8 / 8
 Faza 3  [████████████]   6 / 6
 Faza 4  [████████████]   6 / 6
-Faza 5  [████████░░░░]   4 / 5
+Faza 5  [████████░░░░]   4 / 6
 Faza 6  [██████░░░░░░]   2 / 4
 
-TOTAL   [███████████░]   34 / 37 zadań
+TOTAL   [███████████░]   34 / 38 zadań
 ```
 
 ---
