@@ -54,6 +54,14 @@ echo "======================================================="
 cd frontend
 echo "Running $PACKAGE_MANAGER install..."
 $PACKAGE_MANAGER install
+
+# Ensure landing page exists (open source template)
+if [ ! -f src/app/page.tsx ]; then
+    echo "[INFO] Setting up default landing page..."
+    cp src/app/page.opensource.tsx src/app/page.tsx
+    echo "[OK] Landing page created from template."
+fi
+
 cd ..
 echo "[OK] Frontend ready."
 echo ""
