@@ -55,5 +55,10 @@ eslint_full.txt
 **/eslint_report*
 lint_output.txt
 
+# Backend test and scratchpad scripts
+backend/test_*.py
+backend/debug_*.py
+backend/search_kb.py
+
 */_backup_knowledge/
 */knowledge_source/
