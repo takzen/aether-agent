@@ -98,7 +98,7 @@ class SQLiteService:
         """Retrieve recent system logs."""
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT * FROM system_logs ORDER BY timestamp DESC LIMIT ?", (limit,)) as cursor:
+            async with db.execute("SELECT * FROM system_logs ORDER BY id DESC LIMIT ?", (limit,)) as cursor:
                 rows = await cursor.fetchall()
                 return [dict(row) for row in rows]
 
