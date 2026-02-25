@@ -232,6 +232,10 @@ export default function KnowledgeBase() {
                         </div>
                     </div>
                     <div className="flex gap-2">
+                        <div className="flex flex-col items-end justify-center mr-3">
+                            <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest hidden sm:block">Tested formats:</span>
+                            <span className="text-[10px] text-emerald-500/80 font-mono font-bold uppercase tracking-widest hidden sm:block">.TXT, .MD</span>
+                        </div>
                         <input
                             type="file"
                             ref={fileInputRef}
