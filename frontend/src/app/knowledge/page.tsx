@@ -52,7 +52,7 @@ export default function KnowledgeBase() {
                     id: `db-${index}-${doc.filename}`,
                     type: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? 'code' : 'doc',
                     title: doc.filename,
-                    added: doc.status === 'indexed' ? 'READY' : 'ON_DISK',
+                    added: doc.status === 'indexed' ? 'INDEXED' : 'ON_DISK',
                     size: doc.size || "Unknown",
                     icon: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? Code : FileText,
                     lines: doc.metadata?.total_chunks || 0
@@ -96,8 +96,8 @@ export default function KnowledgeBase() {
 
                 setNotification({
                     isOpen: true,
-                    title: "FILE INDEXED",
-                    message: `Successfully processed and indexed "${file.name}".`,
+                    title: "FILE UPLOADED",
+                    message: `Successfully saved "${file.name}" to disk. Ready for indexing.`,
                     type: "success"
                 });
             } else {
@@ -246,7 +246,7 @@ export default function KnowledgeBase() {
                             className="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-[11px] font-mono font-bold text-blue-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                            {isUploading ? "INDEXING..." : "ADD_SOURCE"}
+                            {isUploading ? "UPLOADING..." : "ADD_SOURCE_FILE"}
                         </button>
                     </div>
                 </div>
@@ -317,7 +317,7 @@ export default function KnowledgeBase() {
                                             {item.title}
                                         </h3>
                                         <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
-                                            <span className={`px-2 py-0.5 rounded ${item.added === 'READY' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                                            <span className={`px-2 py-0.5 rounded ${item.added === 'INDEXED' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
                                                 {item.added}
                                             </span>
                                             <span className="text-neutral-700">•</span>

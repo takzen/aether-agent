@@ -135,23 +135,9 @@ async def ingest_file(file: UploadFile = File(...)):
         with open(file_path, "wb") as f:
             f.write(content)
             
-        # Decode for processing
-        if file.filename.endswith(".pdf"):
-            return {"status": "error", "message": "PDF support coming soon. Please upload .txt or .md."}
-            
-        try:
-            text_content = content.decode("utf-8")
-        except UnicodeDecodeError:
-            return {"status": "error", "message": "Only UTF-8 encoded files are supported currently."}
-        
-        # Process asynchronously
-        success = await process_content(text_content, file.filename, db_service)
-        
-        if success:
-            await sqlite_service.add_log("success", "KNOWLEDGE", f"Indexed source: {file.filename}")
-            return {"status": "success", "message": f"File '{file.filename}' processed and saved successfully."}
-        else:
-            return {"status": "error", "message": "Failed to index content into vector database."}
+        # Return early after just saving
+        await sqlite_service.add_log("info", "KNOWLEDGE", f"Saved new source file to disk: {file.filename}")
+        return {"status": "success", "message": f"File '{file.filename}' uploaded successfully. Ready for manual indexing."}
             
     except Exception as e:
         return {"status": "error", "message": str(e)}
