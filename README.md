@@ -190,7 +190,7 @@ The commercial, standalone version with dedicated installers is being developed 
 
 ## 📝 License
 
-**MIT** © [Krzysztof Pika](https://github.com/takzen)
+**MIT** © [Krzysztof Pika](https://github.com/takzen/aether-agent)
 
 <div align="center">
 <br>
