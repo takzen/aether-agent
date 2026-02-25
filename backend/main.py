@@ -440,7 +440,9 @@ async def approve_action(request: ActionApproval):
     try:
         if action["type"] == "write_file":
             # Write the file securely
-            with open(action["path"], "w", encoding="utf-8") as f:
+            target_path = action["path"]
+            os.makedirs(os.path.dirname(target_path), exist_ok=True)
+            with open(target_path, "w", encoding="utf-8") as f:
                 f.write(action["content"])
             action["status"] = "completed"
             return {"status": "success", "message": f"Successfully wrote to {action['display_path']}"}

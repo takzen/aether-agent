@@ -122,6 +122,12 @@ export default function ChatPage() {
             });
             const data = await response.json();
 
+            if (data.status !== "success") {
+                alert(`Error executing action: ${data.message}`);
+                console.error("Agent Action Error:", data.message);
+                return;
+            }
+
             // Usunięcie akcji z historii wiadomości w UI (lub ukrycie jako zatwierdzone)
             setMessages(prev => prev.map(m => {
                 if (m.id === messageId && m.pendingActions) {
@@ -134,7 +140,7 @@ export default function ChatPage() {
             }));
 
             // Ciche dołączenie loga do chatu jako nowy powrót z informacją dla usera
-            if (data.status === "success" && approved) {
+            if (approved) {
                 const sysMsg: Message = {
                     id: Date.now().toString(),
                     role: "assistant",
@@ -142,7 +148,7 @@ export default function ChatPage() {
                     timestamp: new Date()
                 };
                 setMessages(prev => [...prev, sysMsg]);
-            } else if (data.status === "success" && !approved) {
+            } else {
                 const sysMsg: Message = {
                     id: Date.now().toString(),
                     role: "assistant",

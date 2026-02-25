@@ -159,7 +159,7 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
 # --- UTILS FOR FILE OPERATIONS ---
 from pathlib import Path
 
-BASE_DIR = Path(".").resolve()
+BASE_DIR = Path(__file__).parent.parent.resolve()
 
 def validate_path(path: str) -> Path:
     """Validates that the path is within the allowed project directory for security."""
