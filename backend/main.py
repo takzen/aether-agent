@@ -6,7 +6,7 @@ import asyncio
 import os
 from ingest import process_content
 
-app = FastAPI(title="Aether API", version="0.1.0")
+app = FastAPI(title="Aether API", version="1.0.0")
 
 from typing import Optional, List, Any
 
@@ -48,7 +48,7 @@ async def shutdown():
 
 @app.get("/ping")
 async def ping():
-    return {"status": "success", "message": "pong", "version": "0.1.0"}
+    return {"status": "success", "message": "pong", "version": "1.0.0"}
 
 @app.get("/stats")
 async def get_stats():

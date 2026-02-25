@@ -11,7 +11,7 @@ def test_ping(client):
     """Test the ping endpoint."""
     response = client.get("/ping")
     assert response.status_code == 200
-    assert response.json() == {"status": "success", "message": "pong", "version": "0.1.0"}
+    assert response.json() == {"status": "success", "message": "pong", "version": "1.0.0"}
 
 @pytest.mark.asyncio
 async def test_get_stats_endpoint(client, monkeypatch):
