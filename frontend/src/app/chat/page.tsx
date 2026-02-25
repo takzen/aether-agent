@@ -61,13 +61,32 @@ export default function ChatPage() {
             const data = await res.json();
             if (data.status === "success") {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const loadedMsgs = data.messages.map((m: any) => ({
-                    id: m.id,
-                    role: m.role,
-                    content: m.content,
-                    timestamp: new Date(m.created_at),
-                    pendingActions: m.metadata?.pendingActions
-                }));
+                const loadedMsgs = data.messages.map((m: any) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    let loadedTools: any[] | undefined = undefined;
+                    if (m.metadata?.used_tools && Array.isArray(m.metadata.used_tools)) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        loadedTools = m.metadata.used_tools.map((t: any) => {
+                            let icon = Database;
+                            let detail = t.detail;
+                            if (t.name === "read_file") { icon = FileText; }
+                            else if (t.name === "search_knowledge_base") { icon = Database; detail = "Knowledge Base"; }
+                            else if (t.name === "recall") { icon = Brain; detail = "Vector Memory"; }
+                            else if (t.name === "list_directory") { icon = FolderSearch; detail = "File System"; }
+                            else if (t.name === "web_search") { icon = Globe; detail = "Tavily Web Search"; }
+                            return { name: t.name, detail: detail, icon, latency: 25 };
+                        });
+                    }
+
+                    return {
+                        id: m.id,
+                        role: m.role,
+                        content: m.content,
+                        timestamp: new Date(m.created_at),
+                        pendingActions: m.metadata?.pendingActions,
+                        tools: loadedTools
+                    };
+                });
                 setMessages(loadedMsgs);
                 setCurrentSessionId(sessionId);
                 setAgentHistory([]); // Reset running local memory buffer

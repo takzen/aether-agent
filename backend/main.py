@@ -543,8 +543,26 @@ async def chat(request: ChatRequest):
         # Save AI Response
         ai_meta = {
             "internal_thought": internal_thought,
-            "pendingActions": current_pending if current_pending else None
+            "pendingActions": current_pending if current_pending else None,
+            "used_tools": request.model  # temporary placeholder
         }
+        
+        # Parse used tools from result.new_messages
+        used_tools = []
+        try:
+            for m in result.new_messages():
+                if hasattr(m, 'parts'):
+                    for p in m.parts:
+                        if hasattr(p, 'tool_name'):
+                            used_tools.append({
+                                "name": p.tool_name,
+                                "detail": str(getattr(p, 'args', '')),
+                            })
+        except Exception:
+            pass
+            
+        ai_meta["used_tools"] = used_tools if used_tools else None
+        
         await sqlite_service.add_message(
             session_id=active_session_id,
             role="assistant",
