@@ -16,6 +16,10 @@ export default function Memories() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [conceptGraph, setConceptGraph] = useState<{ nodes: any[], links: any[] }>({ nodes: [], links: [] });
     const [showConstellation, setShowConstellation] = useState(false);
+    const [graphScale, setGraphScale] = useState(1);
+    const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
     const fetchMemories = async () => {
         try {
@@ -65,7 +69,7 @@ export default function Memories() {
 
     const graphNodes = useMemo(() => {
         return memories.map((mem, index) => {
-            const angle = (index / memories.length) * Math.PI * 2;
+            const angle = (index / (memories.length || 1)) * Math.PI * 2;
             const radiusOffset = Math.sin(index * 123.45) * 40;
             const dist = 100 + radiusOffset; // Cluster around Qdrant
             const x = 650 + dist * Math.cos(angle);
@@ -73,8 +77,6 @@ export default function Memories() {
             return { ...mem, x, y };
         });
     }, [memories]);
-
-
 
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
@@ -96,6 +98,30 @@ export default function Memories() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                        {viewMode === "graph" && (
+                            <div className="flex items-center gap-1 bg-[#252525] px-1 py-1 rounded-lg border border-[#303030] mr-2">
+                                <button
+                                    onClick={() => setGraphScale(prev => Math.min(prev + 0.1, 2))}
+                                    className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
+                                >
+                                    ZOOM+
+                                </button>
+                                <div className="w-[1px] h-3 bg-[#303030]" />
+                                <button
+                                    onClick={() => setGraphScale(prev => Math.max(prev - 0.1, 0.5))}
+                                    className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
+                                >
+                                    ZOOM-
+                                </button>
+                                <div className="w-[1px] h-3 bg-[#303030]" />
+                                <button
+                                    onClick={() => { setGraphScale(1); setPanOffset({ x: 0, y: 0 }); }}
+                                    className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
+                                >
+                                    RESET
+                                </button>
+                            </div>
+                        )}
                         <div className="flex items-center gap-1 bg-[#252525] px-1 py-1.5 rounded-lg border border-[#303030]">
                             <button
                                 onClick={() => setViewMode("graph")}
@@ -125,11 +151,34 @@ export default function Memories() {
                                 </span>
                             </div>
                         ) : viewMode === "graph" ? (
-                            <div className="relative w-full h-full min-h-[600px] overflow-auto flex items-center justify-center bg-[#1e1e1e] cursor-crosshair">
-
+                            <div
+                                className={`relative w-full h-full min-h-[600px] overflow-hidden flex items-center justify-center bg-[#1e1e1e] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                                onMouseDown={(e) => {
+                                    setIsDragging(true);
+                                    setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+                                }}
+                                onMouseMove={(e) => {
+                                    if (!isDragging) return;
+                                    setPanOffset({
+                                        x: e.clientX - dragStart.x,
+                                        y: e.clientY - dragStart.y
+                                    });
+                                }}
+                                onMouseUp={() => setIsDragging(false)}
+                                onMouseLeave={() => setIsDragging(false)}
+                                onWheel={(e) => {
+                                    const zoomSpeed = 0.001;
+                                    setGraphScale(prev => Math.min(Math.max(prev - e.deltaY * zoomSpeed, 0.4), 2.5));
+                                }}
+                            >
                                 {/* Unified Container for SVG and HTML Overlays - Ensures perfect overlap */}
-                                <div className="relative w-[1000px] h-[700px] shrink-0">
-
+                                <motion.div
+                                    className="relative w-[1000px] h-[700px] shrink-0"
+                                    style={{
+                                        transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${graphScale})`,
+                                    }}
+                                    transition={{ type: "spring", damping: 25, stiffness: 150 }}
+                                >
                                     {/* SVG Layer */}
                                     <svg width="1000" height="700" className="absolute inset-0 pointer-events-none" style={{ filter: "drop-shadow(0 0 15px rgba(59,130,246,0.15))" }}>
                                         <defs>
@@ -151,6 +200,21 @@ export default function Memories() {
                                             <text x="0" y="-38" textAnchor="middle" fill="#34d399" fontSize="9" fontFamily="monospace" className="uppercase">Knowledge Base</text>
                                             <text x="60" y="140" textAnchor="middle" fill="#10b981" fontSize="9" fontFamily="monospace" className="opacity-70">Document Lookup</text>
                                         </g>
+
+                                        {/* Semantic Indexing Flow (Library -> Qdrant) */}
+                                        <path
+                                            d="M 400 128 Q 650 128 650 322"
+                                            stroke="#10b981"
+                                            strokeWidth="1"
+                                            strokeDasharray="4 4"
+                                            fill="none"
+                                            className="opacity-20"
+                                        />
+                                        <circle r="2" fill="#10b981">
+                                            <animateMotion dur="6s" repeatCount="indefinite" path="M 400 128 Q 650 128 650 322" />
+                                        </circle>
+                                        <text x="560" y="150" fill="#10b981" fontSize="8" fontFamily="monospace" className="opacity-40 uppercase tracking-tighter">Semantic Ingestion</text>
+                                        <text x="560" y="160" fill="#10b981" fontSize="7" fontFamily="monospace" className="opacity-30 uppercase tracking-tighter">Chunking & Embedding</text>
 
                                         {/* Aether Agent Node (Center) */}
                                         <g transform="translate(400, 350)">
@@ -175,6 +239,13 @@ export default function Memories() {
                                             <circle cx="0" cy="0" r="28" fill="#181818" stroke="#3b82f6" strokeWidth="2" />
                                             <text x="0" y="48" textAnchor="middle" fill="#60a5fa" fontSize="10" fontFamily="monospace" fontWeight="bold">Qdrant</text>
                                             <text x="0" y="-40" textAnchor="middle" fill="#3b82f6" fontSize="9" fontFamily="monospace" className="uppercase">Vector DB</text>
+
+                                            {/* Synapse Status Label */}
+                                            <text x="0" y="78" textAnchor="middle" fill="#3b82f6" fontSize="8" fontFamily="monospace" className="opacity-60 font-bold uppercase tracking-[0.2em]">Neural Synapses</text>
+
+                                            {/* Memory Halo Zone */}
+                                            <circle cx="0" cy="0" r="100" fill="none" stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="2 12" className="opacity-20 animate-[spin_40s_linear_infinite]" />
+
                                             <circle r="3" fill="#3b82f6"><animateMotion dur="2s" repeatCount="indefinite" path="M -28 0 L -215 0" /></circle>
                                             <circle r="2" fill="#3b82f6" opacity="0.6"><animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M -28 0 L -215 0" /></circle>
                                             <path d="M -28 0 L -215 0" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 4" className="opacity-40" />
@@ -217,7 +288,6 @@ export default function Memories() {
 
                                     {/* HTML Interaction Layer */}
                                     <div className="absolute inset-0 pointer-events-none">
-
                                         {/* Icons Core Overlay */}
                                         <div className="absolute top-[350px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-purple-400"><Brain className="w-8 h-8" /></div>
                                         <div className="absolute top-[100px] left-[400px] -translate-x-1/2 -translate-y-1/2 text-green-400"><FileText className="w-5 h-5" /></div>
@@ -248,16 +318,19 @@ export default function Memories() {
                                                 animate={{ scale: 1, opacity: 1 }}
                                                 onClick={() => setSelectedMemory(node)}
                                                 style={{ left: node.x, top: node.y }}
-                                                className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all pointer-events-auto ${selectedMemory?.id === node.id ? "bg-blue-500 scale-150 shadow-[0_0_15px_rgba(59,130,246,0.6)] z-20" : "bg-blue-500/20 border border-blue-500/40 hover:border-blue-400 hover:scale-150 z-10"}`}
+                                                className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all pointer-events-auto group ${selectedMemory?.id === node.id ? "bg-blue-500 scale-150 shadow-[0_0_20px_rgba(59,130,246,0.8)] z-20" : "bg-blue-500/20 border border-blue-500/40 hover:border-blue-400 hover:scale-150 z-10"}`}
                                             >
-                                                <div className={`w-1.5 h-1.5 rounded-full ${selectedMemory?.id === node.id ? "bg-white animate-pulse" : "bg-blue-400/60"}`} />
+                                                {/* Pulsing Aura for active/hovered memories */}
+                                                <div className={`absolute inset-0 rounded-full bg-blue-400 transition-opacity ${selectedMemory?.id === node.id ? "opacity-30 animate-ping" : "opacity-0 group-hover:opacity-20 animate-pulse"}`} />
+
+                                                <div className={`w-1.5 h-1.5 rounded-full ${selectedMemory?.id === node.id ? "bg-white" : "bg-blue-400"}`} />
                                                 <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#181818]/90 backdrop-blur-sm border border-[#303030] text-[9px] text-neutral-300 px-2 py-1 rounded w-32 truncate pointer-events-none font-mono shadow-xl z-50">
                                                     {node.content}
                                                 </div>
                                             </motion.button>
                                         ))}
                                     </div>
-                                </div>
+                                </motion.div>
 
                                 {/* Info Legend Overlay */}
                                 <div className="absolute top-6 right-6 bg-[#181818]/80 backdrop-blur-md border border-[#303030] p-4 rounded-xl shadow-2xl z-20 max-w-sm pointer-events-none hidden xl:block">
@@ -381,7 +454,6 @@ export default function Memories() {
                 <AnimatePresence>
                     {showConstellation && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#1e1e1e] z-[100] flex flex-col p-8">
-                            {/* Absolute Floating Controls (Matches exact base styling style) */}
                             <div className="absolute top-8 left-8 flex items-center gap-4 z-50">
                                 <div className="p-2 bg-amber-500/10 rounded border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
                                     <Share2 className="w-5 h-5" />
@@ -411,8 +483,6 @@ export default function Memories() {
                         </motion.div>
                     )}
                 </AnimatePresence>
-
-
             </main>
         </div>
     );
