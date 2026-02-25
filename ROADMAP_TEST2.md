@@ -28,7 +28,7 @@ Skoro agent już wie, co się stało, sprawdzimy jego zdolność nałożenia now
 ## Etap 4: Środowisko Rozwiązań (HITL 2.0)
 Sprawdzimy, czy agent zachowa precyzję z Etapu 6 (poprzednich testów) proponując rozwiązanie problemu.
 
-- [ ] **Akcja:** Skoro agent wie o wpływie pola magnetycznego na żel, napisz mu:
+- [x] **Akcja:** Skoro agent wie o wpływie pola magnetycznego na żel, napisz mu:
   *"Zaproponuj mi procedurę awaryjną w postaci dokumentu Markdown (nazwij go np. awaryjna_procedura_chlodzenia.md), która opisuje jak technicy mają filtrować te niskie częstotliwości z czujników. Po napisaniu, zapisz to u mnie na dysku w folderze `backend/knowledge_source/`."*
-- [ ] **Weryfikacja (HITL):** Agent powinien wygenerować treść i zgłosić chęć zapisu w UI. Zaakceptuj operację poprzez pomarańczowe okienko HITL (Approve & Execute).
-- [ ] **Weryfikacja (Dysk i Baza):** Sprawdź folder `backend/knowledge_source/` oraz przejdź do "Memory -> Knowledge Base". W bibliotece powinien pojawić się plik `awaryjna_procedura_chlodzenia.md` oznaczony statusem "ON_DISK". Kliknij przycisk *"INDEX_NOW"*, upewniając się, że agent bezbłędnie wektoryzuje ten dokument tekstowy do swojej bazy Qdrant!
+- [x] **Weryfikacja (HITL):** Agent powinien wygenerować treść i zgłosić chęć zapisu w UI. Zaakceptuj operację poprzez pomarańczowe okienko HITL (Approve & Execute).
+- [x] **Weryfikacja (Dysk i Baza):** Sprawdź folder `backend/knowledge_source/` oraz przejdź do "Memory -> Knowledge Base". W bibliotece powinien pojawić się plik `awaryjna_procedura_chlodzenia.md` oznaczony statusem "ON_DISK". Kliknij przycisk *"INDEX_NOW"*, upewniając się, że agent bezbłędnie wektoryzuje ten dokument tekstowy do swojej bazy Qdrant!
