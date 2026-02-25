@@ -28,6 +28,8 @@ Aether is a **massive paradigm shift** in personal AI computing. It bridges the 
 
 Where traditional AI tools simply react to text, **Aether simulates and anticipates**. Where others suffer from context amnesia, **Aether builds Concept Constellations in Qdrant**. Where others hallucinate, **Aether grounds itself in type-safe Pydantic logic.**
 
+> 📜 **Read the [Aether Manifesto](./MANIFESTO.md)** to understand the core philosophy and technical vision behind the project.
+
 ---
 
 ## ✨ State-of-the-Art Features
