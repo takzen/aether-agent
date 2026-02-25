@@ -183,8 +183,8 @@ docker-compose up -d --build
 
 > _"Aether aims to be more than just a software tool — it's an intelligent entity aware of its existence in time and space."_
 
-Aether is almost feature-complete based on our original 6-Phase Master Plan (37/38 Tasks Done). 
-The final frontier is purely packing this immense ecosystem into a single `AetherCore.exe` installer using PyInstaller and NSIS.
+Aether is fully feature-complete based on our original 6-Phase Master Plan for the Open Source release (37/37 Tasks Done).
+The commercial, standalone version with dedicated installers is being developed on a separate track.
 
 ---
 
