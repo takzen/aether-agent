@@ -46,6 +46,30 @@
     @apply bg-background text-foreground transition-colors duration-500 font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  /* --- Professional Dark Scrollbar --- */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-white/20;
+  }
+
+  /* Support for Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
 }
 
 @layer utilities {
