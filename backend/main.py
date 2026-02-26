@@ -1,12 +1,30 @@
 from fastapi import FastAPI, UploadFile, File
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agent import aether_agent, db_service, pending_actions
 import asyncio
 import os
 from ingest import process_content
+from local_db import sqlite_service
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    await sqlite_service.init_db()
+    await sqlite_service.add_log("success", "CORE", "Aether Kernel initialized. Core services operational.")
+    
+    # Start Telegram Bridge in background
+    from telegram_bridge import run_telegram_bot
+    asyncio.create_task(run_telegram_bot())
+    
+    yield
+    
+    # Shutdown logic
+    from telegram_bridge import stop_telegram_bot
+    await stop_telegram_bot()
+    print("[CORE] Aether Kernel shut down.")
 
-app = FastAPI(title="Aether API", version="1.0.0")
+app = FastAPI(title="Aether API", version="1.0.0", lifespan=lifespan)
 
 from typing import Optional, List, Any
 
@@ -29,22 +47,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from local_db import sqlite_service
 
-@app.on_event("startup")
-async def startup():
-    await sqlite_service.init_db()
-    await sqlite_service.add_log("success", "CORE", "Aether Kernel initialized. Core services operational.")
-    
-    # Start Telegram Bridge in background
-    from telegram_bridge import run_telegram_bot
-    asyncio.create_task(run_telegram_bot())
 
-@app.on_event("shutdown")
-async def shutdown():
-    from telegram_bridge import stop_telegram_bot
-    await stop_telegram_bot()
-    print("[CORE] Aether Kernel shut down.")
+
 
 @app.get("/ping")
 async def ping():
@@ -493,7 +498,10 @@ async def chat(request: ChatRequest):
             
         run_kwargs = {
             "user_prompt": request.message,
-            "deps": {"user_message": request.message},
+            "deps": {
+                "user_message": request.message,
+                "search_count": 0
+            },
         }
         if history:
             run_kwargs["message_history"] = history

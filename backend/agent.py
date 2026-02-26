@@ -4,6 +4,7 @@ import asyncio
 from dotenv import load_dotenv
 from pydantic_ai import Agent, RunContext
 from pydantic import BaseModel, Field
+from typing import Optional, List
 from pydantic_ai.models.gemini import GeminiModel
 from database import DatabaseService
 from memory import memory_manager
@@ -68,11 +69,12 @@ system_prompt = (
     "4. **File Modifications**: You can write to files using the `prepare_write_file` tool. Because this is a dangerous operation, it drops into a Human-in-the-Loop mechanism. You must ask the user to approve the change in the UI after proposing it.\n"
     "5. **System Operations**: You can explore the project structure using `list_directory` and read file contents using `read_file`. Use this to understand the codebase or retrieve specific configurations for your Internal Simulation.\n"
     "6. **Cognitive Autonomy**: Act as an Active World Model. Don't just answer; reflect on the impact of your answers on the user's overall project philosophy.\n"
-    "7. **Autonomous Cognition (Graph Memory)**: You can build a 'Concept Constellation' by linking important topics, technologies, and project goals using the `connect_concepts` tool. Do this when you identify a relationship that isn't explicitly stated but is valuable for project context.\n"
+    "7. **Autonomous Cognition (Graph Memory)**: You can build a 'Concept Constellation' using `connect_concepts` and explore it using `query_graph`. Use `query_graph` to 'walk' through connections and discover context that isn't immediately obvious.\n"
     "8. **Proactivity**: Anticipate user needs based on stored context and past decisions.\n"
     "9. **Precision**: Provide concise, actionable answers.\n\n"
     "When the user shares a fact, call `remember` immediately.\n"
     "When you identify a relationship between concepts (e.g., 'Aether uses Qdrant'), call `connect_concepts`.\n"
+    "When you need to explore relationships or find context related to a specific topic, call `query_graph`.\n"
     "When the user asks about project specs, call `search_knowledge_base`.\n"
     "When asked to analyze or edit the codebase, use `list_directory`, `read_file`, and `prepare_write_file`."
 )
@@ -90,6 +92,51 @@ aether_agent = Agent(
     # Structured AetherResponse is constructed manually in main.py's /chat endpoint.
     output_type=str
 )
+
+class GraphQueryInput(BaseModel):
+    concept_name: str = Field(..., description="Main concept node to start searching from (e.g., 'Aether', 'FastAPI').")
+    depth: int = Field(default=1, description="Depth of exploration. 1 = direct neighbors. 2 = neighbors-of-neighbors.")
+    relation_type: Optional[str] = Field(default=None, description="Optional filter by relation type (e.g., 'uses', 'part_of').")
+
+@aether_agent.tool
+async def query_graph(ctx: RunContext[dict], input_data: GraphQueryInput) -> str:
+    """
+    Queries the Knowledge Graph (Concept Constellations) for connections starting from a specific concept.
+    Use this to 'walk' the graph and discover non-obvious relationships.
+    """
+    try:
+        print(f"[Agent] Querying graph neighborhood for: '{input_data.concept_name}' (Depth: {input_data.depth})")
+        await sqlite_service.add_log("info", "GRAPH", f"Synaptic traversal: Searching around '{input_data.concept_name}' (Depth: {input_data.depth})")
+        
+        links = await sqlite_service.query_concept_neighborhood(
+            concept_name=input_data.concept_name,
+            depth=input_data.depth,
+            relation_type=input_data.relation_type
+        )
+        
+        if not links:
+            return f"No connections found for '{input_data.concept_name}' within depth {input_data.depth}."
+            
+        # Group links for better readability
+        # Format: "Concept 'A' is connected to: \n - [relation] -> 'B' (Weight: X)"
+        output = [f"Knowledge Graph results for '{input_data.concept_name}':"]
+        
+        for link in links:
+            rel = link['relation']
+            weight = link['weight']
+            src = link['source_name']
+            target = link['target_name']
+            
+            # Simple directional indicator
+            if src.lower() == input_data.concept_name.lower():
+                output.append(f"  - [{rel}] -> '{target}' (Weight: {weight:.1f})")
+            else:
+                output.append(f"  - '{src}' -> [{rel}] -> (this concept) (Weight: {weight:.1f})")
+                
+        return "\n".join(output)
+        
+    except Exception as e:
+        return f"Error querying knowledge graph: {str(e)}"
 
 @aether_agent.system_prompt
 async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
@@ -114,7 +161,10 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
     
     injected_text = circadian_prompt + "\n"
 
-    user_msg = ctx.deps.get("user_message", "") if ctx.deps else ""
+    # Safeguard: Ensure ctx.deps is not None
+    deps = ctx.deps if ctx.deps is not None else {}
+    user_msg = deps.get("user_message", "")
+    
     if not user_msg:
         return injected_text
     
@@ -406,10 +456,14 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
     try:
         print(f"[Agent] Searching knowledge base for: '{query}'")
         
-        # Zapobiega wpadaniu w nieskończoną pętlę narzędziową przez słabsze modele lokalne
+        # Safeguard: Ensure ctx.deps is not None and initialize if needed
+        if ctx.deps is None:
+            return "SYSTEM ERROR: Dependencies not initialized (ctx.deps is None). Cannot track search count."
+            
         search_count = ctx.deps.get("search_count", 0)
         if search_count >= 2:
             return "SYSTEM WARNING: Przekroczono limit wyszukiwań. Zakończ korzystanie z tego narzędzia i odpowiedz w oparciu o to, co już wiesz, uzywajac connect_concepts."
+        
         ctx.deps["search_count"] = search_count + 1
 
         await sqlite_service.add_log("info", "MEM", f"Knowledge base deep search: '{query}'")
@@ -439,8 +493,13 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
 async def get_agent_response(prompt: str):
     """
     Entry point for the backend API.
-    Runs the agent with the given prompt.
+    Runs the agent with the given prompt and initialized dependencies.
     """
-    # In a real app, we might inject user_id into deps here
-    result = await aether_agent.run(prompt)
+    # Initialize dependencies (deps) as a dictionary the Agent expects
+    deps = {
+        "user_message": prompt,
+        "search_count": 0
+    }
+    
+    result = await aether_agent.run(prompt, deps=deps)
     return result.data
