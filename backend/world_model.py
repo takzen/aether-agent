@@ -1,4 +1,5 @@
 import json
+from pydantic import BaseModel, Field
 from pydantic_ai import Agent
 from local_db import sqlite_service
 from agent import model
