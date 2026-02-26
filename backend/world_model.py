@@ -3,24 +3,19 @@ from pydantic_ai import Agent
 from local_db import sqlite_service
 from agent import model
 
+class WorldInsight(BaseModel):
+    insight: str = Field(description="Main conclusion about the project development direction based on telemetry.")
+    suggested_action: str = Field(description="Proposed optimization or proactive fix action for Aether.")
+
 world_agent = Agent(
     model=model,
     system_prompt=(
         "You are the Aether Active World Model (AWM) module. "
-        "Your task is to conduct a silent background simulation (Self-Reflection) based on the latest raw system logs "
-        "and recently taken conversations/actions (listed below). "
-        "You are not talking to the user. Instead, you map out the project's development direction, pointing out hidden connections "
-        "that the user might have missed."
-        "\n\nGUIDELINES:\n"
-        "1. Look for recurring patterns and blockers.\n"
-        "2. Propose one primary INSIGHT for the entire structure based on these logs.\n"
-        "3. Propose one suggested ACTION (optimization/fix) that Aether could proactively take.\n\n"
-        "Return the response EXACTLY as a JSON object (no Markdown tags, encoding, etc.) with two keys:\n"
-        "'insight' (string - your main conclusion)\n"
-        "'suggested_action' (string - your proposed optimization action)"
+        "Your task is to conduct a silent background simulation (Self-Reflection) based on the latest raw system logs. "
+        "Analyze the logs for patterns, blockers, and hidden connections."
     ),
     retries=3,
-    output_type=str
+    output_type=WorldInsight
 )
 
 async def run_active_world_model_simulation():
@@ -39,17 +34,9 @@ async def run_active_world_model_simulation():
         
     try:
         result = await world_agent.run(prompt)
-        raw_text = result.output.strip()
         
-        import re
-        match = re.search(r'\{.*\}', raw_text, re.DOTALL)
-        if match:
-            raw_text = match.group(0)
-            
-        if not raw_text:
-            raise ValueError("Empty response from AWM simulator")
-            
-        data = json.loads(raw_text)
+        # Agent returns a validated Pydantic object (WorldInsight)
+        data = result.output.model_dump()
         
         # Save our AWM insight to the local database
         await sqlite_service.add_log(

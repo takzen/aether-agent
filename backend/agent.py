@@ -161,7 +161,10 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
     
     injected_text = circadian_prompt + "\n"
 
-    user_msg = ctx.deps.get("user_message", "") if ctx.deps else ""
+    # Safeguard: Ensure ctx.deps is not None
+    deps = ctx.deps if ctx.deps is not None else {}
+    user_msg = deps.get("user_message", "")
+    
     if not user_msg:
         return injected_text
     
@@ -453,10 +456,14 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
     try:
         print(f"[Agent] Searching knowledge base for: '{query}'")
         
-        # Zapobiega wpadaniu w nieskończoną pętlę narzędziową przez słabsze modele lokalne
+        # Safeguard: Ensure ctx.deps is not None and initialize if needed
+        if ctx.deps is None:
+            return "SYSTEM ERROR: Dependencies not initialized (ctx.deps is None). Cannot track search count."
+            
         search_count = ctx.deps.get("search_count", 0)
         if search_count >= 2:
             return "SYSTEM WARNING: Przekroczono limit wyszukiwań. Zakończ korzystanie z tego narzędzia i odpowiedz w oparciu o to, co już wiesz, uzywajac connect_concepts."
+        
         ctx.deps["search_count"] = search_count + 1
 
         await sqlite_service.add_log("info", "MEM", f"Knowledge base deep search: '{query}'")
@@ -486,8 +493,13 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
 async def get_agent_response(prompt: str):
     """
     Entry point for the backend API.
-    Runs the agent with the given prompt.
+    Runs the agent with the given prompt and initialized dependencies.
     """
-    # In a real app, we might inject user_id into deps here
-    result = await aether_agent.run(prompt)
+    # Initialize dependencies (deps) as a dictionary the Agent expects
+    deps = {
+        "user_message": prompt,
+        "search_count": 0
+    }
+    
+    result = await aether_agent.run(prompt, deps=deps)
     return result.data

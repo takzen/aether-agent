@@ -498,7 +498,10 @@ async def chat(request: ChatRequest):
             
         run_kwargs = {
             "user_prompt": request.message,
-            "deps": {"user_message": request.message},
+            "deps": {
+                "user_message": request.message,
+                "search_count": 0
+            },
         }
         if history:
             run_kwargs["message_history"] = history

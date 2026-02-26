@@ -3,17 +3,18 @@ from pydantic_ai import Agent
 from local_db import sqlite_service
 from agent import model
 
+class MorningBrief(BaseModel):
+    brief: str = Field(description="A technical, short summary of the telemetry data from a data fusion perspective.")
+    points: list[str] = Field(description="2-3 specific insights, warnings, or action proposals based on the logs.")
+
 sleep_agent = Agent(
     model=model,
     system_prompt=(
         "You are the Aether NightCycleProcessor module. Your task is to consolidate logs and events from the past day. "
-        "Analyze the raw data and prepare a Concise Morning Brief. The report should be a technical, "
-        "short summary from a data fusion perspective. Include 2-3 specific points (insights, warnings, action proposals). "
-        "Return the result EXACTLY as a JSON object with keys: 'brief' (main text) and 'points' (list of strings). "
-        "Do not add any other text, tags such as ```json etc. The format must be raw JSON, and the language English."
+        "Analyze the raw data and prepare a Concise Morning Brief."
     ),
     retries=3,
-    output_type=str
+    output_type=MorningBrief
 )
 
 async def run_sleep_cycle():
@@ -33,17 +34,8 @@ async def run_sleep_cycle():
     try:
         result = await sleep_agent.run(prompt)
         
-        raw_text = result.output.strip()
-        
-        import re
-        match = re.search(r'\{.*\}', raw_text, re.DOTALL)
-        if match:
-            raw_text = match.group(0)
-            
-        if not raw_text:
-            raise ValueError(f"Model returned empty string. Raw output was: {result.output}")
-            
-        data = json.loads(raw_text)
+        # Agent returns a validated Pydantic object (MorningBrief)
+        data = result.output.model_dump()
         
         # Save our morning report to local database as a special log
         await sqlite_service.add_log("brief", "SLEEP_CYCLE", json.dumps(data))
