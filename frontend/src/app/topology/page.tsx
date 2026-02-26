@@ -1,32 +1,40 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Brain, Network, Zap, Moon, Sun } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Zap, Moon, Sun } from "lucide-react";
 import { useState, useEffect } from "react";
 import NeuralTopologyView from "@/components/NeuralTopologyView";
 
 export default function NeuralTopology() {
     const [memories, setMemories] = useState([]);
+    const [conceptGraph, setConceptGraph] = useState({ nodes: [], links: [] });
     const [isNightMode, setIsNightMode] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchMemories = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:8000/memories");
-                const data = await response.json();
-                if (data.status === "success") {
-                    setMemories(data.memories);
+                // Fetch memories
+                const memRes = await fetch("http://localhost:8000/memories");
+                const memData = await memRes.json();
+                if (memData.status === "success") {
+                    setMemories(memData.memories);
+                }
+
+                // Fetch graph
+                const graphRes = await fetch("http://localhost:8000/graph");
+                const graphData = await graphRes.json();
+                if (graphData.status === "success") {
+                    setConceptGraph(graphData.graph);
                 }
             } catch (error) {
-                console.error("Failed to fetch memories", error);
+                console.error("Failed to fetch data", error);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchMemories();
+        fetchData();
     }, []);
 
     return (
@@ -52,8 +60,8 @@ export default function NeuralTopology() {
                         <button
                             onClick={() => setIsNightMode(!isNightMode)}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all font-mono text-[10px] font-bold uppercase tracking-tighter ${isNightMode
-                                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                                    : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                                ? 'bg-amber-500/10 border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                                : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
                                 }`}
                         >
                             {isNightMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
@@ -71,30 +79,13 @@ export default function NeuralTopology() {
                             </span>
                         </div>
                     ) : (
-                        <NeuralTopologyView memories={memories} isNightMode={isNightMode} />
+                        <NeuralTopologyView
+                            memories={memories}
+                            conceptGraph={conceptGraph}
+                            isNightMode={isNightMode}
+                        />
                     )}
 
-                    {/* Legendary Info Panel (Minimal) */}
-                    <div className="absolute bottom-6 right-6 bg-[#181818]/60 backdrop-blur-sm border border-white/5 p-4 rounded-xl z-20 pointer-events-none">
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                                <span className="text-[10px] text-neutral-400 font-mono uppercase">Aether Core (Decision)</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                <span className="text-[10px] text-neutral-400 font-mono uppercase">Neocortex (Semantic)</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
-                                <span className="text-[10px] text-neutral-400 font-mono uppercase">Hippocampus (Episodic)</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                <span className="text-[10px] text-neutral-400 font-mono uppercase">Temporal (The Library)</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </main>
         </div>
