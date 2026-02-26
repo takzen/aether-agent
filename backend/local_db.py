@@ -161,5 +161,70 @@ class SQLiteService:
 
             return {"nodes": nodes, "links": links}
 
+    async def query_concept_neighborhood(self, concept_name: str, depth: int = 1, relation_type: str = None) -> List[Dict[str, Any]]:
+        """
+        Queries the graph neighborhood for a specific concept name.
+        Returns a list of links (edges) found within the specified depth.
+        """
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            
+            # 1. Normalize name and find starting concept ID
+            async with db.execute("SELECT id, name FROM concepts WHERE name = ? COLLATE NOCASE", (concept_name,)) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    return []
+                start_id = row['id']
+
+            # 2. Recursive CTE to find related concepts and their links
+            # We limit depth to 3 maximum to prevent massive responses or infinite recursion
+            depth = min(max(1, depth), 3)
+            
+            relation_clause = ""
+            if relation_type:
+                relation_clause = "AND l.relation = :rel_type"
+
+            query = f"""
+            WITH RECURSIVE
+              neighbor_nodes(id, level) AS (
+                SELECT :start_id, 0
+                UNION
+                SELECT 
+                  CASE WHEN l.source_id = n.id THEN l.target_id ELSE l.source_id END,
+                  n.level + 1
+                FROM concept_links l
+                JOIN neighbor_nodes n ON (l.source_id = n.id OR l.target_id = n.id)
+                WHERE n.level < :depth
+                {relation_clause}
+              )
+            SELECT DISTINCT 
+                l.id, l.relation, l.weight, l.metadata, l.created_at,
+                s.name as source_name, t.name as target_name
+            FROM concept_links l
+            JOIN concepts s ON l.source_id = s.id
+            JOIN concepts t ON l.target_id = t.id
+            WHERE (l.source_id IN (SELECT id FROM neighbor_nodes) 
+               OR l.target_id IN (SELECT id FROM neighbor_nodes))
+            {relation_clause}
+            ORDER BY l.weight DESC
+            """
+            
+            params = {"start_id": start_id, "depth": depth}
+            if relation_type:
+                params["rel_type"] = relation_type
+
+            async with db.execute(query, params) as cursor:
+                rows = await cursor.fetchall()
+                links = [dict(row) for row in rows]
+                
+                # Parse metadata if exists
+                for link in links:
+                    if link.get("metadata"):
+                        try:
+                            link["metadata"] = json.loads(link["metadata"])
+                        except:
+                            pass
+                return links
+
 # Singleton instance
 sqlite_service = SQLiteService()
