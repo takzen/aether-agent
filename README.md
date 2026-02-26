@@ -156,14 +156,24 @@ TELEGRAM_USER_ID=your_id
 
 ## 🔌 Using MCP (Model Context Protocol)
 
-Aether isn't selfish with its memory. You can expose Aether's internal SQLite Brain and Morning Briefs directly to your IDE (like Cursor or Claude).
-Add the following to your `claude_desktop_config.json`:
+Aether exposes its internal SQLite Brain and Morning Briefs directly to your IDE. This allows you to reference Aether's long-term memory while working in other codebases.
+
+### Global Configuration
+
+Add the following to your `claude_desktop_config.json` or Cursor settings. 
+
+> [!IMPORTANT]
+> Replace `/PATH/TO/` with the actual absolute path to your Aether installation to ensure connectivity from any folder on your machine.
 
 ```json
 "mcpServers": {
   "aether-core": {
     "command": "uv",
-    "args": ["run", "python", "backend/mcp_server.py"]
+    "args": [
+      "--project", "/PATH/TO/aether-agent/backend",
+      "run",
+      "python", "/PATH/TO/aether-agent/backend/mcp_server.py"
+    ]
   }
 }
 ```

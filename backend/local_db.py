@@ -6,9 +6,11 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 class SQLiteService:
-    def __init__(self, db_path: str = "aether.db", schema_path: str = "schema.sql"):
-        self.db_path = db_path
-        self.schema_path = schema_path
+    def __init__(self, db_path: str = None, schema_path: str = None):
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.db_path = db_path or os.path.join(base_dir, "aether.db")
+        self.schema_path = schema_path or os.path.join(base_dir, "schema.sql")
 
     async def init_db(self):
         """Initializes the SQLite database with the schema."""

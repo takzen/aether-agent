@@ -15,7 +15,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from local_db import sqlite_service
 
 # Load Aether environments
-load_dotenv()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(base_dir, ".env"))
 
 # Initialize MCP server
 mcp = FastMCP("Aether Core MCP")
