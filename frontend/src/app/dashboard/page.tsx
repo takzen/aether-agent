@@ -11,6 +11,15 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const { messages, setMessages, clearMessages } = useCommand();
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
+
+  const COMMANDS = [
+    { cmd: "/logs", desc: "View system logs" },
+    { cmd: "/clear", desc: "Clear terminal history" },
+    { cmd: "/simulate", desc: "Run world model simulation" },
+    { cmd: "/release", desc: "Start version release process" }
+  ];
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -183,10 +192,12 @@ export default function Home() {
           const res = await fetch("http://localhost:8000/system/simulate", { method: "POST" });
           const data = await res.json();
           if (data.status === "success") {
+            const simulationData = data.insight;
             setMessages(prev => [...prev, {
               id: (Date.now() + 1).toString(),
               role: "assistant",
-              content: data.insight,
+              content: simulationData.insight || "Simulation complete.",
+              extra: simulationData.suggested_action ? [simulationData.suggested_action] : [],
               sources: ["world_model.simulation"]
             }]);
           }
@@ -255,6 +266,40 @@ export default function Home() {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInput(val);
+
+    if (val.startsWith("/")) {
+      const filtered = COMMANDS
+        .map(c => c.cmd)
+        .filter(c => c.toLowerCase().startsWith(val.split(" ")[0].toLowerCase()));
+      setSuggestions(filtered);
+      setActiveSuggestionIndex(0);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (suggestions.length > 0) {
+        setInput(suggestions[activeSuggestionIndex] + " ");
+        setSuggestions([]);
+      } else {
+        handleSend();
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveSuggestionIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveSuggestionIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+    } else if (e.key === "Escape") {
+      setSuggestions([]);
+    }
+  };
+
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden font-sans text-foreground">
 
@@ -268,9 +313,7 @@ export default function Home() {
             <div>
               <h3 className="text-sm font-bold tracking-wider text-white uppercase">Command Center</h3>
               <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                <span>SYSTEM.OVERVIEW_V1</span>
-                <span className="text-neutral-700">|</span>
-                <span className="text-green-500/80">CORE_ACTIVE</span>
+                <span>Core Interface & Command Control</span>
               </div>
             </div>
           </div>
@@ -368,7 +411,7 @@ export default function Home() {
                             <span>Aether Morning Brief / Terminal Return</span>
                           </div>
                           <div className="text-neutral-300 space-y-3">
-                            <p>{msg.content}</p>
+                            <p>{typeof msg.content === "string" ? msg.content : "Data structure error (Object received)"}</p>
                             {msg.extra && (
                               <ul className="space-y-1 text-neutral-400">
                                 {msg.extra.map((item, idx) => (
@@ -410,17 +453,35 @@ export default function Home() {
 
               {/* Terminal Input Area */}
               <div className="px-4 py-3 border-t border-[#303030] bg-[#1e1e1e] shrink-0">
-                <div className="flex items-center gap-2 bg-[#3c3c3c]/30 border border-[#3c3c3c] rounded-lg px-4 py-2 focus-within:border-[#007acc]/50 transition-all bg-[#252526]">
+                <div className="relative flex items-center gap-2 bg-[#3c3c3c]/30 border border-[#3c3c3c] rounded-lg px-4 py-2 focus-within:border-[#007acc]/50 transition-all bg-[#252526]">
+                  {suggestions.length > 0 && (
+                    <div className="absolute bottom-full left-0 w-full mb-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded-lg overflow-hidden shadow-2xl z-50">
+                      {suggestions.map((s, i) => {
+                        const cmdInfo = COMMANDS.find(c => c.cmd === s);
+                        return (
+                          <div
+                            key={s}
+                            onClick={() => {
+                              setInput(s + " ");
+                              setSuggestions([]);
+                            }}
+                            className={`px-4 py-2 cursor-pointer flex justify-between items-center ${i === activeSuggestionIndex ? "bg-purple-500/20 text-purple-400" : "text-[#858585] hover:bg-white/5"}`}
+                          >
+                            <span className="font-mono text-sm">{s}</span>
+                            <span className="text-[10px] opacity-60 italic">{cmdInfo?.desc}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   <span className="text-purple-400/50 font-mono text-[10px] font-bold">AETHER_CMD:</span>
                   <input
                     type="text"
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Execute system command or run task..."
                     className="flex-1 bg-transparent text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSend();
-                    }}
+                    onKeyDown={handleKeyDown}
                   />
                   <button
                     onClick={handleSend}
