@@ -90,7 +90,7 @@ export default function Sidebar() {
                     </div>
                 </div>
                 <div className="text-center">
-                    <span className="text-[10px] text-neutral-600 font-mono tracking-widest">AETHER v1.1.1</span>
+                    <span className="text-[10px] text-neutral-600 font-mono tracking-widest">AETHER v1.2.0</span>
                 </div>
             </div>
         </div>

@@ -1,7 +1,18 @@
 # Changelog
 
 All notable changes to the Aether Agent project will be documented in this file.
-
++
++## [1.2.0] - 2026-02-27
++### Added
++- **Knowledge Base / Docs**: Full implementation of the `/docs` route with Mermaid diagram support.
++- **New Documentation**: Added `FEATURES.md` (Premium system descriptions) and `API.md` (FastAPI technical reference).
++- **React 19 Compatibility**: Complete refactor of `CommandContext` to resolve hydration errors and comply with the `set-state-in-effect` rule.
++- **Enhanced Terminal**: Improved /logs command to accept arguments and refined the command auto-complete system.
++
++### Fixed
++- **Hydration Errors**: Resolved Next.js SSR mismatch issues in the dashboard views.
++- **Command Leakage**: Slash commands no longer fall through to the LLM when typed with arguments or typos.
++
 ## [1.1.1] - 2026-02-27
 ### Added
 - **Global Terminal Persistence**: The Dashboard terminal now uses `CommandContext` and `localStorage` to persist messages across page navigations and refreshes.

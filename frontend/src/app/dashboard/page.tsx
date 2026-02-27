@@ -10,7 +10,7 @@ import { useCommand, DashboardMessage } from "@/context/CommandContext";
 export default function Home() {
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const { messages, setMessages, clearMessages } = useCommand();
+  const { messages, setMessages, clearMessages, isLoaded } = useCommand();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
 
@@ -385,7 +385,7 @@ export default function Home() {
 
               {/* Terminal Content */}
               <div className="flex-1 overflow-y-auto p-5 space-y-6 font-mono text-[13px] leading-relaxed scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
-                {messages.map((msg) => (
+                {isLoaded && messages.map((msg) => (
                   <div key={msg.id} className="space-y-4">
                     {msg.role === "user" ? (
                       <div className="flex items-start gap-2">
