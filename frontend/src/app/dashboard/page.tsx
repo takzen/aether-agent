@@ -214,10 +214,8 @@ export default function Home() {
         return;
       }
 
-      // If unknown command, just treat it as text or warn? 
-      // For now, let's let unknown commands pass to LLM but maybe with a warning?
-      // Actually, standard behavior for terminal is "command not found".
-      // But since this is a hybrid, let's just pass it to LLM if it's not a known system command.
+      // Catch-all for any other slash commands to prevent them from going to the LLM
+      return;
     }
 
     // 2. Default Chat Behavior
@@ -271,10 +269,11 @@ export default function Home() {
     const val = e.target.value;
     setInput(val);
 
-    if (val.startsWith("/")) {
+    // Only show suggestions if we are at the very beginning of a command and haven't typed a space yet
+    if (val.startsWith("/") && !val.includes(" ")) {
       const filtered = COMMANDS
         .map(c => c.cmd)
-        .filter(c => c.toLowerCase().startsWith(val.split(" ")[0].toLowerCase()));
+        .filter(c => c.toLowerCase().startsWith(val.toLowerCase()));
       setSuggestions(filtered);
       setActiveSuggestionIndex(0);
     } else {
@@ -284,6 +283,7 @@ export default function Home() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      // If suggestions are visible, autocomplete the command
       if (suggestions.length > 0) {
         setInput(suggestions[activeSuggestionIndex] + " ");
         setSuggestions([]);
@@ -291,11 +291,15 @@ export default function Home() {
         handleSend();
       }
     } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveSuggestionIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+      if (suggestions.length > 0) {
+        e.preventDefault();
+        setActiveSuggestionIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+      }
     } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveSuggestionIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+      if (suggestions.length > 0) {
+        e.preventDefault();
+        setActiveSuggestionIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+      }
     } else if (e.key === "Escape") {
       setSuggestions([]);
     }
