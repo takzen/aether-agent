@@ -531,12 +531,15 @@ export default function Home() {
                       })}
                     </div>
                   )}
-                  <span className="text-purple-400/50 font-mono text-[10px] font-bold">AETHER_CMD:</span>
+                  <span className="text-purple-400/50 font-mono text-[10px] font-bold">user@local:</span>
                   <input
                     type="text"
                     value={input}
                     onChange={handleInputChange}
-                    placeholder="Execute system command or run task..."
+                    placeholder={config.SYSTEM_LANGUAGE === 'en'
+                      ? "Execute system command or run task..."
+                      : "Wydaj komendę systemową lub zleć zadanie..."
+                    }
                     className="flex-1 bg-transparent text-[#cccccc] font-mono text-sm placeholder:text-[#858585] focus:outline-none"
                     onKeyDown={handleKeyDown}
                   />
