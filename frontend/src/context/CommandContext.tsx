@@ -16,34 +16,34 @@ interface CommandContextType {
     setMessages: React.Dispatch<React.SetStateAction<DashboardMessage[]>>;
     addMessage: (msg: DashboardMessage) => void;
     clearMessages: () => void;
+    isLoaded: boolean;
 }
 
 const CommandContext = createContext<CommandContextType | undefined>(undefined);
 
 export function CommandProvider({ children }: { children: React.ReactNode }) {
-    // Lazy initialization for React 19 / Modern patterns
-    // This loads the state during the initial render, so we don't need a useEffect to load it.
-    const [messages, setMessages] = useState<DashboardMessage[]>(() => {
-        if (typeof window !== "undefined") {
-            const saved = localStorage.getItem("aether_terminal_history");
+    const [messages, setMessages] = useState<DashboardMessage[]>([]);
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    // Initial load - SSR safe
+    useEffect(() => {
+        const saved = localStorage.getItem("aether_terminal_history");
+        if (saved) {
             try {
-                return saved ? JSON.parse(saved) : [];
+                setMessages(JSON.parse(saved));
             } catch {
                 console.error("Failed to parse terminal history");
-                return [];
             }
         }
-        return [];
-    });
+        setIsLoaded(true);
+    }, []);
 
-    // Save to localStorage whenever messages change. 
-    // Since state is initialized lazily, the first run of this effect will simply 
-    // write back what was already in localStorage (or an empty array if nothing was there).
+    // Save to localStorage whenever messages change, only after initial load
     useEffect(() => {
-        if (typeof window !== "undefined") {
+        if (isLoaded) {
             localStorage.setItem("aether_terminal_history", JSON.stringify(messages));
         }
-    }, [messages]);
+    }, [messages, isLoaded]);
 
     const addMessage = useCallback((msg: DashboardMessage) => {
         setMessages((prev) => [...prev, msg]);
@@ -51,17 +51,16 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
 
     const clearMessages = useCallback(() => {
         setMessages([]);
-        if (typeof window !== "undefined") {
-            localStorage.removeItem("aether_terminal_history");
-        }
+        localStorage.removeItem("aether_terminal_history");
     }, []);
 
     const contextValue = useMemo(() => ({
         messages,
         setMessages,
         addMessage,
-        clearMessages
-    }), [messages, addMessage, clearMessages]);
+        clearMessages,
+        isLoaded
+    }), [messages, addMessage, clearMessages, isLoaded]);
 
     return (
         <CommandContext.Provider value={contextValue}>

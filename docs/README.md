@@ -11,7 +11,7 @@ Witamy w centrum dokumentacji Aether Agent. Ten folder zawiera szczegółowe opi
 5.  **[Archiwum Roadmap](archive/roadmaps/)** — Historia testów i kierunków rozwoju.
 
 ## Status Projektu
-- **Wersja:** 1.1.1
+- **Wersja:** 1.2.0
 - **Status:** Active Development (Faza 4.0 - Operacja Horyzont)
 - **Ostatnia aktualizacja:** 2026-02-27
 
