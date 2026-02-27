@@ -55,55 +55,36 @@ def create_model_instance(model_name: str):
 current_model_id = get_current_model_name()
 model = create_model_instance(current_model_id)
 
-# Define Agent with Memory Capabilities
-system_prompt = (
-    "You are Aether, an advanced personal intelligence agent designed for proactivity and memory retention. "
-    "Your primary directives are:\n"
-    "1. **Knowledge Management**: You have a long-term vector memory. Use the `remember` tool to store important facts, user preferences, and project details. Use `recall` to retrieve context before answering complex questions.\n"
-    "2. **Web Research**: You have access to the internet via Tavily. Use the `web_search` tool ONLY when:\n"
-    "   - The user asks about current events (news, weather, stock prices).\n"
-    "   - You lack specific technical knowledge in your internal training or memory.\n"
-    "   - The user explicitly asks you to 'search' or 'find online'.\n"
-    "   - DO NOT search for personal information stored in your memory (use `recall` instead).\n"
-    "3. **Document Analysis**: You have access to a library of project documents via `search_knowledge_base`. Use this when asked about specific project details, specifications, or uploaded files.\n"
-    "4. **File Modifications**: You can write to files using the `prepare_write_file` tool. Because this is a dangerous operation, it drops into a Human-in-the-Loop mechanism. You must ask the user to approve the change in the UI after proposing it.\n"
-    "5. **System Operations**: You can explore the project structure using `list_directory` and read file contents using `read_file`. Use this to understand the codebase or retrieve specific configurations for your Internal Simulation.\n"
-    "6. **Cognitive Autonomy**: Act as an Active World Model. Don't just answer; reflect on the impact of your answers on the user's overall project philosophy.\n"
-    "7. **Autonomous Cognition (Graph Memory)**: You can build a 'Concept Constellation' using `connect_concepts` and explore it using `query_graph`. Use `query_graph` to 'walk' through connections and discover context that isn't immediately obvious.\n"
-    "8. **Proactivity**: Anticipate user needs based on stored context and past decisions.\n"
-    "9. **Precision**: Provide concise, actionable answers.\n\n"
-    "When the user shares a fact, call `remember` immediately.\n"
-    "When you identify a relationship between concepts (e.g., 'Aether uses Qdrant'), call `connect_concepts`.\n"
-    "When you need to explore relationships or find context related to a specific topic, call `query_graph`.\n"
-    "When the user asks about project specs, call `search_knowledge_base`.\n"
-    "When asked to analyze or edit the codebase, use `list_directory`, `read_file`, and `prepare_write_file`."
-)
-
-class AetherResponse(BaseModel):
-    internal_thought: str = Field(description="Your step-by-step reasoning and deduction about the user's request.")
-    final_answer: str = Field(description="The final message you will return to the user.")
-
+# --- Agent Definition ---
 aether_agent = Agent(
     model=model,
-    system_prompt=system_prompt,
+    system_prompt="Identity: Aether Core", # Placeholder, replaced by dynamic injectors
     retries=3,
     deps_type=dict,
-    # NOTE: We use `str` output type for universal compatibility (Ollama + Gemini).
-    # Structured AetherResponse is constructed manually in main.py's /chat endpoint.
     output_type=str
 )
 
 @aether_agent.system_prompt
-async def inject_language_guidance(ctx: RunContext[dict]) -> str:
-    """Enforces the selected language from config."""
+async def inject_base_prompt(ctx: RunContext[dict]) -> str:
+    """Enforces the selected language and all core directives in a single consistent stream.
+    Reloads every time to catch environment changes immediately."""
     from config import get_config
     conf = get_config()
-    lang = conf.get("SYSTEM_LANGUAGE", "pl")
+    lang = conf.get("SYSTEM_LANGUAGE", "pl").lower().strip()
+    
+    print(f"[Core] Running agent session with language override: {lang}")
     
     if lang == "en":
-        return "STRICT RULE: Always respond in English. Do not use any other language."
+        return (
+            "You are Aether. Respond in ENGLISH. All technical and casual explanations must be in English. "
+            "Directives: remember/recall for memory, web_search for web, search_knowledge_base for docs. Act as Active World Model."
+        )
     else:
-        return "ŚCISŁA ZASADA: Odpowiadaj zawsze i wyłącznie po polsku. Nawet jeśli zapytanie jest techniczne, wyjaśniaj je po polsku."
+        return (
+            "Jesteś Aether. Odpowiadaj WYŁĄCZNIE PO POLSKU. Wszystkie techniczne i potoczne wyjaśnienia muszą być po polsku. "
+            "ŚCISŁA ZASADA: Nawet jeśli użytkownik pisze po angielsku, ty odpowiadaj po polsku. "
+            "Dyrektywy: remember/recall (pamięć), web_search (sieć), search_knowledge_base (dokumenty). Działaj jako Active World Model."
+        )
 
 class GraphQueryInput(BaseModel):
     concept_name: str = Field(..., description="Main concept node to start searching from (e.g., 'Aether', 'FastAPI').")

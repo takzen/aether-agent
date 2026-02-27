@@ -49,11 +49,22 @@ export default function Home() {
           if (data.status === "success") {
             setConfig(data.config);
             const raw = data.config.MODEL_OVERRIDE || "gemini-3.1-pro";
+            const currentLang = data.config.SYSTEM_LANGUAGE || "pl";
             const formatted = raw
               .replace("ollama:", "")
               .replace(/-/g, " ")
               .replace(/\b\w/g, (c: string) => c.toUpperCase());
             setModelName(formatted);
+
+            // Update welcome message if empty
+            if (messages.length === 0) {
+              setMessages([{
+                id: "init-welcome",
+                role: "assistant",
+                content: currentLang === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "Rdzeń Aether zainicjowany. Wszystkie systemy sprawne. W czym mogę Ci dzisiaj pomóc?",
+                isInitial: true
+              }]);
+            }
           }
         })
         .catch(() => setModelName("Aether Core"));
@@ -84,9 +95,24 @@ export default function Home() {
               sources: ["aether.sleep_cycle", "system.logs"],
               isInitial: true
             }]);
+          } else {
+            // Fallback for empty/error brief
+            setMessages([{
+              id: "startup-" + Date.now(),
+              role: "assistant",
+              content: config.SYSTEM_LANGUAGE === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "Rdzeń Aether zainicjowany. Wszystkie systemy sprawne. W czym mogę Ci dzisiaj pomóc?",
+              isInitial: true
+            }]);
           }
         })
-        .catch(() => console.error("Morning Brief fetch error"));
+        .catch(() => {
+          setMessages([{
+            id: "error-" + Date.now(),
+            role: "assistant",
+            content: "System connection established. Dashboard online.",
+            isInitial: true
+          }]);
+        });
     }
 
     return () => window.removeEventListener("configUpdated", fetchConfig);
@@ -94,18 +120,24 @@ export default function Home() {
   }, []); // Only on mount
 
   const handleUpdateConfig = async (key: string, value: string) => {
-    const newConfig = { ...config, [key]: value };
-    setConfig(newConfig);
-    try {
-      await fetch("http://localhost:8000/config", {
+    // 1. Get latest state and calculate new values
+    setConfig(prev => {
+      const updatedConfig = { ...prev, [key]: value };
+
+      // 2. Send to backend using the freshly calculated config
+      fetch("http://localhost:8000/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newConfig)
-      });
-      window.dispatchEvent(new Event("configUpdated"));
-    } catch (err) {
-      console.error("Config update error:", err);
-    }
+        body: JSON.stringify(updatedConfig)
+      }).then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            window.dispatchEvent(new Event("configUpdated"));
+          }
+        }).catch(err => console.error("Config save error:", err));
+
+      return updatedConfig;
+    });
   };
 
   const triggerSleepCycle = async () => {
@@ -154,6 +186,14 @@ export default function Home() {
 
       if (command === "clear") {
         clearMessages();
+        // Restore welcome message immediately
+        const lang = config.SYSTEM_LANGUAGE || "pl";
+        setMessages([{
+          id: "welcome-" + Date.now(),
+          role: "assistant",
+          content: lang === 'en' ? "Aether Core initialized. Terminal cleared. How can I assist you today?" : "Rdzeń Aether zainicjowany. Terminal wyczyszczony. W czym mogę Ci dzisiaj pomóc?",
+          isInitial: true
+        }]);
         return;
       }
 
@@ -440,7 +480,19 @@ export default function Home() {
                         <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
                           <div className="flex items-center gap-2 text-[10px] text-green-400/70 font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            <span>Aether Morning Brief / Terminal Return</span>
+                            <span>
+                              {(() => {
+                                const isEn = config.SYSTEM_LANGUAGE === 'en';
+                                const sources = msg.sources || [];
+                                if (msg.isInitial || sources.includes("aether.sleep_cycle"))
+                                  return isEn ? "Aether Morning Brief / Night Consolidation" : "Aether Morning Brief / Raport Poranny";
+                                if (sources.includes("world_model.simulation"))
+                                  return isEn ? "AWM Insight / Global Simulation" : "AWM Insight / Symulacja Świata";
+                                if (sources.includes("system.logs"))
+                                  return isEn ? "System Telemetry / Technical Logs" : "Telemetria / Logi Systemowe";
+                                return isEn ? "Aether Active Response / Command Output" : "Odpowiedź Aether / Wynik Polecenia";
+                              })()}
+                            </span>
                           </div>
                           <div className="text-neutral-300 space-y-3">
                             <p>{typeof msg.content === "string" ? msg.content : "Data structure error (Object received)"}</p>

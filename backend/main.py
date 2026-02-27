@@ -104,14 +104,17 @@ async def update_configuration(new_conf: ConfigUpdate):
     """Updates the .env configuration and reloads environment."""
     print(f"[Config] Received update request: {new_conf}")
     try:
-        success = write_config({
-            "GEMINI_API_KEY": new_conf.GEMINI_API_KEY,
-            "TAVILY_API_KEY": new_conf.TAVILY_API_KEY,
-            "QDRANT_URL": new_conf.QDRANT_URL,
-            "QDRANT_API_KEY": new_conf.QDRANT_API_KEY,
-            "MODEL_OVERRIDE": new_conf.MODEL_OVERRIDE,
-            "SYSTEM_LANGUAGE": new_conf.SYSTEM_LANGUAGE
-        })
+        # Merge logic: preserve existing keys if new ones are empty/missing
+        current_conf = get_config()
+        updated_dict = {
+            "GEMINI_API_KEY": new_conf.GEMINI_API_KEY or current_conf.get("GEMINI_API_KEY", ""),
+            "TAVILY_API_KEY": new_conf.TAVILY_API_KEY or current_conf.get("TAVILY_API_KEY", ""),
+            "QDRANT_URL": new_conf.QDRANT_URL or current_conf.get("QDRANT_URL", ""),
+            "QDRANT_API_KEY": new_conf.QDRANT_API_KEY or current_conf.get("QDRANT_API_KEY", ""),
+            "MODEL_OVERRIDE": new_conf.MODEL_OVERRIDE or current_conf.get("MODEL_OVERRIDE", "gemini-3-flash"),
+            "SYSTEM_LANGUAGE": new_conf.SYSTEM_LANGUAGE or current_conf.get("SYSTEM_LANGUAGE", "pl")
+        }
+        success = write_config(updated_dict)
         if success:
             print("[Config] Successfully wrote to .env")
             # We would typically need to restart the app or reload the env in memory.

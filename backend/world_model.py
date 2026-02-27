@@ -1,6 +1,7 @@
 import json
 from pydantic import BaseModel, Field
-from pydantic_ai import Agent
+from pydantic_ai import Agent, RunContext
+from config import get_config
 from local_db import sqlite_service
 from agent import model
 
@@ -10,24 +11,43 @@ class WorldInsight(BaseModel):
 
 world_agent = Agent(
     model=model,
-    system_prompt=(
-        "You are the Aether Active World Model (AWM) module. "
-        "Your task is to conduct a silent background simulation (Self-Reflection) based on the latest raw system logs. "
-        "Analyze the logs for patterns, blockers, and hidden connections."
-    ),
+    system_prompt="Identity: Aether WorldModel", 
     retries=3,
     output_type=WorldInsight
 )
 
+@world_agent.system_prompt
+async def inject_world_language(ctx: RunContext[dict]) -> str:
+    conf = get_config()
+    lang = conf.get("SYSTEM_LANGUAGE", "pl").lower().strip()
+    
+    if lang == "en":
+        return (
+            "You are the Aether Active World Model (AWM). Respond in ENGLISH. "
+            "Analyze logs for patterns, blockers, and hidden connections."
+        )
+    else:
+        return (
+            "Jesteś modułem Aether Active World Model (AWM). Odpowiadaj WYŁĄCZNIE PO POLSKU. "
+            "Analizuj logi pod kątem wzorców, blokad i ukrytych powiązań."
+        )
+
 async def run_active_world_model_simulation():
-    # Fetch the last 30 logs for reflection basis
     logs = await sqlite_service.get_logs(limit=30)
     
     if len(logs) < 5:
-        return {
-            "insight": "Insufficient telemetry data to run a deep AWM simulation.",
-            "suggested_action": "Continue working, gather more informational logs and user inputs."
-        }
+        conf = get_config()
+        lang = conf.get("SYSTEM_LANGUAGE", "pl").lower().strip()
+        if lang == "en":
+            return {
+                "insight": "Insufficient telemetry data to run a deep AWM simulation.",
+                "suggested_action": "Continue working, gather more informational logs and user inputs."
+            }
+        else:
+            return {
+                "insight": "Niewystarczająca ilość danych telemetrycznych do przeprowadzenia głębokiej symulacji AWM.",
+                "suggested_action": "Kontynuuj pracę, zbierz więcej logów informacyjnych i danych od użytkownika."
+            }
         
     prompt = "--- INITIATING AWM SIMULATION BASED ON THE FOLLOWING EVENTS ---\n"
     for log in logs:
@@ -35,11 +55,8 @@ async def run_active_world_model_simulation():
         
     try:
         result = await world_agent.run(prompt)
-        
-        # Agent returns a validated Pydantic object (WorldInsight)
         data = result.output.model_dump()
         
-        # Save our AWM insight to the local database
         await sqlite_service.add_log(
             type="awm", 
             source="WORLD_MODEL", 
@@ -50,9 +67,7 @@ async def run_active_world_model_simulation():
         
     except Exception as e:
         print(f"[ActiveWorldModel] Background simulation error: {repr(e)}")
-        import traceback
-        traceback.print_exc()
         return {
-            "insight": f"<AWM ERROR> Simulation crashed during logic parsing: {str(e)}",
-            "suggested_action": "Awaiting PydanticAI diagnosis to restore background thinking."
+            "insight": f"<AWM ERROR> Symulacja przerwana: {str(e)}",
+            "suggested_action": "Sprawdź diagnostykę PydanticAI."
         }
