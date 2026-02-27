@@ -204,6 +204,9 @@ The commercial, standalone version with dedicated installers is being developed 
 
 **Apache-2.0** © [Krzysztof Pika](https://github.com/takzen/aether-agent)
 
+> [!IMPORTANT]
+> **Trademarks & Logo:** The names "Aether", "Aether Agent", "Project Nebula", and all associated logos are trademarks of Krzysztof Pika. These are **not covered** by the Apache 2.0 License. Any use of these trademarks, beyond reasonable and customary description of the software's origin, requires explicit written permission.
+
 <div align="center">
 <br>
 
