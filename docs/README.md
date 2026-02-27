@@ -12,7 +12,7 @@ Witamy w centrum dokumentacji Aether Agent. Ten folder zawiera szczegółowe opi
 
 ## Status Projektu
 - **Wersja:** 1.2.0
-- **Status:** Active Development (Faza 4.0 - Operacja Horyzont)
+- **Status:** Active Development (Minimalist Terminal Update)
 - **Ostatnia aktualizacja:** 2026-02-27
 
 ---

@@ -14,6 +14,16 @@ Zwraca statystyki systemowe: liczbę dokumentów, wspomnień, sesji i wskaźnik 
 ### `GET /config` | `POST /config`
 Zarządzanie konfiguracją systemową (Klucze API, URL do bazy Qdrant, wybór modelu).
 
+## Telemetry & Logs
+
+### `GET /logs`
+Pobiera najnowsze logi systemowe.
+- **Parametry:** `limit` (default: 50), `from_id` (ID logu, od którego zacząć).
+- **Zastosowanie:** Podgląd stanu pracy jądra systemu.
+
+### `DELETE /logs`
+Czyści wszystkie rekordy w tabeli `system_logs`.
+
 ## Agent & Chat
 
 ### `POST /chat`
