@@ -12,13 +12,17 @@ class SQLiteService:
         self.db_path = db_path or os.path.join(base_dir, "aether.db")
         self.schema_path = schema_path or os.path.join(base_dir, "schema.sql")
 
-    async def init_db(self):
-        """Initializes the SQLite database with the schema."""
+    async def init_db(self) -> bool:
+        """Initializes the SQLite database. Returns True if it was a cold start (file didn't exist)."""
+        import os
+        is_new = not os.path.exists(self.db_path)
+        
         async with aiosqlite.connect(self.db_path) as db:
             with open(self.schema_path, "r", encoding="utf-8") as f:
                 schema = f.read()
             await db.executescript(schema)
             await db.commit()
+        return is_new
 
     async def create_session(self, title: str = "New Session") -> str:
         """Creates a new chat session and returns its ID."""
@@ -96,13 +100,31 @@ class SQLiteService:
             )
             await db.commit()
 
-    async def get_logs(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Retrieve recent system logs."""
+    async def get_logs(self, limit: int = 100, from_id: int = 0) -> List[Dict[str, Any]]:
+        """Retrieve recent system logs since a certain ID."""
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
-            async with db.execute("SELECT * FROM system_logs ORDER BY id DESC LIMIT ?", (limit,)) as cursor:
+            query = "SELECT * FROM system_logs WHERE id > ? ORDER BY id DESC LIMIT ?"
+            async with db.execute(query, (from_id, limit)) as cursor:
                 rows = await cursor.fetchall()
                 return [dict(row) for row in rows]
+
+    async def get_checkpoint(self, module_key: str) -> int:
+        """Gets the last processed log ID for a module."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT last_log_id FROM system_checkpoints WHERE module_key = ?", (module_key,)) as cursor:
+                row = await cursor.fetchone()
+                return row['last_log_id'] if row else 0
+
+    async def set_checkpoint(self, module_key: str, log_id: int):
+        """Sets the last processed log ID for a module."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                "INSERT INTO system_checkpoints (module_key, last_log_id, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(module_key) DO UPDATE SET last_log_id=excluded.last_log_id, updated_at=CURRENT_TIMESTAMP",
+                (module_key, log_id)
+            )
+            await db.commit()
 
     # --- GRAPH MEMORY (CONSTELLATIONS) ---
 
@@ -225,6 +247,12 @@ class SQLiteService:
                         except:
                             pass
                 return links
+
+    async def clear_logs(self):
+        """Clears all system logs."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("DELETE FROM system_logs")
+            await db.commit()
 
 # Singleton instance
 sqlite_service = SQLiteService()

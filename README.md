@@ -42,6 +42,7 @@ Where traditional AI tools simply react to text, **Aether simulates and anticipa
 | 🕸️ **Concept Constellations** | Moving beyond standard RAG vectors. Aether links memories and facts into a dense relational graph within its core SQLite + Qdrant architecture. |
 | 📱 **Telegram Bridge** | Operate your entire codebase and read system briefings via an encrypted, native-feeling CLI bridge straight from the Telegram app on your phone. |
 | 🔌 **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory with other AIs. |
+| 🖥️ **Command Center** | Centralny punkt sterowania Next.js. Obsługuje zaawansowane skróty klawiszowe oraz slash commands (`/clear`, `/logclear`, `/logs`, `/simulate`) do kontroli nad systemem w czasie rzeczywistym. |
 | 💻 **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
 
 ---

@@ -10,8 +10,13 @@ from local_db import sqlite_service
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic
-    await sqlite_service.init_db()
-    await sqlite_service.add_log("success", "CORE", "Aether Kernel initialized. Core services operational.")
+    is_new = await sqlite_service.init_db()
+    if is_new:
+        await sqlite_service.add_log("success", "CORE", "Aether Kernel Cold Start. Initialized fresh state.")
+    else:
+        # Just a quiet operational log for reloads
+        import time
+        await sqlite_service.add_log("info", "CORE", f"Aether Kernel Hot Reloaded (PID: {os.getpid()})")
     
     # Start Telegram Bridge in background
     from telegram_bridge import run_telegram_bot
@@ -425,11 +430,21 @@ async def get_recent_activity():
         return {"status": "error", "message": str(e)}
 
 @app.get("/logs")
-async def get_system_logs():
+async def get_system_logs(limit: int = 50, from_id: int = 0):
     """Returns the latest system execution logs."""
     try:
-        logs = await sqlite_service.get_logs(limit=50)
+        logs = await sqlite_service.get_logs(limit=limit, from_id=from_id)
         return {"status": "success", "logs": logs}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.delete("/logs")
+async def clear_system_logs():
+    """Clears all system logs."""
+    try:
+        await sqlite_service.clear_logs()
+        await sqlite_service.add_log("info", "CORE", "System logs cleared by user request.")
+        return {"status": "success", "message": "Logs cleared."}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

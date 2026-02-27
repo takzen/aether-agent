@@ -15,9 +15,10 @@ export default function Home() {
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
 
   const COMMANDS = [
-    { cmd: "/logs", desc: "View system logs" },
-    { cmd: "/clear", desc: "Clear terminal history" },
-    { cmd: "/simulate", desc: "Run world model simulation" }
+    { cmd: "/logs", desc: "Podgląd logów systemowych" },
+    { cmd: "/clear", desc: "Wyczyść okno terminala" },
+    { cmd: "/logclear", desc: "Wyczyść bazę logów systemowych" },
+    { cmd: "/simulate", desc: "Uruchom symulację modelu świata" }
   ];
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
@@ -179,108 +180,100 @@ export default function Home() {
     const currentInput = input.trim();
     setInput("");
 
-
     // 1. Handle Slash Commands
     if (currentInput.startsWith("/")) {
       const [command, ...args] = currentInput.slice(1).split(" ");
 
       if (command === "clear") {
         clearMessages();
-        // Restore welcome message immediately
         const lang = config.SYSTEM_LANGUAGE || "pl";
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === 'en' ? "Aether Core initialized. Terminal cleared. How can I assist you today?" : "Rdzeń Aether zainicjowany. Terminal wyczyszczony. W czym mogę Ci dzisiaj pomóc?",
+          content: lang === 'en' ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
           isInitial: true
         }]);
         return;
       }
 
       if (command === "logs") {
-        const userMsg: DashboardMessage = {
-          id: Date.now().toString(),
-          role: "user",
-          content: currentInput,
-        };
-        setMessages(prev => [...prev, userMsg]);
         setIsProcessing(true);
-
         try {
-          const limit = args[0] || "10";
-          const response = await fetch(`http://localhost:8000/logs?limit=${limit}`);
-          const data = await response.json();
+          const limit = args[0] || "15";
+          const res = await fetch(`http://localhost:8000/logs?limit=${limit}`);
+          const data = await res.json();
 
           if (data.status === "success" && data.logs) {
-            const logContent = data.logs.map((l: { type: string; source: string; message: string }) =>
-              `[${l.type.toUpperCase()} | ${l.source}] ${l.message}`
-            ).join("\n");
-
-            setMessages(prev => [...prev, {
-              id: (Date.now() + 1).toString(),
-              role: "assistant",
-              content: logContent || "No logs found.",
-              sources: ["system.logs"]
-            }]);
+            const now = Date.now();
+            data.logs.reverse().forEach((l: any, idx: number) => {
+              setMessages(prev => [...prev, {
+                id: `log-${l.id}-${now}-${idx}`,
+                role: "assistant",
+                content: l.message,
+                isLogEntry: true,
+                logType: l.type,
+                sources: ["system.logs"]
+              }]);
+            });
           }
-        } catch {
-          setMessages(prev => [...prev, {
-            id: Date.now().toString(),
-            role: "assistant",
-            content: "Failed to fetch logs from backend.",
-          }]);
-        } finally {
-          setIsProcessing(true); // Wait a bit for the animation feel
-          setTimeout(() => setIsProcessing(false), 500);
-        }
-        return;
-      }
-
-      if (command === "simulate") {
-        const userMsg: DashboardMessage = {
-          id: Date.now().toString(),
-          role: "user",
-          content: "EXECUTE_SIMULATION: run_active_world_model_simulation()",
-        };
-        setMessages(prev => [...prev, userMsg]);
-        setIsProcessing(true);
-
-        try {
-          const res = await fetch("http://localhost:8000/system/simulate", { method: "POST" });
-          const data = await res.json();
-          if (data.status === "success") {
-            const simulationData = data.insight;
-            setMessages(prev => [...prev, {
-              id: (Date.now() + 1).toString(),
-              role: "assistant",
-              content: simulationData.insight || "Simulation complete.",
-              extra: simulationData.suggested_action ? [simulationData.suggested_action] : [],
-              sources: ["world_model.simulation"]
-            }]);
-          }
-        } catch {
-          setMessages(prev => [...prev, {
-            id: Date.now().toString(),
-            role: "assistant",
-            content: "Simulation failed to execute.",
-          }]);
+        } catch (err) {
+          console.error("Log fetch error:", err);
         } finally {
           setIsProcessing(false);
         }
         return;
       }
 
-      // Catch-all for any other slash commands to prevent them from going to the LLM
+      if (command === "logclear") {
+        setIsProcessing(true);
+        try {
+          await fetch("http://localhost:8000/logs", { method: "DELETE" });
+          setMessages(prev => [...prev, {
+            id: "logclear-" + Date.now(),
+            role: "assistant",
+            content: config.SYSTEM_LANGUAGE === 'en' ? "Logs cleared." : "Logi wyczyszczone.",
+            sources: ["system.core"]
+          }]);
+        } catch {
+          console.error("Log clear error");
+        } finally {
+          setIsProcessing(false);
+        }
+        return;
+      }
+
+      if (command === "simulate") {
+        setIsProcessing(true);
+        try {
+          const res = await fetch("http://localhost:8000/system/simulate", { method: "POST" });
+          const data = await res.json();
+          if (data.status === "success") {
+            setMessages(prev => [...prev, {
+              id: "sim-" + Date.now(),
+              role: "assistant",
+              content: data.insight.insight,
+              extra: data.insight.suggested_action ? [data.insight.suggested_action] : [],
+              sources: ["world_model.simulation"]
+            }]);
+          }
+        } catch {
+          console.error("Sim error");
+        } finally {
+          setIsProcessing(false);
+        }
+        return;
+      }
+
+      // Catch-all for unknown slash commands
       return;
     }
 
     // 2. Default Chat Behavior
     const userMsg: DashboardMessage = {
-      id: Date.now().toString(),
+      id: "user-" + Date.now(),
       role: "user",
       content: currentInput,
     };
-
     setMessages(prev => [...prev, userMsg]);
     setIsProcessing(true);
 
@@ -290,32 +283,16 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: currentInput }),
       });
-
       const data = await response.json();
-
       if (data.status === "success") {
-        const aiMsg: DashboardMessage = {
-          id: (Date.now() + 1).toString(),
+        setMessages(prev => [...prev, {
+          id: "ai-" + Date.now(),
           role: "assistant",
           content: data.response,
-        };
-        setMessages(prev => [...prev, aiMsg]);
-      } else {
-        const errorMsg: DashboardMessage = {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: `Error: ${data.message}`,
-        };
-        setMessages(prev => [...prev, errorMsg]);
+        }]);
       }
     } catch (err) {
       console.error("Chat error:", err);
-      const errorMsg: DashboardMessage = {
-        id: Date.now().toString(),
-        role: "assistant",
-        content: "Error connecting to backend.",
-      };
-      setMessages(prev => [...prev, errorMsg]);
     } finally {
       setIsProcessing(false);
     }
@@ -463,58 +440,54 @@ export default function Home() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {/* Status lines (only for AI) */}
-                        <div className="space-y-1 opacity-70">
-                          <div className="text-blue-400/80">
-                            <span>[aether]</span> <span className="text-neutral-500 italic">Evaluating system context & logs...</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-[11px] text-neutral-600">
-                            <span className="text-blue-400/50">[aether]</span>
-                            <span className="text-green-400/60">Report synthesized</span>
-                            <span>•</span>
-                            <span>sys.time: {msg.isInitial ? "07:12:00" : "now"}</span>
-                          </div>
-                        </div>
-
-                        {/* Main Response Box */}
-                        <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 space-y-3">
-                          <div className="flex items-center gap-2 text-[10px] text-green-400/70 font-bold uppercase tracking-widest border-b border-white/5 pb-2 mb-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            <span>
+                        {/* Improved Log Entry Rendering */}
+                        {msg.isLogEntry ? (
+                          <div className={`flex items-start gap-2 py-0.5 border-l-2 pl-3 ${msg.logType === 'error' ? 'border-red-500/50 bg-red-500/5' :
+                            msg.logType === 'warning' ? 'border-yellow-500/50 bg-yellow-500/5' :
+                              msg.logType === 'success' ? 'border-green-500/50 bg-green-500/5' : 'border-blue-500/50 bg-blue-500/5'
+                            }`}>
+                            <span className={`text-[10px] font-bold uppercase min-w-[50px] ${msg.logType === 'error' ? 'text-red-400' :
+                              msg.logType === 'warning' ? 'text-yellow-400' :
+                                msg.logType === 'success' ? 'text-green-400' : 'text-blue-400'
+                              }`}>
+                              [{msg.logType || 'info'}]
+                            </span>
+                            <span className="text-neutral-400 text-[11px] leading-tight flex-1">
                               {(() => {
-                                const isEn = config.SYSTEM_LANGUAGE === 'en';
-                                const sources = msg.sources || [];
-                                if (msg.isInitial || sources.includes("aether.sleep_cycle"))
-                                  return isEn ? "Aether Morning Brief / Night Consolidation" : "Aether Morning Brief / Raport Poranny";
-                                if (sources.includes("world_model.simulation"))
-                                  return isEn ? "AWM Insight / Global Simulation" : "AWM Insight / Symulacja Świata";
-                                if (sources.includes("system.logs"))
-                                  return isEn ? "System Telemetry / Technical Logs" : "Telemetria / Logi Systemowe";
-                                return isEn ? "Aether Active Response / Command Output" : "Odpowiedź Aether / Wynik Polecenia";
+                                try {
+                                  if (msg.content.includes('{"brief":')) {
+                                    const parsed = JSON.parse(msg.content);
+                                    return parsed.brief;
+                                  }
+                                } catch (e) { }
+                                return msg.content;
                               })()}
                             </span>
                           </div>
-                          <div className="text-neutral-300 space-y-3">
-                            <p>{typeof msg.content === "string" ? msg.content : "Data structure error (Object received)"}</p>
-                            {msg.extra && (
-                              <ul className="space-y-1 text-neutral-400">
-                                {msg.extra.map((item, idx) => (
-                                  <li key={idx} className="flex items-start gap-2.5">
-                                    <span className="text-purple-600 mt-1">→</span>
-                                    <span>{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                            {msg.sources && (
-                              <div className="pt-2 flex flex-wrap gap-2 text-[10px] text-neutral-600">
-                                {msg.sources.map((src, idx) => (
-                                  <span key={idx} className="px-1.5 py-0.5 border border-white/5 rounded">{src}</span>
-                                ))}
+                        ) : (
+                          /* Main Response (Clean & Minimal) */
+                          <div className="space-y-2">
+                            {/* Small simple badge for only major stuff */}
+                            {(msg.isInitial || (msg.sources && (msg.sources.includes("aether.sleep_cycle") || msg.sources.includes("world_model.simulation")))) && (
+                              <div className="flex items-center gap-2 mb-1 opacity-50">
+                                <div className="w-1 h-1 rounded-full bg-green-500" />
+                                <span className="text-[10px] font-bold uppercase tracking-wider">
+                                  {msg.isInitial ? "Brief" : "System Insight"}
+                                </span>
                               </div>
                             )}
+                            <div className="text-neutral-300 leading-relaxed">
+                              <p className="whitespace-pre-wrap">{typeof msg.content === "string" ? msg.content : "Data structure error"}</p>
+                              {msg.extra && (
+                                <ul className="mt-3 space-y-1 text-neutral-400 border-l border-white/10 pl-4">
+                                  {msg.extra.map((item, idx) => (
+                                    <li key={idx} className="text-xs">{item}</li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     )}
                   </div>

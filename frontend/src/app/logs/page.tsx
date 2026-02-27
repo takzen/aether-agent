@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Hash, Clock, Search } from "lucide-react";
+import { Hash, Clock, Search, Activity } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -21,13 +21,18 @@ export default function AgentLogs() {
 
     const fetchLogs = async () => {
         try {
-            const res = await fetch("http://localhost:8000/logs");
+            // Added limit parameter to the endpoint call
+            const res = await fetch("http://localhost:8000/logs?limit=50");
             const data = await res.json();
             if (data.status === "success") {
                 setLogs(data.logs);
+            } else {
+                console.error("Error from backend:", data.message);
+                setLogs([]); // Clear logs on error
             }
         } catch (err) {
             console.error("Error fetching logs:", err);
+            setLogs([]); // Clear logs on network error
         }
     };
 
@@ -52,10 +57,9 @@ export default function AgentLogs() {
         return matchesSearch && matchesTab;
     });
 
-    const formatTime = (ts: string) => {
-        if (!ts) return "--:--:--";
+    const formatTime = (ts: any) => {
+        if (!ts || typeof ts !== 'string') return "--:--:--";
         try {
-            // SQLite timestamp is usually YYYY-MM-DD HH:MM:SS
             const date = new Date(ts.replace(" ", "T"));
             if (isNaN(date.getTime())) return ts;
             return date.toLocaleTimeString('en-GB', { hour12: false }) + "." + String(date.getMilliseconds()).padStart(3, '0');
@@ -148,10 +152,10 @@ export default function AgentLogs() {
                     <div className="flex-1 overflow-y-auto p-6 space-y-1 font-mono text-[11px] relative scrollbar-none">
                         {filteredLogs.map((log, idx) => (
                             <motion.div
-                                key={log.id}
+                                key={`${log.id}-${idx}`}
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: Math.min(idx * 0.05, 0.5) }}
+                                transition={{ delay: Math.min(idx * 0.01, 0.3) }}
                                 className="group flex gap-4 py-1 border-l border-white/5 pl-4 hover:border-purple-500/30 hover:bg-white/[0.02] transition-all cursor-crosshair"
                             >
                                 <span className="text-neutral-600 w-24 shrink-0 select-none">{formatTime(log.timestamp)}</span>
@@ -171,6 +175,13 @@ export default function AgentLogs() {
                                 </span>
                             </motion.div>
                         ))}
+
+                        {filteredLogs.length === 0 && (
+                            <div className="py-20 text-center space-y-4 opacity-30">
+                                <Activity className="w-12 h-12 mx-auto text-neutral-600" />
+                                <p className="text-xs uppercase tracking-[0.2em]">No logs found in current buffer</p>
+                            </div>
+                        )}
 
                         {/* Animated Cursor Entry */}
                         <div className="flex gap-4 py-1 border-l border-white/5 pl-4 opacity-50">

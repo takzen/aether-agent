@@ -44,3 +44,9 @@ CREATE TABLE IF NOT EXISTS concept_links (
     FOREIGN KEY (target_id) REFERENCES concepts (id) ON DELETE CASCADE,
     UNIQUE(source_id, target_id, relation)
 );
+
+CREATE TABLE IF NOT EXISTS system_checkpoints (
+    module_key TEXT PRIMARY KEY,
+    last_log_id INTEGER NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

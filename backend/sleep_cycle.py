@@ -33,33 +33,42 @@ async def inject_sleep_language(ctx: RunContext[dict]) -> str:
         )
 
 async def run_sleep_cycle():
-    # Fetch the newest system logs
-    logs = await sqlite_service.get_logs(limit=50)
+    # 1. Fetch checkpoint (last processed log ID)
+    checkpoint_id = await sqlite_service.get_checkpoint("sleep_cycle")
+    
+    # 2. Fetch the newest system logs since the checkpoint
+    logs = await sqlite_service.get_logs(limit=100, from_id=checkpoint_id)
     
     if not logs:
         conf = get_config()
         lang = conf.get("SYSTEM_LANGUAGE", "pl").lower().strip()
         if lang == "en":
             return {
-                "brief": "Aether Core updated. No new logs from the past cycle. Modules are in standby.",
-                "points": ["Core systems Online.", "Vector memory synchronized."]
+                "brief": "Aether Core updated. No new telemetry since the last cycle. Systems stable.",
+                "points": ["No fresh events detected.", "Checkpoint synchronization active."]
             }
         else:
             return {
-                "brief": "Rdzeń Aether zaktualizowany. Brak nowych logów z ostatniego cyklu. Moduły w trybie gotowości.",
-                "points": ["Systemy bazowe Online.", "Pamięć wektorowa zsynchronizowana."]
+                "brief": "Rdzeń Aether zaktualizowany. Brak nowej telemetrii od ostatniego cyklu. Systemy stabilne.",
+                "points": ["Nie wykryto nowych zdarzeń.", "Synchronizacja punktów kontrolnych aktywna."]
             }
         
-    prompt = "Analyze this telemetry data and generate a JSON report:\n"
+    prompt = "Analyze this NEW telemetry data since the last report and generate a JSON report:\n"
+    max_log_id = checkpoint_id
     for log in logs:
         prompt += f"[{log['type'].upper()}|{log['source']}] {log['message']}\n"
+        # Track the highest log ID we've seen in this batch
+        if log['id'] > max_log_id:
+            max_log_id = log['id']
         
     try:
         result = await sleep_agent.run(prompt)
         data = result.output.model_dump()
         
+        # 3. Save report and UPDATE CHECKPOINT
         await sqlite_service.add_log("brief", "SLEEP_CYCLE", json.dumps(data))
-        await sqlite_service.add_log("info", "SLEEP_CYCLE", "Completed nightly graph and log consolidation.")
+        await sqlite_service.set_checkpoint("sleep_cycle", max_log_id)
+        await sqlite_service.add_log("info", "SLEEP_CYCLE", f"Consolidated {len(logs)} events up to ID {max_log_id}.")
         
         return data
         
@@ -67,5 +76,5 @@ async def run_sleep_cycle():
         print(f"[SleepCycle] Error running night cycle: {repr(e)}")
         return {
             "brief": "Aether Core zaktualizowany, lecz proces konsolidacji wektorowej został przerwany przez awarię parsowania.",
-            "points": [f"Debug: {str(e)}", "Proszę zainicjować diagnostykę PydanticAI."]
+            "points": [f"Debug: {str(e)}", "Wymagana weryfikacja schematu PydanticAI."]
         }

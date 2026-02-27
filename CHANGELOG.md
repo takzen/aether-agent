@@ -7,7 +7,8 @@ All notable changes to the Aether Agent project will be documented in this file.
 +- **Knowledge Base / Docs**: Full implementation of the `/docs` route with Mermaid diagram support.
 +- **New Documentation**: Added `FEATURES.md` (Premium system descriptions) and `API.md` (FastAPI technical reference).
 +- **React 19 Compatibility**: Complete refactor of `CommandContext` to resolve hydration errors and comply with the `set-state-in-effect` rule.
-+- **Enhanced Terminal**: Improved /logs command to accept arguments and refined the command auto-complete system.
++- **Enhanced Terminal**: Implemented minimalist UI, improved `/logs` with unique React keys to fix "Duplicate Key" errors, and added `/logclear` to wipe system telemetry history.
+- **Backend Optimizations**: Added `limit` and `from_id` support to the `/logs` API for flexible telemetry fetches.
 +
 +### Fixed
 +- **Hydration Errors**: Resolved Next.js SSR mismatch issues in the dashboard views.

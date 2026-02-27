@@ -9,6 +9,8 @@ export interface DashboardMessage {
     isInitial?: boolean;
     extra?: string[];
     sources?: string[];
+    isLogEntry?: boolean;
+    logType?: string;
 }
 
 interface CommandContextType {
