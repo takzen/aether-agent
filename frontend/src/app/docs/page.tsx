@@ -1,8 +1,8 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Database, FileText, Search, Book, ChevronRight } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { FileText, Search, Book, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import mermaid from "mermaid";
@@ -17,7 +17,6 @@ mermaid.initialize({
 
 const Mermaid = ({ chart }: { chart: string }) => {
     const ref = useRef<HTMLDivElement>(null);
-    const [id] = useState(`mermaid-${Math.random().toString(36).substr(2, 9)}`);
 
     useEffect(() => {
         if (ref.current) {
@@ -44,6 +43,22 @@ export default function DocsPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
+    const handleSelectDoc = useCallback(async (filename: string) => {
+        setSelectedDoc(filename);
+        setLoading(true);
+        try {
+            const res = await fetch(`http://localhost:8000/system/docs/content/${filename}`);
+            const data = await res.json();
+            if (data.status === "success") {
+                setContent(data.content);
+            }
+        } catch {
+            setContent("# Error\nFailed to load documentation content.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetch("http://localhost:8000/system/docs")
             .then(res => res.json())
@@ -62,23 +77,7 @@ export default function DocsPage() {
                 setLoading(false);
             })
             .catch(err => console.error("Docs fetch error:", err));
-    }, []);
-
-    const handleSelectDoc = async (filename: string) => {
-        setSelectedDoc(filename);
-        setLoading(true);
-        try {
-            const res = await fetch(`http://localhost:8000/system/docs/content/${filename}`);
-            const data = await res.json();
-            if (data.status === "success") {
-                setContent(data.content);
-            }
-        } catch (err) {
-            setContent("# Error\nFailed to load documentation content.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [handleSelectDoc]);
 
     const filteredDocs = docs.filter(doc =>
         doc.toLowerCase().includes(searchTerm.toLowerCase())
@@ -128,8 +127,8 @@ export default function DocsPage() {
                                     key={doc}
                                     onClick={() => handleSelectDoc(doc)}
                                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-left group ${selectedDoc === doc
-                                            ? "bg-[#252526] border border-[#303030] text-white shadow-xl"
-                                            : "text-neutral-500 hover:text-neutral-300 hover:bg-[#252526]/30"
+                                        ? "bg-[#252526] border border-[#303030] text-white shadow-xl"
+                                        : "text-neutral-500 hover:text-neutral-300 hover:bg-[#252526]/30"
                                         }`}
                                 >
                                     <div className={`p-1.5 rounded-lg border transition-colors ${selectedDoc === doc ? "bg-blue-500/10 border-blue-500/20 text-blue-400" : "bg-neutral-800/50 border-white/5 text-neutral-700 group-hover:text-neutral-500"}`}>

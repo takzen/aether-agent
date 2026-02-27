@@ -40,7 +40,7 @@ export default function Home() {
           });
         }
       })
-      .catch(err => console.error("Stats error:", err));
+      .catch(() => console.error("Stats error"));
 
     const fetchConfig = () => {
       fetch("http://localhost:8000/config")
@@ -67,7 +67,7 @@ export default function Home() {
       .then(data => {
         setActivities(data.activities);
       })
-      .catch(err => console.error("Activity error:", err));
+      .catch(() => console.error("Activity error"));
 
     // Fetch Morning Brief (Night Cycle Output) ONLY if messages are empty
     if (messages.length === 0) {
@@ -85,10 +85,11 @@ export default function Home() {
             }]);
           }
         })
-        .catch(err => console.error("Morning Brief fetch error:", err));
+        .catch(() => console.error("Morning Brief fetch error"));
     }
 
     return () => window.removeEventListener("configUpdated", fetchConfig);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount
 
   const triggerSleepCycle = async () => {
@@ -155,7 +156,7 @@ export default function Home() {
           const data = await response.json();
 
           if (data.status === "success" && data.logs) {
-            const logContent = data.logs.map((l: any) =>
+            const logContent = data.logs.map((l: { type: string; source: string; message: string }) =>
               `[${l.type.toUpperCase()} | ${l.source}] ${l.message}`
             ).join("\n");
 
@@ -166,7 +167,7 @@ export default function Home() {
               sources: ["system.logs"]
             }]);
           }
-        } catch (err) {
+        } catch {
           setMessages(prev => [...prev, {
             id: Date.now().toString(),
             role: "assistant",
@@ -201,7 +202,7 @@ export default function Home() {
               sources: ["world_model.simulation"]
             }]);
           }
-        } catch (err) {
+        } catch {
           setMessages(prev => [...prev, {
             id: Date.now().toString(),
             role: "assistant",
