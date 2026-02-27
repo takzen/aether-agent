@@ -10,7 +10,6 @@ from database import DatabaseService
 from memory import memory_manager
 from tavily import TavilyClient
 import uuid
-
 from local_db import sqlite_service
 
 # In-memory store for pending actions (HITL)
@@ -39,6 +38,7 @@ def is_ollama_model(model_name: str) -> bool:
     return model_name.startswith("ollama:")
 
 def create_model_instance(model_name: str):
+
     if model_name.startswith("ollama:"):
         from pydantic_ai.models.openai import OpenAIChatModel
         from pydantic_ai.providers.ollama import OllamaProvider

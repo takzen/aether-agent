@@ -214,6 +214,35 @@ async def get_document_content(filename: str):
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.get("/system/docs")
+async def list_system_docs():
+    """Lists documentation files from the /docs directory."""
+    docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
+    try:
+        files = []
+        if os.path.exists(docs_path):
+            for filename in os.listdir(docs_path):
+                if filename.endswith(".md"):
+                    files.append(filename)
+        return {"status": "success", "docs": sorted(files)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/system/docs/content/{filename}")
+async def get_system_doc_content(filename: str):
+    """Retrieves content of a specific documentation file."""
+    docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
+    try:
+        file_path = os.path.join(docs_path, filename)
+        if not os.path.exists(file_path):
+            return {"status": "error", "message": "File not found."}
+        
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return {"status": "success", "content": content}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/memories")
 async def list_memories():
     """Returns a list of all memories."""
