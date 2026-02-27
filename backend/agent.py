@@ -9,7 +9,6 @@ from pydantic_ai.models.gemini import GeminiModel
 from database import DatabaseService
 from memory import memory_manager
 from tavily import TavilyClient
-import httpx
 import uuid
 from local_db import sqlite_service
 
@@ -39,9 +38,6 @@ def is_ollama_model(model_name: str) -> bool:
     return model_name.startswith("ollama:")
 
 def create_model_instance(model_name: str):
-    # Create a shared HTTP client with increased timeout (Default is 5.0s, we set 60s)
-    timeout = httpx.Timeout(60.0, connect=10.0)
-    client = httpx.AsyncClient(timeout=timeout)
 
     if model_name.startswith("ollama:"):
         from pydantic_ai.models.openai import OpenAIChatModel
@@ -50,11 +46,10 @@ def create_model_instance(model_name: str):
         return OpenAIChatModel(
             model_name=base_name,
             provider=OllamaProvider(base_url='http://localhost:11434/v1'),
-            http_client=client
         )
     else:
         # Default to Gemini if not ollama
-        return GeminiModel(model_name, http_client=client)
+        return GeminiModel(model_name)
 
 # Initial model setup
 current_model_id = get_current_model_name()

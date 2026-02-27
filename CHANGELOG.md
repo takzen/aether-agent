@@ -10,7 +10,8 @@ All notable changes to the Aether Agent project will be documented in this file.
 - **Aether Aesthetics Skill**: Created a dedicated skill for Premium UI design principles.
 
 ### Fixed
-- **LLM ReadTimeout**: Increased `httpx` timeout to 60s for backend LLM calls to handle complex simulations without errors.
+- **Stability**: Reverted experimental LLM timeout settings that caused `TypeError` in backend startup.
+- **LLM ReadTimeout**: Initial attempt to fix timeout was rolled back; looking for more compatible solution for `pydantic-ai`.
 - **Terminal Reset**: Fixed issue where terminal history was lost when switching between dashboard and other views.
 
 ## [1.1.0] - 2026-02-27 (Initial Baseline)
