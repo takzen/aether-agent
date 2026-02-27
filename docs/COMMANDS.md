@@ -18,9 +18,6 @@ Uruchamia **Active World Model (AWM)**. Agent analizuje logi z ostatnich 30 minu
 - **Status:** Wymaga min. 5 logów do poprawnego działania.
 - **Wynik:** Insight (wniosek) + Suggested Action (rekomendacja).
 
-### `/release`
-Inicjuje proces wydania nowej wersji (Release Workflow).
-- **Działanie:** Podbija wersję w plikach, tworzy tag gita i aktualizuje CHANGELOG.
 
 ## 💡 Funkcje Autouzupełniania
 - Wpisz `/`, aby wywołać listę sugestii.

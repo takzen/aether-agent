@@ -515,6 +515,7 @@ async def force_awm_simulation():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
