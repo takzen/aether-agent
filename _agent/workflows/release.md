@@ -5,7 +5,7 @@ description: proces wydania nowej wersji aplikacji (wersjonowanie i tagowanie)
 1. Ustalenie nowej wersji aplikacji (np. v1.1.1).
 2. Aktualizacja wersji w plikach systemowych:
    - `frontend/src/components/Sidebar.tsx` (szukaj "AETHER v")
-   - `README.md` (sekcja wersji lub nagłówek)
+   - `README.md` oraz `CHANGELOG.md`
    - `backend/pyproject.toml` (pole version)
    - `frontend/package.json` (pole version)
    - `desktop/package.json` (pole version)

@@ -24,7 +24,7 @@ Ten plik zawiera kluczowe zasady, preferencje i wytyczne, których muszę przest
 ## 5. Wersjonowanie & Release
 *   **Wersja:** Każda zmiana wersji musi być odzwierciedlona w:
     *   `frontend/src/components/Sidebar.tsx` (wyświetlana wersja na dole).
-    *   `README.md`.
+    *   `README.md` i `CHANGELOG.md`.
     *   `backend/pyproject.toml`.
     *   `frontend/package.json` oraz `desktop/package.json`.
 *   **Git Tag:** Po zmianie wersji w plikach, należy stworzyć tag gita (np. `git tag -a v1.1.0 -m "Release v1.1.0"`).
