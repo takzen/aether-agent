@@ -5,7 +5,7 @@
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
@@ -202,7 +202,7 @@ The commercial, standalone version with dedicated installers is being developed 
 
 ## 📝 License
 
-**MIT** © [Krzysztof Pika](https://github.com/takzen/aether-agent)
+**Apache-2.0** © [Krzysztof Pika](https://github.com/takzen/aether-agent)
 
 <div align="center">
 <br>

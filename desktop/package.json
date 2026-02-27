@@ -1,6 +1,6 @@
 {
     "name": "aether-desktop",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Desktop wrapper for Aether Core",
     "main": "main.js",
     "scripts": {
@@ -10,7 +10,7 @@
         "build:linux": "electron-builder --linux"
     },
     "author": "Krzysztof Pika",
-    "license": "MIT",
+    "license": "Apache-2.0",
     "devDependencies": {
         "electron": "^28.2.0",
         "electron-builder": "^24.9.1"
