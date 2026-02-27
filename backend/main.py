@@ -87,6 +87,7 @@ class ConfigUpdate(BaseModel):
     QDRANT_URL: str = ""
     QDRANT_API_KEY: str = ""
     MODEL_OVERRIDE: str = "gemini-3-flash"
+    SYSTEM_LANGUAGE: str = "pl"
 
 @app.get("/config")
 async def read_configuration():
@@ -108,7 +109,8 @@ async def update_configuration(new_conf: ConfigUpdate):
             "TAVILY_API_KEY": new_conf.TAVILY_API_KEY,
             "QDRANT_URL": new_conf.QDRANT_URL,
             "QDRANT_API_KEY": new_conf.QDRANT_API_KEY,
-            "MODEL_OVERRIDE": new_conf.MODEL_OVERRIDE
+            "MODEL_OVERRIDE": new_conf.MODEL_OVERRIDE,
+            "SYSTEM_LANGUAGE": new_conf.SYSTEM_LANGUAGE
         })
         if success:
             print("[Config] Successfully wrote to .env")

@@ -80,10 +80,15 @@ async def run_telegram_bot():
     try:
         await telegram_app.initialize()
         await telegram_app.start()
-        await telegram_app.updater.start_polling(drop_pending_updates=True)
+        # Removing drop_pending_updates=True as it is a common cause of Conflict during fast reloads
+        await telegram_app.updater.start_polling()
         print("[Telegram Link] Telegram Listener Active.")
     except Exception as e:
-        print(f"[Telegram Link] Failed to initialize: {e}")
+        if "Conflict" in str(e):
+            print("[Telegram Link] SESSION CONFLICT: Another instance of this bot is already active.")
+            print("[Telegram Link] Proceeding in DASHBOARD-ONLY mode. Telegram bridge will be offline.")
+        else:
+            print(f"[Telegram Link] Initialization failed: {e}")
 
 async def stop_telegram_bot():
     global telegram_app

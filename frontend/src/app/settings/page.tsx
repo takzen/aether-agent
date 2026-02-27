@@ -14,7 +14,8 @@ export default function Settings() {
         TAVILY_API_KEY: "",
         QDRANT_URL: "",
         QDRANT_API_KEY: "",
-        MODEL_OVERRIDE: ""
+        MODEL_OVERRIDE: "",
+        SYSTEM_LANGUAGE: "pl"
     });
     const [notification, setNotification] = useState<{ isOpen: boolean; title: string; message: string; type: "success" | "error" }>({
         isOpen: false,

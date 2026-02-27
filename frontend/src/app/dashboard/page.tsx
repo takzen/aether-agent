@@ -24,6 +24,7 @@ export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [activities, setActivities] = useState<any[]>([]);
   const [modelName, setModelName] = useState("Loading...");
+  const [config, setConfig] = useState<{ [key: string]: string }>({ SYSTEM_LANGUAGE: 'pl' });
 
   useEffect(() => {
     // Fetch stats
@@ -46,6 +47,7 @@ export default function Home() {
         .then(res => res.json())
         .then(data => {
           if (data.status === "success") {
+            setConfig(data.config);
             const raw = data.config.MODEL_OVERRIDE || "gemini-3.1-pro";
             const formatted = raw
               .replace("ollama:", "")
@@ -90,6 +92,21 @@ export default function Home() {
     return () => window.removeEventListener("configUpdated", fetchConfig);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount
+
+  const handleUpdateConfig = async (key: string, value: string) => {
+    const newConfig = { ...config, [key]: value };
+    setConfig(newConfig);
+    try {
+      await fetch("http://localhost:8000/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newConfig)
+      });
+      window.dispatchEvent(new Event("configUpdated"));
+    } catch (err) {
+      console.error("Config update error:", err);
+    }
+  };
 
   const triggerSleepCycle = async () => {
     setIsProcessing(true);
@@ -368,17 +385,28 @@ export default function Home() {
                 </div>
                 <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — root@dashboard</span>
                 <div className="ml-auto flex items-center gap-1.5">
+                  <div className="flex bg-white/5 p-0.5 rounded border border-white/10 ml-3">
+                    <button
+                      onClick={() => handleUpdateConfig("SYSTEM_LANGUAGE", "pl")}
+                      className={`text-[9px] px-2 py-0.5 rounded transition-all ${config.SYSTEM_LANGUAGE === 'pl' ? 'bg-purple-500 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    >
+                      PL
+                    </button>
+                    <button
+                      onClick={() => handleUpdateConfig("SYSTEM_LANGUAGE", "en")}
+                      className={`text-[9px] px-2 py-0.5 rounded transition-all ${config.SYSTEM_LANGUAGE === 'en' ? 'bg-purple-500 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}
+                    >
+                      EN
+                    </button>
+                  </div>
 
                   <button
                     onClick={triggerSleepCycle}
                     disabled={isProcessing}
-                    className="ml-3 text-[9px] bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-0.5 rounded transition-colors font-mono disabled:opacity-50"
+                    className="ml-2 text-[9px] bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-0.5 rounded transition-colors font-mono disabled:opacity-50"
                   >
-                    FORCE SLEEP CYCLE
+                    FORCE SLEEP
                   </button>
-                  <Link href="/chat" className="ml-2 text-[9px] bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-0.5 rounded transition-colors text-neutral-400 font-mono">
-                    OPEN TECHNICAL CHAT
-                  </Link>
                 </div>
               </div>
 

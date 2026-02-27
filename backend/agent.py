@@ -93,6 +93,18 @@ aether_agent = Agent(
     output_type=str
 )
 
+@aether_agent.system_prompt
+async def inject_language_guidance(ctx: RunContext[dict]) -> str:
+    """Enforces the selected language from config."""
+    from config import get_config
+    conf = get_config()
+    lang = conf.get("SYSTEM_LANGUAGE", "pl")
+    
+    if lang == "en":
+        return "STRICT RULE: Always respond in English. Do not use any other language."
+    else:
+        return "ŚCISŁA ZASADA: Odpowiadaj zawsze i wyłącznie po polsku. Nawet jeśli zapytanie jest techniczne, wyjaśniaj je po polsku."
+
 class GraphQueryInput(BaseModel):
     concept_name: str = Field(..., description="Main concept node to start searching from (e.g., 'Aether', 'FastAPI').")
     depth: int = Field(default=1, description="Depth of exploration. 1 = direct neighbors. 2 = neighbors-of-neighbors.")

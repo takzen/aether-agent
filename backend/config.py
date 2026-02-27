@@ -12,7 +12,8 @@ def get_config() -> dict:
         "TAVILY_API_KEY": "",
         "QDRANT_URL": "",
         "QDRANT_API_KEY": "",
-        "MODEL_OVERRIDE": "gemini-3-flash"
+        "MODEL_OVERRIDE": "gemini-3-flash",
+        "SYSTEM_LANGUAGE": "pl"
     }
     
     if ENV_PATH.exists():
