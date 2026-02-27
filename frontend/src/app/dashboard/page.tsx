@@ -17,8 +17,7 @@ export default function Home() {
   const COMMANDS = [
     { cmd: "/logs", desc: "View system logs" },
     { cmd: "/clear", desc: "Clear terminal history" },
-    { cmd: "/simulate", desc: "Run world model simulation" },
-    { cmd: "/release", desc: "Start version release process" }
+    { cmd: "/simulate", desc: "Run world model simulation" }
   ];
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
