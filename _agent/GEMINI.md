@@ -21,5 +21,14 @@ Ten plik zawiera kluczowe zasady, preferencje i wytyczne, których muszę przest
 *   **Proaktywność:** Rozwiązuję błędy zanim o nie zapytasz, sprawdzam statusy buildów i testów.
 *   **Pamięć:** Przed rozpoczęciem nowej analizy sprawdzam Knowledge Items (KI) i folder `customizations/`.
 
+## 5. Wersjonowanie & Release
+*   **Wersja:** Każda zmiana wersji musi być odzwierciedlona w:
+    *   `frontend/src/components/Sidebar.tsx` (wyświetlana wersja na dole).
+    *   `README.md`.
+    *   `backend/pyproject.toml`.
+    *   `frontend/package.json` oraz `desktop/package.json`.
+*   **Git Tag:** Po zmianie wersji w plikach, należy stworzyć tag gita (np. `git tag -a v1.1.0 -m "Release v1.1.0"`).
+*   **Proces:** Przy większych zmianach lub zakończeniu etapu z roadmapy, inicjuję proces `/release`.
+
 ---
 *Ostatnia aktualizacja: 2026-02-27*

@@ -5,20 +5,12 @@ import { Shield, Activity, MessageSquare, Send, Brain, Database } from "lucide-r
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-
-interface DashboardMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  isInitial?: boolean;
-  extra?: string[];
-  sources?: string[];
-}
+import { useCommand, DashboardMessage } from "@/context/CommandContext";
 
 export default function Home() {
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [messages, setMessages] = useState<DashboardMessage[]>([]);
+  const { messages, setMessages, clearMessages } = useCommand();
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,25 +60,27 @@ export default function Home() {
       })
       .catch(err => console.error("Activity error:", err));
 
-    // Fetch Morning Brief (Night Cycle Output)
-    fetch("http://localhost:8000/system/morning-brief")
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "success" && data.report) {
-          setMessages([{
-            id: "initial-" + Date.now(),
-            role: "assistant",
-            content: data.report.brief,
-            extra: data.report.points,
-            sources: ["aether.sleep_cycle", "system.logs"],
-            isInitial: true
-          }]);
-        }
-      })
-      .catch(err => console.error("Morning Brief fetch error:", err));
+    // Fetch Morning Brief (Night Cycle Output) ONLY if messages are empty
+    if (messages.length === 0) {
+      fetch("http://localhost:8000/system/morning-brief")
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success" && data.report) {
+            setMessages([{
+              id: "initial-" + Date.now(),
+              role: "assistant",
+              content: data.report.brief,
+              extra: data.report.points,
+              sources: ["aether.sleep_cycle", "system.logs"],
+              isInitial: true
+            }]);
+          }
+        })
+        .catch(err => console.error("Morning Brief fetch error:", err));
+    }
 
     return () => window.removeEventListener("configUpdated", fetchConfig);
-  }, []);
+  }, []); // Only on mount
 
   const triggerSleepCycle = async () => {
     setIsProcessing(true);
@@ -124,15 +118,104 @@ export default function Home() {
   const handleSend = async () => {
     if (!input.trim()) return;
 
+    const currentInput = input.trim();
+    setInput("");
+
+
+    // 1. Handle Slash Commands
+    if (currentInput.startsWith("/")) {
+      const [command, ...args] = currentInput.slice(1).split(" ");
+
+      if (command === "clear") {
+        clearMessages();
+        return;
+      }
+
+      if (command === "logs") {
+        const userMsg: DashboardMessage = {
+          id: Date.now().toString(),
+          role: "user",
+          content: currentInput,
+        };
+        setMessages(prev => [...prev, userMsg]);
+        setIsProcessing(true);
+
+        try {
+          const limit = args[0] || "10";
+          const response = await fetch(`http://localhost:8000/logs?limit=${limit}`);
+          const data = await response.json();
+
+          if (data.status === "success" && data.logs) {
+            const logContent = data.logs.map((l: any) =>
+              `[${l.type.toUpperCase()} | ${l.source}] ${l.message}`
+            ).join("\n");
+
+            setMessages(prev => [...prev, {
+              id: (Date.now() + 1).toString(),
+              role: "assistant",
+              content: logContent || "No logs found.",
+              sources: ["system.logs"]
+            }]);
+          }
+        } catch (err) {
+          setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: "Failed to fetch logs from backend.",
+          }]);
+        } finally {
+          setIsProcessing(true); // Wait a bit for the animation feel
+          setTimeout(() => setIsProcessing(false), 500);
+        }
+        return;
+      }
+
+      if (command === "simulate") {
+        const userMsg: DashboardMessage = {
+          id: Date.now().toString(),
+          role: "user",
+          content: "EXECUTE_SIMULATION: run_active_world_model_simulation()",
+        };
+        setMessages(prev => [...prev, userMsg]);
+        setIsProcessing(true);
+
+        try {
+          const res = await fetch("http://localhost:8000/system/simulate", { method: "POST" });
+          const data = await res.json();
+          if (data.status === "success") {
+            setMessages(prev => [...prev, {
+              id: (Date.now() + 1).toString(),
+              role: "assistant",
+              content: data.insight,
+              sources: ["world_model.simulation"]
+            }]);
+          }
+        } catch (err) {
+          setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: "Simulation failed to execute.",
+          }]);
+        } finally {
+          setIsProcessing(false);
+        }
+        return;
+      }
+
+      // If unknown command, just treat it as text or warn? 
+      // For now, let's let unknown commands pass to LLM but maybe with a warning?
+      // Actually, standard behavior for terminal is "command not found".
+      // But since this is a hybrid, let's just pass it to LLM if it's not a known system command.
+    }
+
+    // 2. Default Chat Behavior
     const userMsg: DashboardMessage = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: currentInput,
     };
 
     setMessages(prev => [...prev, userMsg]);
-    const currentInput = input;
-    setInput("");
     setIsProcessing(true);
 
     try {

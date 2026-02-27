@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { CommandProvider } from "@/context/CommandContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +30,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased selection:bg-primary/30 selection:text-primary`}>
-        {children}
+        <CommandProvider>
+          {children}
+        </CommandProvider>
       </body>
     </html>
   );
