@@ -14,7 +14,6 @@ const menuItems = [
     { icon: Brain, label: "Memories", href: "/memories" },
     { icon: Network, label: "Neural Topology", href: "/topology" },
     { icon: Activity, label: "Agent Logs", href: "/logs" },
-    { icon: BookOpen, label: "Documentation", href: "/docs" },
     { icon: Settings, label: "Settings", href: "/settings" },
     { icon: Sparkles, label: "Cognition", href: "/cognition" },
 ];
@@ -81,6 +80,15 @@ export default function Sidebar() {
             </nav>
 
             <div className="mt-auto pt-6 border-t border-white/5 font-sans flex flex-col gap-4">
+                <Link
+                    href="/docs"
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 group ${pathname === "/docs" ? "bg-white/10 text-white" : "text-neutral-500 hover:text-white"
+                        }`}
+                >
+                    <BookOpen className="w-4 h-4" />
+                    <span className="text-sm font-medium">Documentation</span>
+                </Link>
+
                 <div className="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
                         <span className="text-[10px] font-bold text-purple-400">AI</span>
