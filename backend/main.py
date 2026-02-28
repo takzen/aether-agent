@@ -448,6 +448,16 @@ async def clear_system_logs():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.post("/system/clear")
+async def clear_system_database():
+    """Clears all system knowledge and history (concepts, links, sessions, logs)."""
+    try:
+        await sqlite_service.clear_database()
+        await sqlite_service.add_log("success", "CORE", "System-wide data purge executed by user request.")
+        return {"status": "success", "message": "System purged and ready for fresh start."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/graph")
 async def get_concept_graph():
     """Returns the concept constellation graph."""

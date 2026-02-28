@@ -1,9 +1,10 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Database, Cpu, Save, Globe } from "lucide-react";
+import { Database, Cpu, Save, Globe, AlertTriangle, Trash2, RefreshCcw } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotificationModal from "@/components/modals/NotificationModal";
+import ConfirmationModal from "@/components/modals/ConfirmationModal";
 
 export default function Settings() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,6 +24,8 @@ export default function Settings() {
         message: "",
         type: "success"
     });
+    const [isClearing, setIsClearing] = useState(false);
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -79,6 +82,42 @@ export default function Settings() {
             });
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleClearSystem = async () => {
+        setIsClearing(true);
+        setIsClearModalOpen(false);
+        try {
+            const res = await fetch("http://localhost:8000/system/clear", {
+                method: "POST"
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                setNotification({
+                    isOpen: true,
+                    title: "SYSTEM_PURGED",
+                    message: "All sessions, graph data and logs have been permanently deleted.",
+                    type: "success"
+                });
+            } else {
+                setNotification({
+                    isOpen: true,
+                    title: "PURGE_FAILED",
+                    message: data.message || "Unknown error occurred.",
+                    type: "error"
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            setNotification({
+                isOpen: true,
+                title: "CONNECTION_ERROR",
+                message: "Could not reach the Aether Kernel.",
+                type: "error"
+            });
+        } finally {
+            setIsClearing(false);
         }
     };
 
@@ -240,6 +279,42 @@ export default function Settings() {
                                 </div>
                             </section>
                         </div>
+
+                        {/* Section: Danger Zone */}
+                        <section className="space-y-6 pt-10">
+                            <div className="flex items-center justify-between border-l-2 border-red-500/30 pl-6 py-2 bg-[#252526]/50">
+                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-red-500/70">Danger_Zone</h2>
+                            </div>
+
+                            <div className="p-6 bg-[#252526] border border-red-500/10 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="flex items-center gap-4 relative z-10">
+                                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl shrink-0">
+                                        <AlertTriangle className="w-6 h-6 text-red-500" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[12px] font-bold text-white uppercase tracking-wider mb-1">Czysty Workflow (Purge)</h4>
+                                        <p className="text-[11px] text-neutral-500 leading-relaxed max-w-md">
+                                            Usuwa wszystkie sesje czatu, powiązania w grafie (Neural Topology) oraz logi systemowe.
+                                            <span className="text-red-500/70 font-bold ml-1">Tej operacji nie można cofnąć.</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setIsClearModalOpen(true)}
+                                    disabled={isClearing}
+                                    className={`relative z-10 px-6 py-3 rounded-xl font-mono text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-3 border ${isClearing
+                                        ? "bg-neutral-800 border-neutral-700 text-neutral-500"
+                                        : "bg-red-500/10 border-red-500/30 hover:bg-red-500 text-red-500 hover:text-white"
+                                        }`}
+                                >
+                                    {isClearing ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                    {isClearing ? "PURGING..." : "Wyczyść_System"}
+                                </button>
+                            </div>
+                        </section>
+
                     </div>
                 </div>
 
@@ -253,6 +328,16 @@ export default function Settings() {
                 title={notification.title}
                 message={notification.message}
                 type={notification.type}
+            />
+
+            <ConfirmationModal
+                isOpen={isClearModalOpen}
+                onClose={() => setIsClearModalOpen(false)}
+                onConfirm={handleClearSystem}
+                title="Sytem Purge Confirmation"
+                message="Jesteś absolutnie pewien? Ta operacja wyczyści całą pamięć operacyjną, historię rozmów i graf Neural Topology. System powróci do stanu fabrycznego."
+                confirmText="PURGE ALL DATA"
+                isDestructive={true}
             />
         </div>
     );

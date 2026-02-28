@@ -254,5 +254,16 @@ class SQLiteService:
             await db.execute("DELETE FROM system_logs")
             await db.commit()
 
+    async def clear_database(self):
+        """Clears all data from the database (concepts, links, sessions, logs)."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("PRAGMA foreign_keys = ON")
+            await db.execute("DELETE FROM concepts")
+            await db.execute("DELETE FROM concept_links")
+            await db.execute("DELETE FROM sessions")
+            await db.execute("DELETE FROM system_logs")
+            await db.execute("DELETE FROM system_checkpoints")
+            await db.commit()
+
 # Singleton instance
 sqlite_service = SQLiteService()
