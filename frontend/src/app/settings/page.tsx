@@ -293,10 +293,10 @@ export default function Settings() {
                                         <AlertTriangle className="w-6 h-6 text-red-500" />
                                     </div>
                                     <div>
-                                        <h4 className="text-[12px] font-bold text-white uppercase tracking-wider mb-1">Czysty Workflow (Purge)</h4>
+                                        <h4 className="text-[12px] font-bold text-white uppercase tracking-wider mb-1">Pure Workflow (Purge)</h4>
                                         <p className="text-[11px] text-neutral-500 leading-relaxed max-w-md">
-                                            Usuwa wszystkie sesje czatu, powiązania w grafie (Neural Topology) oraz logi systemowe.
-                                            <span className="text-red-500/70 font-bold ml-1">Tej operacji nie można cofnąć.</span>
+                                            Removes all chat sessions, graph connections (Neural Topology), and system logs.
+                                            <span className="text-red-500/70 font-bold ml-1">This action cannot be undone.</span>
                                         </p>
                                     </div>
                                 </div>
@@ -310,7 +310,7 @@ export default function Settings() {
                                         }`}
                                 >
                                     {isClearing ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                    {isClearing ? "PURGING..." : "Wyczyść_System"}
+                                    {isClearing ? "PURGING..." : "PURGE_SYSTEM"}
                                 </button>
                             </div>
                         </section>
@@ -334,8 +334,8 @@ export default function Settings() {
                 isOpen={isClearModalOpen}
                 onClose={() => setIsClearModalOpen(false)}
                 onConfirm={handleClearSystem}
-                title="Sytem Purge Confirmation"
-                message="Jesteś absolutnie pewien? Ta operacja wyczyści całą pamięć operacyjną, historię rozmów i graf Neural Topology. System powróci do stanu fabrycznego."
+                title="System Purge Confirmation"
+                message="Are you absolutely sure? This operation will clear all operational memory, chat history, and the Neural Topology graph. The system will return to its factory state."
                 confirmText="PURGE ALL DATA"
                 isDestructive={true}
             />
