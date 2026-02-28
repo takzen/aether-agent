@@ -4,7 +4,7 @@
 -- 1. Upgrade concepts table
 ALTER TABLE concepts ADD COLUMN confidence REAL DEFAULT 1.0;
 ALTER TABLE concepts ADD COLUMN vector_id TEXT;
-ALTER TABLE concepts ADD COLUMN last_activated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE concepts ADD COLUMN last_activated_at TIMESTAMP;
 
 -- 2. Upgrade concept_links (weight is already present, but ensured)
 -- In SQLite we can't easily check column existence before ALTER without PRAGMA.

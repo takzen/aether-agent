@@ -12,6 +12,13 @@ from tavily import TavilyClient
 import uuid
 from local_db import sqlite_service
 
+class AetherResponse(BaseModel):
+    """Structured response for Aether with meta-cognitive attributes (CORE-X)."""
+    response: str = Field(description="The main text of your answer to the user. Use Markdown.")
+    confidence_score: float = Field(description="Your certainty in this answer (0.0 to 1.0). 1.0 for hard facts, 0.5-0.7 for hypotheses.")
+    reasoning_type: str = Field(description="The source of your information: 'DOCS' (from files), 'MEMORY' (past chats), 'WEB' (search), or 'HYPOTHESIS' (general knowledge).")
+
+
 # In-memory store for pending actions (HITL)
 pending_actions = {}
 
@@ -61,7 +68,7 @@ aether_agent = Agent(
     system_prompt="Identity: Aether Core", # Placeholder, replaced by dynamic injectors
     retries=3,
     deps_type=dict,
-    output_type=str
+    output_type=AetherResponse
 )
 
 @aether_agent.system_prompt
@@ -74,13 +81,29 @@ async def inject_base_prompt(ctx: RunContext[dict]) -> str:
     
     print(f"[Core] Running agent session with language override: {lang}")
     
+    prompt = f"""Language: {lang}
+Core Objectives: You are Aether, a self-evolving AI core. You must follow the CORE-X principles of recursive self-improvement.
+
+Meta-Cognitive Directives (Confidence Mechanism):
+1. For every response, you must strictly evaluate your 'confidence_score'.
+2. Use 'DOCS' reasoning if you used 'read_file' or found highly similar document chunks (Pewność: 0.9-1.0).
+3. Use 'MEMORY' if you rely on 'recall' (Pewność: 0.7-0.8).
+4. Use 'HYPOTHESIS' if you are reasoning based on general patterns without direct evidence (Pewność: 0.5-0.6).
+5. Always justify your confidence internally based on the context provided with [TRUST] tags.
+
+Project Aether Core Rules:
+- Be technical, concise, and proactive.
+- Use Markdown for structured responses.
+- Access the filesystem the user is working on via your tools.
+- Maintain premium aesthetics in your thoughts.
+"""
     if lang == "en":
-        return (
+        return prompt + (
             "You are Aether. Respond in ENGLISH. All technical and casual explanations must be in English. "
             "Directives: remember/recall for memory, web_search for web, search_knowledge_base for docs. Act as Active World Model."
         )
     else:
-        return (
+        return prompt + (
             "Jesteś Aether. Odpowiadaj WYŁĄCZNIE PO POLSKU. Wszystkie techniczne i potoczne wyjaśnienia muszą być po polsku. "
             "ŚCISŁA ZASADA: Nawet jeśli użytkownik pisze po angielsku, ty odpowiadaj po polsku. "
             "Dyrektywy: remember/recall (pamięć), web_search (sieć), search_knowledge_base (dokumenty). Działaj jako Active World Model."
@@ -181,16 +204,20 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
         
         injected_text += "\n--- INJECTED NEURAL CONTEXT (SYSTEM AUTO-RECALL) ---\n"
         
-        if memories:
-            injected_text += "\n[FROM MEMORY CORE]:\n"
-            for mem in memories:
-                injected_text += f"- {mem.get('content', '')}\n"
-                
         if docs:
-            injected_text += "\n[FROM KNOWLEDGE BASE / THE LIBRARY]:\n"
+            injected_text += "\n--- THE LIBRARY (Document Knowledge) ---\n"
             for d in docs:
                 src = d.get('metadata', {}).get('source', 'Unknown')
-                injected_text += f"- (Source: {src}): {d.get('content', '')[:500]}...\n"
+                trust = "HIGH" if d.get('similarity', 0) > 0.8 else "MEDIUM" # Assuming 'similarity' is available in doc results
+                injected_text += f"[SOURCE: {src}] [TRUST: {trust}] [SIMILARITY: {d.get('similarity', 0):.2f}]\n"
+                injected_text += f"{d.get('content', '')[:500]}...\n\n"
+        
+        if memories:
+            injected_text += "\n--- LONG-TERM MEMORIES (Past Conversations) ---\n"
+            for mem in memories:
+                trust = "MEDIUM" if mem.get('similarity', 0) > 0.6 else "LOW"
+                injected_text += f"[MEMORY DATE: {mem.get('metadata', {}).get('timestamp', 'Unknown')}] [TRUST: {trust}] [SIMILARITY: {mem.get('similarity', 0):.2f}]\n"
+                injected_text += f"{mem.get('content', '')}\n\n"
 
         injected_text += "\n--- END CONTEXT ---\n"
         injected_text += "Use this data to ground your response. If info is missing, use your tools."

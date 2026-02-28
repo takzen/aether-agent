@@ -13,9 +13,11 @@ interface Message {
     content: string;
     timestamp: Date;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tools?: { name: string; detail: string; icon: any; latency: number }[];
+    tools?: { name: string; detail: string; icon: any }[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
+    confidence?: number;
+    reasoning?: string;
 }
 
 export default function ChatPage() {
@@ -66,26 +68,30 @@ export default function ChatPage() {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     let loadedTools: any[] | undefined = undefined;
                     if (m.metadata?.used_tools && Array.isArray(m.metadata.used_tools)) {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         loadedTools = m.metadata.used_tools.map((t: any) => {
-                            let icon = Database;
-                            let detail = t.detail;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            let icon: any = Database;
+                            let detail = t.detail || t.name;
                             if (t.name === "read_file") { icon = FileText; }
-                            else if (t.name === "search_knowledge_base") { icon = Database; detail = "Knowledge Base"; }
+                            else if (t.name === "search_knowledge_base") { icon = Database; detail = "The Library"; }
                             else if (t.name === "recall") { icon = Brain; detail = "Vector Memory"; }
                             else if (t.name === "list_directory") { icon = FolderSearch; detail = "File System"; }
                             else if (t.name === "web_search") { icon = Globe; detail = "Tavily Web Search"; }
-                            return { name: t.name, detail: detail, icon, latency: 25 };
+                            else if (t.name === "connect_concepts") { icon = Brain; }
+                            else if (t.name === "modify_concept") { icon = Sparkles; }
+                            return { name: t.name, detail: detail, icon };
                         });
                     }
 
                     return {
-                        id: m.id,
-                        role: m.role,
+                        id: m.id.toString(),
+                        role: m.role as "user" | "assistant",
                         content: m.content,
-                        timestamp: new Date(m.created_at),
+                        timestamp: new Date(m.timestamp),
+                        tools: loadedTools,
                         pendingActions: m.metadata?.pendingActions,
-                        tools: loadedTools
+                        confidence: m.metadata?.confidence,
+                        reasoning: m.metadata?.reasoning
                     };
                 });
                 setMessages(loadedMsgs);
@@ -217,7 +223,7 @@ export default function ChatPage() {
 
             if (data.status === "success") {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const usedTools: { name: string; detail: string; icon: any; latency: number }[] = [];
+                const usedTools: { name: string; detail: string; icon: any }[] = [];
                 const newThoughts: ThoughtStep[] = [];
                 if (data.new_messages) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -227,7 +233,7 @@ export default function ChatPage() {
                             msg.parts.forEach((part: any) => {
                                 if (part.part_kind === "tool-call") {
                                     let detail = "";
-                                    let icon = Database;
+                                    let icon: any = Database;
                                     let messageStr = "";
                                     if (part.tool_name === "read_file" && part.args?.path) {
                                         detail = part.args.path;
@@ -242,25 +248,28 @@ export default function ChatPage() {
                                         icon = Brain;
                                         messageStr = `Recalling memories for '${part.args?.query || ""}'`;
                                     } else if (part.tool_name === "list_directory") {
-                                        detail = "File System";
+                                        detail = `FS: ${part.args?.path || "."}`;
                                         icon = FolderSearch;
                                         messageStr = `Listing directory: ${part.args?.path || "."}`;
                                     } else if (part.tool_name === "web_search") {
                                         detail = "Tavily Web Search";
                                         icon = Globe;
                                         messageStr = `Web search: ${part.args?.query || ""}`;
+                                    } else if (part.tool_name === "connect_concepts") {
+                                        detail = `${part.args?.source || "?"} ➔ ${part.args?.target || "?"}`;
+                                        icon = Brain;
+                                        messageStr = `Forging synaptic link: ${detail}`;
+                                    } else if (part.tool_name === "modify_concept") {
+                                        detail = `Refining: ${part.args?.name || "?"}`;
+                                        icon = Sparkles;
+                                        messageStr = `Updating concept: ${part.args?.name || "?"}`;
                                     } else {
                                         detail = part.tool_name;
                                         messageStr = `Executing tool: ${part.tool_name}`;
                                     }
 
                                     if (!usedTools.find(t => t.name === part.tool_name && t.detail === detail)) {
-                                        usedTools.push({
-                                            name: part.tool_name,
-                                            detail,
-                                            icon,
-                                            latency: Math.floor(Math.random() * 30 + 15) // mock latency 15-45ms
-                                        });
+                                        usedTools.push({ name: part.tool_name, detail, icon });
 
                                         newThoughts.push({
                                             id: `${Date.now()}-${Math.random()}`,
@@ -294,7 +303,9 @@ export default function ChatPage() {
                     content: data.response,
                     timestamp: new Date(),
                     tools: usedTools.length > 0 ? usedTools : undefined,
-                    pendingActions: data.pending_actions?.length > 0 ? data.pending_actions : undefined
+                    pendingActions: data.pending_actions?.length > 0 ? data.pending_actions : undefined,
+                    confidence: data.confidence,
+                    reasoning: data.reasoning
                 };
                 setMessages((prev) => [...prev, assistantMessage]);
                 if (data.new_messages) {
@@ -390,6 +401,25 @@ export default function ChatPage() {
                                             ? "bg-purple-500/10 border border-purple-500/20 rounded-xl rounded-tr-sm"
                                             : "bg-white/[0.03] border border-white/5 rounded-xl rounded-tl-sm"
                                             }`}>
+                                            {/* Reasoning & Confidence Meta */}
+                                            {msg.role === "assistant" && (msg.confidence !== undefined || msg.reasoning) && (
+                                                <div className="flex gap-2 items-center mb-1">
+                                                    {msg.confidence !== undefined && (
+                                                        <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${msg.confidence >= 0.9 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" :
+                                                            msg.confidence >= 0.7 ? "bg-purple-500/10 border-purple-500/30 text-purple-400" :
+                                                                "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                                                            }`}>
+                                                            {Math.round(msg.confidence * 100)}% RELIABILITY
+                                                        </div>
+                                                    )}
+                                                    {msg.reasoning && (
+                                                        <div className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/50 uppercase tracking-tighter">
+                                                            SOURCE: {msg.reasoning}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
                                             <div className="text-sm text-neutral-300 leading-relaxed markdown-content">
                                                 <ReactMarkdown
                                                     components={{
@@ -430,10 +460,6 @@ export default function ChatPage() {
                                                                 </div>
                                                                 <div className="text-xs text-neutral-200 truncate max-w-[200px]">
                                                                     {tool.detail}
-                                                                </div>
-                                                                <div className="flex items-center gap-1.5 text-[9px] text-neutral-600 font-mono mt-0.5">
-                                                                    <div className="w-1 h-1 rounded-full bg-green-500/50" />
-                                                                    lat: {tool.latency}ms
                                                                 </div>
                                                             </div>
                                                         );

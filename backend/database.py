@@ -220,3 +220,18 @@ class DatabaseService:
         except Exception as e:
             print(f"[Database] Error listing documents from Qdrant: {e}")
             return []
+    def clear_all(self):
+        """Clears all points from all collections."""
+        try:
+            for coll in ["memories", "documents"]:
+                self.client.delete(
+                    collection_name=coll,
+                    points_selector=models.Filter(
+                        must=[] # Empty filter matches everything
+                    ),
+                )
+            print("[Database] All vector collections cleared.")
+            return True
+        except Exception as e:
+            print(f"[Database] Error clearing collections: {e}")
+            return False

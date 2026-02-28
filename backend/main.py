@@ -450,11 +450,16 @@ async def clear_system_logs():
 
 @app.post("/system/clear")
 async def clear_system_database():
-    """Clears all system knowledge and history (concepts, links, sessions, logs)."""
+    """Clears all system knowledge and history (concepts, links, sessions, logs, and vector memory)."""
     try:
+        # Clear SQLite (Graph, Sessions, Logs)
         await sqlite_service.clear_database()
-        await sqlite_service.add_log("success", "CORE", "System-wide data purge executed by user request.")
-        return {"status": "success", "message": "System purged and ready for fresh start."}
+        
+        # Clear Qdrant (Memories, Documents)
+        db_service.clear_all()
+        
+        await sqlite_service.add_log("success", "CORE", "Full system purge executed. All databases cleared.")
+        return {"status": "success", "message": "System fully purged and ready for fresh start."}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -580,13 +585,17 @@ async def chat(request: ChatRequest):
         await sqlite_service.add_log("info", "LLM", f"Agent call initiated: model={selected_model_id}")
         result = await aether_agent.run(**run_kwargs)
         
-        # Extract response — agent now returns plain str for universal compatibility
-        raw_output = result.output  # This is a str
-        
-        # For local models we don't get structured thought/answer split,
-        # so the entire output IS the final answer.
-        final_answer = raw_output
-        internal_thought = f"[Model: {selected_model_id}] Processed query."
+        # Extract response — handle both structured and raw fallbacks
+        if hasattr(result.output, "response"):
+            final_answer = result.output.response
+            confidence = result.output.confidence_score
+            reasoning = result.output.reasoning_type
+            internal_thought = f"[Model: {selected_model_id}] Confidence: {confidence:.2f} | Reason: {reasoning}"
+        else:
+            final_answer = str(result.output)
+            confidence = 1.0 # default for raw strings
+            reasoning = "GENERAL"
+            internal_thought = f"[Model: {selected_model_id}] Raw output mode."
         
         # Determine Session (Create if none)
         active_session_id = request.session_id
@@ -612,7 +621,9 @@ async def chat(request: ChatRequest):
         ai_meta = {
             "internal_thought": internal_thought,
             "pendingActions": current_pending if current_pending else None,
-            "used_tools": request.model  # temporary placeholder
+            "confidence": confidence,
+            "reasoning": reasoning,
+            "used_tools": []
         }
         
         # Parse used tools from result.new_messages
