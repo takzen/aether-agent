@@ -13,6 +13,8 @@ from tavily import TavilyClient
 import uuid
 from local_db import sqlite_service
 
+load_dotenv()
+
 class AetherResponse(BaseModel):
     """Structured response for Aether with meta-cognitive attributes (CORE-X)."""
     response: str = Field(description="The main text of your answer to the user. Use Markdown.")
@@ -22,6 +24,18 @@ class AetherResponse(BaseModel):
 
 # In-memory store for pending actions (HITL)
 pending_actions = {}
+
+def _prune_pending_actions(max_entries: int = 200) -> None:
+    """Keep in-memory HITL store bounded and remove resolved actions."""
+    # Remove completed/rejected entries first
+    resolved = [k for k, v in pending_actions.items() if v.get("status") in {"completed", "rejected"}]
+    for k in resolved:
+        pending_actions.pop(k, None)
+
+    # Hard cap in case of very long-running process
+    while len(pending_actions) > max_entries:
+        oldest_key = next(iter(pending_actions))
+        pending_actions.pop(oldest_key, None)
 
 # Initialize Services
 db_service = DatabaseService()
@@ -118,6 +132,7 @@ async def inject_cognition_prompt(ctx: RunContext[dict]) -> str:
     reflection = deps.get("reflection", True)
     
     prompt = f"\n--- NEURAL COGNITION CALIBRATION ---\n"
+    persona = deps.get("persona", "Balanced")
     prompt += f"CURRENT_PERSONA: {persona}\n"
     
     if persona == "Analytical":
@@ -263,7 +278,7 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
         return injected_text
     except Exception as e:
         print(f"[Agent] Failed to inject dynamic context: {e}")
-        return ""
+        return injected_text + "\n[CONTEXT WARNING] Dynamic recall failed; continue with base reasoning."
 
 # --- UTILS FOR FILE OPERATIONS ---
 from pathlib import Path
@@ -377,11 +392,13 @@ async def prepare_write_file(ctx: RunContext[dict], path: str, content: str) -> 
         if autonomy == 3:
             print(f"[Agent] FULL_AUTONOMY Active: Writing file '{path}' directly.")
             await sqlite_service.add_log("success", "CORE", f"Autonomous action: Writing to {path}")
+            target_path.parent.mkdir(parents=True, exist_ok=True)
             with open(target_path, "w", encoding="utf-8") as f:
                 f.write(content)
             return f"FILE_WRITTEN: Due to my FULL_AUTONOMY level, I have directly written the content to '{path}'."
 
         action_id = str(uuid.uuid4())
+        _prune_pending_actions()
         
         pending_actions[action_id] = {
             "type": "write_file",
@@ -612,4 +629,4 @@ async def get_agent_response(prompt: str):
     print(f"[Core] Running agent: persona={persona}, autonomy={autonomy}, temp={temp}")
     
     result = await aether_agent.run(prompt, deps=deps, model_settings=model_settings)
-    return result.data
+    return result.output
