@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import ThoughtStream, { ThoughtStep } from "@/components/ThoughtStream";
 import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
     id: string;
@@ -389,15 +390,28 @@ export default function ChatPage() {
                                             ? "bg-purple-500/10 border border-purple-500/20 rounded-xl rounded-tr-sm"
                                             : "bg-white/[0.03] border border-white/5 rounded-xl rounded-tl-sm"
                                             }`}>
-                                            <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
-                                                {msg.content.split(/(\d+ new memories|\d+ recently indexed documents|Project architecture overview|Authentication system design|API endpoint documentation)/).map((part, i) => {
-                                                    if (part === "3 new memories") return <span key={i} className="text-purple-400 font-medium">{part}</span>;
-                                                    if (part === "3 recently indexed documents") return <span key={i} className="text-blue-400 font-medium">{part}</span>;
-                                                    if (["Project architecture overview", "Authentication system design", "API endpoint documentation"].includes(part)) {
-                                                        return <span key={i} className="flex items-center gap-2 mt-1.5 first:mt-2"><span className="w-1 h-1 rounded-full bg-blue-400" />{part}</span>;
-                                                    }
-                                                    return part;
-                                                })}
+                                            <div className="text-sm text-neutral-300 leading-relaxed markdown-content">
+                                                <ReactMarkdown
+                                                    components={{
+                                                        h1: ({ ...props }) => <h1 className="text-lg font-bold text-purple-400 mt-4 mb-2 uppercase tracking-wider border-b border-purple-500/20 pb-1" {...props} />,
+                                                        h2: ({ ...props }) => <h2 className="text-md font-bold text-purple-400 mt-4 mb-2 uppercase tracking-tight" {...props} />,
+                                                        h3: ({ ...props }) => <h3 className="text-sm font-bold text-white/90 mt-3 mb-1" {...props} />,
+                                                        p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,
+                                                        ul: ({ ...props }) => <ul className="list-none space-y-1.5 mb-3" {...props} />,
+                                                        li: ({ ...props }) => (
+                                                            <li className="flex items-start gap-2">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500/50 mt-1.5 shrink-0" />
+                                                                <span {...props} />
+                                                            </li>
+                                                        ),
+                                                        strong: ({ ...props }) => <strong className="text-white font-bold" {...props} />,
+                                                        code: ({ ...props }) => (
+                                                            <code className="bg-black/40 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5" {...props} />
+                                                        )
+                                                    }}
+                                                >
+                                                    {msg.content}
+                                                </ReactMarkdown>
                                             </div>
                                             <p className="text-[10px] text-neutral-600 font-mono mt-2 uppercase">
                                                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
