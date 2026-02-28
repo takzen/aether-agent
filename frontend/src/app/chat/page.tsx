@@ -35,6 +35,44 @@ interface Message {
     reasoning?: string;
 }
 
+const mapToolVisual = (toolName: string, args?: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    let detail = toolName;
+    let icon: LucideIcon = Database;
+    let message = `Executing tool: ${toolName}`;
+
+    if (toolName === "read_file") {
+        detail = args?.path || "File";
+        icon = FileText;
+        message = `Reading file: ${args?.path || "unknown path"}`;
+    } else if (toolName === "search_knowledge_base") {
+        detail = "The Library";
+        icon = Database;
+        message = `Searching knowledge base for '${args?.query || ""}'`;
+    } else if (toolName === "recall") {
+        detail = "Vector Memory";
+        icon = Brain;
+        message = `Recalling memories for '${args?.query || ""}'`;
+    } else if (toolName === "list_directory") {
+        detail = `FS: ${args?.path || "."}`;
+        icon = FolderSearch;
+        message = `Listing directory: ${args?.path || "."}`;
+    } else if (toolName === "web_search") {
+        detail = "Tavily Web Search";
+        icon = Globe;
+        message = `Web search: ${args?.query || ""}`;
+    } else if (toolName === "connect_concepts") {
+        detail = `${args?.source || "?"} -> ${args?.target || "?"}`;
+        icon = Brain;
+        message = `Forging synaptic link: ${detail}`;
+    } else if (toolName === "modify_concept") {
+        detail = `Refining: ${args?.name || "?"}`;
+        icon = Sparkles;
+        message = `Updating concept: ${args?.name || "?"}`;
+    }
+
+    return { detail, icon, message };
+};
+
 const SimpleHighlighter = ({ code }: { code: React.ReactNode }) => {
     const text = String(code).replace(/\n$/, "");
 
@@ -241,6 +279,8 @@ export default function ChatPage() {
     ]);
     const [selectedModel] = useState<"gemini" | "ollama">("gemini");
     const [agentHistory, setAgentHistory] = useState<{ role: string; content: string; parts?: AgentMessagePart[] }[]>([]);
+    const [chatError, setChatError] = useState<string | null>(null);
+    const [lastRequestInput, setLastRequestInput] = useState("");
 
     // Session History State
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -248,6 +288,8 @@ export default function ChatPage() {
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
     const scrollRef = useRef<HTMLDivElement>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const shouldAutoScrollRef = useRef(true);
 
     const fetchSessions = async () => {
         try {
@@ -272,17 +314,10 @@ export default function ChatPage() {
                         const toolMap: { [key: string]: { name: string; detail: string; icon: LucideIcon; count: number } } = {};
 
                         m.metadata.used_tools.forEach((t: { name: string; detail?: string }) => {
-                            let icon: LucideIcon = Database;
                             const name = t.name;
-                            let detail = t.detail || t.name;
-
-                            if (name === "read_file") { icon = FileText; }
-                            else if (name === "search_knowledge_base") { icon = Database; detail = "The Library"; }
-                            else if (name === "recall") { icon = Brain; detail = "Vector Memory"; }
-                            else if (name === "list_directory") { icon = FolderSearch; detail = "File System"; }
-                            else if (name === "web_search") { icon = Globe; detail = "Tavily Web Search"; }
-                            else if (name === "connect_concepts") { icon = Brain; }
-                            else if (name === "modify_concept") { icon = Sparkles; }
+                            const visual = mapToolVisual(name, {});
+                            const icon = visual.icon;
+                            const detail = t.detail || visual.detail || t.name;
 
                             if (toolMap[name]) {
                                 toolMap[name].count += 1;
@@ -348,9 +383,18 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            if (shouldAutoScrollRef.current) {
+                scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }
         }
     }, [messages]);
+
+    const handleChatScroll = () => {
+        if (!scrollRef.current) return;
+        const distanceFromBottom =
+            scrollRef.current.scrollHeight - scrollRef.current.scrollTop - scrollRef.current.clientHeight;
+        shouldAutoScrollRef.current = distanceFromBottom < 80;
+    };
 
     const handleActionApproval = async (actionId: string, approved: boolean, messageId: string) => {
         try {
@@ -403,29 +447,36 @@ export default function ChatPage() {
 
     if (!mounted) return null;
 
-    const handleSend = async () => {
-        if (!input.trim() || isLoading) return;
+    const handleSend = async (forcedInput?: string) => {
+        const nextInput = (forcedInput ?? input).trim();
+        if (!nextInput || isLoading) return;
 
         const userMessage: Message = {
             id: Date.now().toString(),
             role: "user",
-            content: input,
+            content: nextInput,
             timestamp: new Date(),
         };
 
+        shouldAutoScrollRef.current = true;
+        setChatError(null);
+        setLastRequestInput(nextInput);
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
         setThoughtSteps([
             { id: `${Date.now()}-start`, type: "thought", message: "Analyzing user request for context...", icon: Terminal, time: "just now" }
         ]);
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
 
         try {
             const response = await fetch("http://localhost:8000/chat/stream", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                signal: abortController.signal,
                 body: JSON.stringify({
-                    message: input,
+                    message: nextInput,
                     model: selectedModel,
                     session_id: currentSessionId,
                     message_history: agentHistory.length > 0 ? agentHistory : undefined
@@ -443,41 +494,8 @@ export default function ChatPage() {
             const usedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] = [];
 
             const applyToolEvent = (toolName: string, args?: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-                let detail = "";
-                let icon: LucideIcon = Database;
-                let messageStr = "";
-                if (toolName === "read_file" && args?.path) {
-                    detail = args.path;
-                    icon = FileText;
-                    messageStr = `Reading file: ${args.path}`;
-                } else if (toolName === "search_knowledge_base") {
-                    detail = "Knowledge Base";
-                    icon = Database;
-                    messageStr = `Searching knowledge base for '${args?.query || ""}'`;
-                } else if (toolName === "recall") {
-                    detail = "Vector Memory";
-                    icon = Brain;
-                    messageStr = `Recalling memories for '${args?.query || ""}'`;
-                } else if (toolName === "list_directory") {
-                    detail = `FS: ${args?.path || "."}`;
-                    icon = FolderSearch;
-                    messageStr = `Listing directory: ${args?.path || "."}`;
-                } else if (toolName === "web_search") {
-                    detail = "Tavily Web Search";
-                    icon = Globe;
-                    messageStr = `Web search: ${args?.query || ""}`;
-                } else if (toolName === "connect_concepts") {
-                    detail = `${args?.source || "?"} -> ${args?.target || "?"}`;
-                    icon = Brain;
-                    messageStr = `Forging synaptic link: ${detail}`;
-                } else if (toolName === "modify_concept") {
-                    detail = `Refining: ${args?.name || "?"}`;
-                    icon = Sparkles;
-                    messageStr = `Updating concept: ${args?.name || "?"}`;
-                } else {
-                    detail = toolName;
-                    messageStr = `Executing tool: ${toolName}`;
-                }
+                const visual = mapToolVisual(toolName, args);
+                const { detail, icon, message: messageStr } = visual;
 
                 const existingTool = usedTools.find(t => t.name === toolName);
                 if (existingTool) {
@@ -573,10 +591,27 @@ export default function ChatPage() {
                 fetchSessions();
             }
         } catch (error) {
+            if (error instanceof DOMException && error.name === "AbortError") {
+                setThoughtSteps(prev => [...prev, {
+                    id: `${Date.now()}-aborted`,
+                    type: "thought",
+                    message: "Generation stopped by user.",
+                    icon: Terminal,
+                    time: "just now"
+                }]);
+                return;
+            }
+            const message = error instanceof Error ? error.message : "Unknown error";
+            setChatError(message);
             console.error("Failed to connect to Aether backend:", error);
         } finally {
+            abortControllerRef.current = null;
             setIsLoading(false);
         }
+    };
+
+    const handleStopGeneration = () => {
+        abortControllerRef.current?.abort();
     };
 
     return (
@@ -626,6 +661,7 @@ export default function ChatPage() {
                     {/* Message Container */}
                     <div
                         ref={scrollRef}
+                        onScroll={handleChatScroll}
                         className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent"
                     >
                         {messages.length === 0 ? (
@@ -810,6 +846,18 @@ export default function ChatPage() {
                     {/* Input Area â€” VSCode Style */}
                     <div className="px-4 md:px-6 py-4 shrink-0 bg-transparent relative">
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-[#1e1e1e] to-transparent pointer-events-none -top-10" />
+                        {chatError && (
+                            <div className="mb-3 relative z-10 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300 flex items-center justify-between gap-3">
+                                <span className="truncate">Connection error: {chatError}</span>
+                                <button
+                                    onClick={() => handleSend(lastRequestInput)}
+                                    disabled={isLoading || !lastRequestInput}
+                                    className="px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 text-red-200 border border-red-500/30 disabled:opacity-40"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        )}
                         <div className="flex items-center gap-2 bg-[#252526] border border-white/10 rounded-xl px-4 py-3 focus-within:border-purple-500/50 transition-all duration-300 relative z-10 shadow-lg shadow-black/20">
                             <input
                                 type="text"
@@ -820,12 +868,21 @@ export default function ChatPage() {
                                 className="flex-1 bg-transparent text-[#cccccc] text-sm placeholder:text-[#858585] focus:outline-none"
                             />
                             <button
-                                onClick={handleSend}
+                                onClick={() => handleSend()}
                                 disabled={isLoading || !input.trim()}
                                 className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 transition-all disabled:opacity-30 active:scale-95"
                             >
                                 <Send className="w-4 h-4" />
                             </button>
+                            {isLoading && (
+                                <button
+                                    onClick={handleStopGeneration}
+                                    className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 transition-all active:scale-95"
+                                    title="Stop generating"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     </div>
 
