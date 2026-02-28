@@ -7,6 +7,7 @@ import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Termina
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import MermaidRenderer from "@/components/MermaidRenderer";
+import { createHighlighter } from "shiki";
 
 interface AgentMessagePart {
     part_kind: string;
@@ -37,75 +38,166 @@ interface Message {
 const SimpleHighlighter = ({ code }: { code: React.ReactNode }) => {
     const text = String(code).replace(/\n$/, "");
 
-    // Non-capturing groups (?:) are key to stable one-pass regex highlighting
-    const tokens = [
-        { type: "comment", regex: /(?:#.*|\/\/.*|\/\*[\s\S]*?\*\/)/g, color: "text-white/20 italic" },
-        { type: "string", regex: /(?:"[^"]*"|'[^']*'|`[^`]*`)/g, color: "text-indigo-300" },
-        { type: "keyword", regex: /\b(?:class|def|return|if|else|for|while|async|await|import|from|const|let|function|export|default|interface|type|try|except|with|as)\b/g, color: "text-purple-400 font-bold" },
-        { type: "type", regex: /\b(?:str|int|float|list|dict|bool|Field|BaseModel|Agent|Message|ThoughtStep|useState|useRef|useEffect|any|void|string|number|boolean|any)\b/g, color: "text-purple-200" },
-        { type: "function", regex: /\b[a-z_][a-z0-9_]*(?=\s*\()/gi, color: "text-white/90" },
-        { type: "number", regex: /\b\d+(?:\.\d+)?\b/g, color: "text-purple-300/60" },
+    type TokenSpec = {
+        regex: RegExp;
+        color: string;
+        bold?: boolean;
+        italic?: boolean;
+    };
+    type Match = {
+        start: number;
+        end: number;
+        content: string;
+        color: string;
+        bold?: boolean;
+        italic?: boolean;
+    };
+
+    // VS Code Dark+ inspired palette
+    const tokens: TokenSpec[] = [
+        { regex: /(?:#.*|\/\/.*|\/\*[\s\S]*?\*\/)/g, color: "#6A9955", italic: true }, // comments
+        { regex: /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)/g, color: "#CE9178" }, // strings
+        { regex: /@[a-zA-Z_][a-zA-Z0-9_]*/g, color: "#DCDCAA" }, // decorators
+        { regex: /\b(?:class|def|return|if|elif|else|for|while|in|is|not|and|or|async|await|import|from|const|let|var|function|export|default|interface|type|try|except|finally|with|as|raise|yield|match|case|switch|break|continue|new)\b/g, color: "#C586C0" }, // keywords
+        { regex: /\b(?:str|int|float|list|dict|bool|set|tuple|None|True|False|void|string|number|boolean|any|unknown|never|Field|BaseModel|Agent|Message|ThoughtStep)\b/g, color: "#4EC9B0" }, // types/builtins
+        { regex: /\b[A-Z][A-Za-z0-9_]*\b/g, color: "#4EC9B0" }, // class/type names
+        { regex: /\b[a-zA-Z_][a-zA-Z0-9_]*(?=\s*\()/g, color: "#DCDCAA" }, // function calls
+        { regex: /\b\d+(?:\.\d+)?\b/g, color: "#B5CEA8" }, // numbers
     ];
 
-    const allMatches: { start: number; end: number; content: string; color: string }[] = [];
+    const matches: Match[] = [];
+    const occupied = new Array<boolean>(text.length).fill(false);
 
-    tokens.forEach(token => {
-        let match;
-        const regex = new RegExp(token.regex, "g");
-        while ((match = regex.exec(text)) !== null) {
-            allMatches.push({
-                start: match.index,
-                end: match.index + match[0].length,
-                content: match[0],
-                color: token.color
+    // Apply in priority order and avoid overlaps (comments/strings first).
+    for (const token of tokens) {
+        const regex = new RegExp(token.regex.source, token.regex.flags.includes("g") ? token.regex.flags : `${token.regex.flags}g`);
+        let m: RegExpExecArray | null;
+        while ((m = regex.exec(text)) !== null) {
+            const start = m.index;
+            const end = start + m[0].length;
+            if (start === end) continue;
+
+            let blocked = false;
+            for (let i = start; i < end; i += 1) {
+                if (occupied[i]) {
+                    blocked = true;
+                    break;
+                }
+            }
+            if (blocked) continue;
+
+            for (let i = start; i < end; i += 1) occupied[i] = true;
+            matches.push({
+                start,
+                end,
+                content: m[0],
+                color: token.color,
+                bold: token.bold,
+                italic: token.italic
             });
         }
-    });
+    }
 
-    // Sort and filter overlaps
-    const sorted = allMatches.sort((a, b) => a.start - b.start);
-    const filtered: typeof sorted = [];
-    let lastEnd = 0;
-
-    sorted.forEach(m => {
-        if (m.start >= lastEnd) {
-            filtered.push(m);
-            lastEnd = m.end;
-        }
-    });
+    matches.sort((a, b) => a.start - b.start);
 
     const result: React.ReactNode[] = [];
     let currentPos = 0;
-
-    filtered.forEach((m, i) => {
+    matches.forEach((m, i) => {
         if (m.start > currentPos) {
-            result.push(text.substring(currentPos, m.start));
+            result.push(text.slice(currentPos, m.start));
         }
-        result.push(<span key={i} className={m.color}>{m.content}</span>);
+        result.push(
+            <span key={i} style={{ color: m.color, fontWeight: m.bold ? 700 : 400, fontStyle: m.italic ? "italic" : "normal" }}>
+                {m.content}
+            </span>
+        );
         currentPos = m.end;
     });
-
     if (currentPos < text.length) {
-        result.push(text.substring(currentPos));
+        result.push(text.slice(currentPos));
     }
 
     return <>{result}</>;
 };
 
+let shikiHighlighterPromise: ReturnType<typeof createHighlighter> | null = null;
+const getShikiHighlighter = () => {
+    if (!shikiHighlighterPromise) {
+        shikiHighlighterPromise = createHighlighter({
+            themes: ["dark-plus"],
+            langs: [
+                "txt",
+                "python",
+                "javascript",
+                "typescript",
+                "tsx",
+                "json",
+                "bash",
+                "markdown",
+                "yaml",
+                "html",
+                "css",
+                "sql"
+            ]
+        });
+    }
+    return shikiHighlighterPromise;
+};
+
+const normalizeLang = (lang: string) => {
+    const lower = (lang || "txt").toLowerCase();
+    const map: Record<string, string> = {
+        plaintext: "txt",
+        text: "txt",
+        py: "python",
+        js: "javascript",
+        ts: "typescript",
+        shell: "bash",
+        sh: "bash",
+        zsh: "bash",
+    };
+    return map[lower] || lower;
+};
+
 const CodeBlock = ({ children, className }: { children: React.ReactNode; className?: string }) => {
     const [copied, setCopied] = useState(false);
+    const [highlightedHtml, setHighlightedHtml] = useState<string>("");
     const language = className ? className.replace(/language-/, "") : "code";
+    const codeText = String(children).replace(/\n$/, "");
 
     const handleCopy = () => {
-        const text = String(children).replace(/\n$/, "");
-        navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(codeText);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
+    useEffect(() => {
+        let active = true;
+        const render = async () => {
+            try {
+                const highlighter = await getShikiHighlighter();
+                let lang = normalizeLang(language);
+                if (!highlighter.getLoadedLanguages().includes(lang)) {
+                    lang = "txt";
+                }
+                const html = highlighter.codeToHtml(codeText, {
+                    lang,
+                    theme: "dark-plus",
+                });
+                if (active) setHighlightedHtml(html);
+            } catch {
+                if (active) setHighlightedHtml("");
+            }
+        };
+        render();
+        return () => {
+            active = false;
+        };
+    }, [codeText, language]);
+
     return (
-        <div className="group relative my-4 rounded-lg overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-sm shadow-xl">
-            <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5">
+        <div className="group relative my-4 rounded-lg overflow-hidden border border-[#2a2d2e] bg-[#1e1e1e] shadow-xl">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#252526] border-b border-[#2a2d2e]">
                 <div className="flex items-center gap-2">
                     <Terminal size={12} className="text-purple-400" />
                     <span className="text-[10px] font-bold text-purple-300 uppercase tracking-widest">{language}</span>
@@ -118,8 +210,15 @@ const CodeBlock = ({ children, className }: { children: React.ReactNode; classNa
                     {copied ? "COPIED" : "COPY"}
                 </button>
             </div>
-            <div className="p-4 overflow-x-auto custom-scrollbar font-mono text-[11px] text-white/90 leading-relaxed whitespace-pre font-medium">
-                <SimpleHighlighter code={children} />
+            <div className="p-4 overflow-x-auto custom-scrollbar font-mono text-[12px] text-[#d4d4d4] leading-relaxed whitespace-pre font-medium">
+                {highlightedHtml ? (
+                    <div
+                        className="[&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:!m-0"
+                        dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+                    />
+                ) : (
+                    <SimpleHighlighter code={children} />
+                )}
             </div>
         </div>
     );
