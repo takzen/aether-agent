@@ -1,24 +1,24 @@
-# Project: CORE-X (Aether on Aether)
+# Projekt: CORE-X (Aether o Aetherze)
 
-## Project Overview
-CORE-X is an internal initiative to use the Aether Agent to analyze, document, and expand its own architecture. This is a "Recursive AI" approach to project development.
+## Przegląd Projektu
+CORE-X to wewnętrzna inicjatywa mająca na celu wykorzystanie Agenta Aether do analizy, dokumentowania i rozbudowy jego własnej architektury. Jest to podejście typu "Recursive AI" (Rekurencyjna SI) do rozwoju projektu.
 
-## Core Architectural Pillars
+## Główne Filary Architektury
 1. **Backend (Python/FastAPI)**:
-    - `main.py`: The orchestrator and API entry point.
-    - `local_db.py`: The SQLite synchronization layer for sessions and graph memory.
-    - `agent.py`: PydanticAI based agent logic and tool definitions.
-    - `world_model.py`: Simulation and future-state prediction module.
+    - `main.py`: Orkiestrator i punkt wejścia API.
+    - `local_db.py`: Warstwa synchronizacji SQLite dla sesji i pamięci grafowej.
+    - `agent.py`: Logika agenta oparta na PydanticAI i definicje narzędzi.
+    - `world_model.py`: Moduł symulacji i przewidywania przyszłych stanów.
 
 2. **Frontend (Next.js/React)**:
-    - `NeuralTopologyView.tsx`: The primary visualization for graph memory.
-    - `CommandCenter`: The central dashboard for system interactions and slash commands.
-    - `Memories`: Vector storage (Qdrant) visualization and recall.
+    - `NeuralTopologyView.tsx`: Główna wizualizacja pamięci grafowej (Neural Topology).
+    - `CommandCenter`: Centralny pulpit nawigacyjny do interakcji systemowych i slash commands.
+    - `Memories`: Wizualizacja i przywoływanie danych z magazynu wektorowego (Qdrant).
 
-3. **Data Engines**:
-    - **SQLite**: Structured relational data (Sessions, Blogs, Logs).
-    - **Qdrant**: High-dimensional vector embeddings for semantic recall.
-    - **Knowledge Base**: Markdown/Text sources processed into chunks.
+3. **Silniki Danych**:
+    - **SQLite**: Strukturalne dane relacyjne (Sesje, Logi systemowe).
+    - **Qdrant**: Wielowymiarowe embeddingi wektorowe do semantycznego przywoływania wiedzy.
+    - **Knowledge Base** (Baza Wiedzy): Źródła Markdown/Tekstowe przetwarzane na fragmenty (chunks).
 
-## Project Goal
-Improve the recursive understanding of the agent to allow it to build its own features autonomously and maintain its dependency graph in the Neural Topology.
+## Cel Projektu
+Poprawa rekurencyjnego rozumienia agenta, aby umożliwić mu autonomiczne budowanie własnych funkcjonalności i utrzymywanie grafu zależności w Neural Topology.
