@@ -1,10 +1,14 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import StreamingResponse
+from fastapi.encoders import jsonable_encoder
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from agent import aether_agent, db_service, pending_actions
 import asyncio
 import os
+import re
+import json
 from ingest import process_content
 from local_db import sqlite_service
 from world_model import run_active_world_model_simulation
@@ -388,10 +392,47 @@ async def create_new_session(request: dict = None):
 
 @app.get("/sessions/{session_id}/messages")
 async def get_session_history(session_id: str):
-    """Returns all messages of a specific session."""
+    """Returns all messages of a specific session with real-time cleaning."""
     try:
+        import re
         msgs = await sqlite_service.get_messages(session_id)
-        return {"status": "success", "messages": msgs}
+        
+        # Retroactive cleaning: if there's any JSON/technical junk in old messages, clean it here
+        cleaned_msgs = []
+        for msg in msgs:
+            content = msg.get("content", "")
+            if msg["role"] == "assistant" and ("final_result" in content.lower() or "aetherresponse" in content.lower()):
+                # Try to extract just the response part from the stringified object
+                resp_match = re.search(r"response=['\"](.*?)['\"]", content, re.DOTALL)
+                if resp_match:
+                    msg["content"] = resp_match.group(1).strip()
+                else:
+                    # Generic cleanup for noise prefixes
+                    msg["content"] = re.sub(r"^(final_result|aetherresponse|finalresult)[:\s]*", "", content, flags=re.IGNORECASE).strip().strip(")'\"")
+
+            # Retroactive metadata cleanup for malformed tool badges
+            metadata = msg.get("metadata") if isinstance(msg.get("metadata"), dict) else None
+            if metadata and isinstance(metadata.get("used_tools"), list):
+                cleaned_tools = []
+                for t in metadata["used_tools"]:
+                    if not isinstance(t, dict):
+                        continue
+                    name = str(t.get("name", "")).strip()
+                    detail = str(t.get("detail", "")).strip()
+                    if not name:
+                        continue
+                    # Drop obvious serialization artifacts (e.g. x2, {}, dict dumps)
+                    if name in {"x2", "{}", "[]"} or name.startswith("{") or name.startswith("["):
+                        continue
+                    if name == "final_result":
+                        detail = "final_result"
+                    if detail.startswith("{'response'") or detail.startswith('{"response"'):
+                        detail = name
+                    cleaned_tools.append({"name": name, "detail": detail or name})
+                metadata["used_tools"] = cleaned_tools if cleaned_tools else None
+            cleaned_msgs.append(msg)
+            
+        return {"status": "success", "messages": cleaned_msgs}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -612,6 +653,219 @@ async def force_awm_simulation():
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
+@app.post("/chat/stream")
+async def chat_stream(request: ChatRequest):
+    from pydantic_ai.messages import ModelMessagesTypeAdapter
+    from agent import create_model_instance, get_current_model_name
+
+    async def stream():
+        def emit(payload: dict):
+            safe_payload = jsonable_encoder(payload)
+            return (json.dumps(safe_payload, ensure_ascii=False) + "\n").encode("utf-8")
+
+        try:
+            history = None
+            if request.message_history:
+                history = ModelMessagesTypeAdapter.validate_python(request.message_history)
+
+            run_kwargs = {
+                "user_prompt": request.message,
+                "deps": {
+                    "user_message": request.message,
+                    "search_count": 0
+                },
+            }
+            if history:
+                run_kwargs["message_history"] = history
+
+            # Dynamic Model Loading
+            # Priority: Request parameter > Environment Config
+            selected_model_id = request.model if request.model and request.model != "gemini" else get_current_model_name()
+
+            # Backward compatibility for 'ollama' toggle in generic chat UI
+            if selected_model_id == "ollama":
+                selected_model_id = "ollama:llama3.2"
+
+            active_model = create_model_instance(selected_model_id)
+            run_kwargs["model"] = active_model
+
+            await sqlite_service.add_log("info", "LLM", f"Agent stream initiated: model={selected_model_id}")
+            yield emit({"type": "status", "message": f"Agent call initiated: model={selected_model_id}"})
+
+            result = None
+            async for event in aether_agent.run_stream_events(**run_kwargs):
+                event_kind = getattr(event, "event_kind", "")
+
+                if event_kind == "function_tool_call":
+                    part = getattr(event, "part", None)
+                    tool_name = getattr(part, "tool_name", None)
+                    if tool_name:
+                        args = {}
+                        raw_args = getattr(part, "args", None)
+                        if isinstance(raw_args, dict):
+                            args = raw_args
+                        elif isinstance(raw_args, str):
+                            try:
+                                parsed_args = json.loads(raw_args)
+                                if isinstance(parsed_args, dict):
+                                    args = parsed_args
+                            except Exception:
+                                args = {}
+                        yield emit({
+                            "type": "tool_call",
+                            "tool_name": str(tool_name),
+                            "args": args
+                        })
+
+                if event_kind == "agent_run_result":
+                    result = event.result
+
+            if result is None:
+                yield emit({"type": "error", "message": "Agent stream finished without final result."})
+                return
+
+            # ROBUST EXTRACTION: Get clean data regardless of Pydantic-AI internal state or model quirks
+            data_out = result.output
+            final_answer = ""
+            confidence = 0.95
+            reasoning = "GENERAL"
+
+            # 1. Try to extract from structured model or dict
+            if hasattr(data_out, "response"):
+                final_answer = data_out.response
+                confidence = getattr(data_out, "confidence_score", 0.95)
+                reasoning = getattr(data_out, "reasoning_type", "GENERAL")
+            elif isinstance(data_out, dict):
+                final_answer = data_out.get("response", "")
+                confidence = data_out.get("confidence_score", 0.95)
+                reasoning = data_out.get("reasoning_type", "GENERAL")
+
+            # 2. Fallback: If it's a string, it might be a raw message or a stringified object
+            if not final_answer:
+                raw_str = str(data_out)
+
+                # Try to find JSON-like structure in the string
+                json_match = re.search(r"\{.*\}", raw_str, re.DOTALL)
+                if json_match:
+                    try:
+                        parsed = json.loads(json_match.group(0))
+                        if isinstance(parsed, dict):
+                            final_answer = parsed.get("response", "")
+                            confidence = parsed.get("confidence_score", 0.95)
+                            reasoning = parsed.get("reasoning_type", "GENERAL")
+                    except Exception:
+                        pass
+
+                # If still no answer, try regex for response="..."
+                if not final_answer:
+                    resp_match = re.search(r"response=['\"](.*?)['\"]", raw_str, re.DOTALL)
+                    if resp_match:
+                        final_answer = resp_match.group(1)
+                    else:
+                        # Final fallback: just use the raw string but clean it
+                        final_answer = raw_str
+
+            # 3. AGGRESSIVE CLEANING: Strip technical noise
+            noise_prefixes = ["final_result", "FinalResult", "AetherResponse", "x2"]
+            for prefix in noise_prefixes:
+                if final_answer.lstrip().startswith(prefix):
+                    final_answer = re.sub(rf"^{prefix}[:\s]*", "", final_answer, flags=re.IGNORECASE)
+                final_answer = re.sub(rf"{prefix}\(", "", final_answer, flags=re.IGNORECASE)
+
+            final_answer = final_answer.strip().strip(")'\"")
+
+            if not final_answer:
+                final_answer = "System was unable to format a response. Technical output: " + str(data_out)
+
+            internal_thought = f"[Model: {selected_model_id}] Conf: {confidence} | Reason: {reasoning}"
+
+            # Determine Session (Create if none)
+            active_session_id = request.session_id
+            if not active_session_id:
+                title = request.message[:30] + "..." if len(request.message) > 30 else request.message
+                active_session_id = await sqlite_service.create_session(title=title)
+
+            # Save User Message
+            await sqlite_service.add_message(
+                session_id=active_session_id,
+                role="user",
+                content=request.message
+            )
+
+            current_pending = [
+                {"id": k, **v} for k, v in pending_actions.items() if v["status"] == "pending"
+            ]
+
+            # Serialize messages to load into the frontend Context
+            serialized_messages = ModelMessagesTypeAdapter.dump_python(result.new_messages())
+
+            # Save AI Response
+            ai_meta = {
+                "internal_thought": internal_thought,
+                "pendingActions": current_pending if current_pending else None,
+                "confidence": confidence,
+                "reasoning": reasoning,
+                "used_tools": []
+            }
+
+            # Parse used tools from serialized messages (tool-call parts only).
+            used_tools = []
+            try:
+                for m in serialized_messages:
+                    parts = m.get("parts", []) if isinstance(m, dict) else []
+                    for p in parts:
+                        if isinstance(p, dict) and p.get("part_kind") == "tool-call" and p.get("tool_name"):
+                            tool_name = str(p.get("tool_name")).strip()
+                            args = p.get("args", {})
+                            detail = ""
+                            if isinstance(args, dict):
+                                detail = args.get("path") or args.get("query") or args.get("name") or tool_name
+                            else:
+                                detail = tool_name
+
+                            if tool_name:
+                                used_tools.append({
+                                    "name": tool_name,
+                                    "detail": str(detail),
+                                })
+            except Exception:
+                pass
+
+            ai_meta["used_tools"] = used_tools if used_tools else None
+
+            await sqlite_service.add_message(
+                session_id=active_session_id,
+                role="assistant",
+                content=final_answer,
+                metadata=ai_meta
+            )
+
+            yield emit({
+                "type": "final",
+                "data": {
+                    "status": "success",
+                    "session_id": active_session_id,
+                    "response": final_answer,
+                    "confidence": confidence,
+                    "reasoning": reasoning,
+                    "internal_thought": internal_thought,
+                    "new_messages": serialized_messages,
+                    "pending_actions": current_pending
+                }
+            })
+        except Exception as e:
+            yield emit({"type": "error", "message": str(e)})
+
+    return StreamingResponse(
+        stream(),
+        media_type="application/x-ndjson",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
@@ -647,17 +901,65 @@ async def chat(request: ChatRequest):
         await sqlite_service.add_log("info", "LLM", f"Agent call initiated: model={selected_model_id}")
         result = await aether_agent.run(**run_kwargs)
         
-        # Extract response — handle both structured and raw fallbacks
-        if hasattr(result.output, "response"):
-            final_answer = result.output.response
-            confidence = result.output.confidence_score
-            reasoning = result.output.reasoning_type
-            internal_thought = f"[Model: {selected_model_id}] Confidence: {confidence:.2f} | Reason: {reasoning}"
-        else:
-            final_answer = str(result.output)
-            confidence = 1.0 # default for raw strings
-            reasoning = "GENERAL"
-            internal_thought = f"[Model: {selected_model_id}] Raw output mode."
+        # ROBUST EXTRACTION: Get clean data regardless of Pydantic-AI internal state or model quirks
+        # In pydantic-ai v1.x, .data contains the structured result
+        data_out = result.output
+        final_answer = ""
+        confidence = 0.95
+        reasoning = "GENERAL"
+
+        # 1. Try to extract from structured model or dict
+        if hasattr(data_out, "response"):
+            final_answer = data_out.response
+            confidence = getattr(data_out, "confidence_score", 0.95)
+            reasoning = getattr(data_out, "reasoning_type", "GENERAL")
+        elif isinstance(data_out, dict):
+            final_answer = data_out.get("response", "")
+            confidence = data_out.get("confidence_score", 0.95)
+            reasoning = data_out.get("reasoning_type", "GENERAL")
+        
+        # 2. Fallback: If it's a string, it might be a raw message or a stringified object
+        if not final_answer:
+            raw_str = str(data_out)
+            # Check if it looks like a stringified AetherResponse or dictionary
+            import json
+            
+            # Try to find JSON-like structure in the string
+            json_match = re.search(r'\{.*\}', raw_str, re.DOTALL)
+            if json_match:
+                try:
+                    parsed = json.loads(json_match.group(0))
+                    if isinstance(parsed, dict):
+                        final_answer = parsed.get("response", "")
+                        confidence = parsed.get("confidence_score", 0.95)
+                        reasoning = parsed.get("reasoning_type", "GENERAL")
+                except:
+                    pass
+            
+            # If still no answer, try regex for response="..."
+            if not final_answer:
+                resp_match = re.search(r"response=['\"](.*?)['\"]", raw_str, re.DOTALL)
+                if resp_match:
+                    final_answer = resp_match.group(1)
+                else:
+                    # Final fallback: just use the raw string but clean it
+                    final_answer = raw_str
+        
+        # 3. AGGRESSIVE CLEANING: Strip technical noise
+        noise_prefixes = ["final_result", "FinalResult", "AetherResponse", "x2"]
+        for prefix in noise_prefixes:
+            # Remove from start if exists
+            if final_answer.lstrip().startswith(prefix):
+                final_answer = re.sub(rf"^{prefix}[:\s]*", "", final_answer, flags=re.IGNORECASE)
+            # Remove anywhere if it looks like a function call
+            final_answer = re.sub(rf"{prefix}\(", "", final_answer, flags=re.IGNORECASE)
+            
+        final_answer = final_answer.strip().strip(")'\"")
+        
+        if not final_answer:
+            final_answer = "System was unable to format a response. Technical output: " + str(data_out)
+        
+        internal_thought = f"[Model: {selected_model_id}] Conf: {confidence} | Reason: {reasoning}"
         
         # Determine Session (Create if none)
         active_session_id = request.session_id
@@ -688,16 +990,27 @@ async def chat(request: ChatRequest):
             "used_tools": []
         }
         
-        # Parse used tools from result.new_messages
+        # Parse used tools from serialized messages (tool-call parts only).
+        # This avoids persisting tool-return payloads like `final_result({...})`
+        # as UI badges.
         used_tools = []
         try:
-            for m in result.new_messages():
-                if hasattr(m, 'parts'):
-                    for p in m.parts:
-                        if hasattr(p, 'tool_name'):
+            for m in serialized_messages:
+                parts = m.get("parts", []) if isinstance(m, dict) else []
+                for p in parts:
+                    if isinstance(p, dict) and p.get("part_kind") == "tool-call" and p.get("tool_name"):
+                        tool_name = str(p.get("tool_name")).strip()
+                        args = p.get("args", {})
+                        detail = ""
+                        if isinstance(args, dict):
+                            detail = args.get("path") or args.get("query") or args.get("name") or tool_name
+                        else:
+                            detail = tool_name
+
+                        if tool_name:
                             used_tools.append({
-                                "name": p.tool_name,
-                                "detail": str(getattr(p, 'args', '')),
+                                "name": tool_name,
+                                "detail": str(detail),
                             })
         except Exception:
             pass
@@ -715,6 +1028,8 @@ async def chat(request: ChatRequest):
             "status": "success",
             "session_id": active_session_id,
             "response": final_answer,
+            "confidence": confidence,
+            "reasoning": reasoning,
             "internal_thought": internal_thought,
             "new_messages": serialized_messages,
             "pending_actions": current_pending

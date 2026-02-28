@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
@@ -12,6 +12,14 @@ interface AgentMessagePart {
     part_kind: string;
     tool_name: string;
     args?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+interface ChatStreamEvent {
+    type: "status" | "tool_call" | "final" | "error";
+    message?: string;
+    tool_name?: string;
+    args?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 interface Message {
@@ -260,7 +268,7 @@ export default function ChatPage() {
                 return;
             }
 
-            // Usunięcie akcji z historii wiadomości w UI (lub ukrycie jako zatwierdzone)
+            // UsuniÄ™cie akcji z historii wiadomoĹ›ci w UI (lub ukrycie jako zatwierdzone)
             setMessages(prev => prev.map(m => {
                 if (m.id === messageId && m.pendingActions) {
                     return {
@@ -271,7 +279,7 @@ export default function ChatPage() {
                 return m;
             }));
 
-            // Ciche dołączenie loga do chatu jako nowy powrót z informacją dla usera
+            // Ciche doĹ‚Ä…czenie loga do chatu jako nowy powrĂłt z informacjÄ… dla usera
             if (approved) {
                 const sysMsg: Message = {
                     id: Date.now().toString(),
@@ -314,7 +322,7 @@ export default function ChatPage() {
         ]);
 
         try {
-            const response = await fetch("http://localhost:8000/chat", {
+            const response = await fetch("http://localhost:8000/chat/stream", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -325,108 +333,145 @@ export default function ChatPage() {
                 }),
             });
 
-            const data = await response.json();
+            if (!response.ok || !response.body) {
+                throw new Error(`Streaming request failed (${response.status})`);
+            }
 
-            if (data.status === "success") {
-                const usedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] = [];
-                const newThoughts: ThoughtStep[] = [];
-                if (data.new_messages) {
-                    data.new_messages.forEach((msg: { parts: AgentMessagePart[] }) => {
-                        if (msg.parts) {
-                            msg.parts.forEach((part: AgentMessagePart) => {
-                                if (part.part_kind === "tool-call") {
-                                    let detail = "";
-                                    let icon: LucideIcon = Database;
-                                    let messageStr = "";
-                                    if (part.tool_name === "read_file" && part.args?.path) {
-                                        detail = part.args.path;
-                                        icon = FileText;
-                                        messageStr = `Reading file: ${part.args.path}`;
-                                    } else if (part.tool_name === "search_knowledge_base") {
-                                        detail = "Knowledge Base";
-                                        icon = Database;
-                                        messageStr = `Searching knowledge base for '${part.args?.query || ""}'`;
-                                    } else if (part.tool_name === "recall") {
-                                        detail = "Vector Memory";
-                                        icon = Brain;
-                                        messageStr = `Recalling memories for '${part.args?.query || ""}'`;
-                                    } else if (part.tool_name === "list_directory") {
-                                        detail = `FS: ${part.args?.path || "."}`;
-                                        icon = FolderSearch;
-                                        messageStr = `Listing directory: ${part.args?.path || "."}`;
-                                    } else if (part.tool_name === "web_search") {
-                                        detail = "Tavily Web Search";
-                                        icon = Globe;
-                                        messageStr = `Web search: ${part.args?.query || ""}`;
-                                    } else if (part.tool_name === "connect_concepts") {
-                                        detail = `${part.args?.source || "?"} ➔ ${part.args?.target || "?"}`;
-                                        icon = Brain;
-                                        messageStr = `Forging synaptic link: ${detail}`;
-                                    } else if (part.tool_name === "modify_concept") {
-                                        detail = `Refining: ${part.args?.name || "?"}`;
-                                        icon = Sparkles;
-                                        messageStr = `Updating concept: ${part.args?.name || "?"}`;
-                                    } else {
-                                        detail = part.tool_name;
-                                        messageStr = `Executing tool: ${part.tool_name}`;
-                                    }
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+            let finalData: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+            const usedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] = [];
 
-                                    const existingTool = usedTools.find(t => t.name === part.tool_name);
-                                    if (existingTool) {
-                                        existingTool.count += 1;
-                                        if (part.tool_name === "connect_concepts" || part.tool_name === "modify_concept") {
-                                            existingTool.detail = `${existingTool.count} neural links established`;
-                                        }
-                                    } else {
-                                        usedTools.push({ name: part.tool_name, detail, icon, count: 1 });
-                                    }
-
-                                    // Still add to thought stream for transparency
-                                    newThoughts.push({
-                                        id: `${Date.now()}-${Math.random()}`,
-                                        type: "tool",
-                                        message: messageStr,
-                                        icon: icon,
-                                        time: "just now"
-                                    });
-                                }
-                            });
-                        }
-                    });
+            const applyToolEvent = (toolName: string, args?: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+                let detail = "";
+                let icon: LucideIcon = Database;
+                let messageStr = "";
+                if (toolName === "read_file" && args?.path) {
+                    detail = args.path;
+                    icon = FileText;
+                    messageStr = `Reading file: ${args.path}`;
+                } else if (toolName === "search_knowledge_base") {
+                    detail = "Knowledge Base";
+                    icon = Database;
+                    messageStr = `Searching knowledge base for '${args?.query || ""}'`;
+                } else if (toolName === "recall") {
+                    detail = "Vector Memory";
+                    icon = Brain;
+                    messageStr = `Recalling memories for '${args?.query || ""}'`;
+                } else if (toolName === "list_directory") {
+                    detail = `FS: ${args?.path || "."}`;
+                    icon = FolderSearch;
+                    messageStr = `Listing directory: ${args?.path || "."}`;
+                } else if (toolName === "web_search") {
+                    detail = "Tavily Web Search";
+                    icon = Globe;
+                    messageStr = `Web search: ${args?.query || ""}`;
+                } else if (toolName === "connect_concepts") {
+                    detail = `${args?.source || "?"} -> ${args?.target || "?"}`;
+                    icon = Brain;
+                    messageStr = `Forging synaptic link: ${detail}`;
+                } else if (toolName === "modify_concept") {
+                    detail = `Refining: ${args?.name || "?"}`;
+                    icon = Sparkles;
+                    messageStr = `Updating concept: ${args?.name || "?"}`;
+                } else {
+                    detail = toolName;
+                    messageStr = `Executing tool: ${toolName}`;
                 }
 
-                if (newThoughts.length > 0) {
-                    setThoughtSteps(prev => [...prev, ...newThoughts]);
+                const existingTool = usedTools.find(t => t.name === toolName);
+                if (existingTool) {
+                    existingTool.count += 1;
+                    if (toolName === "connect_concepts" || toolName === "modify_concept") {
+                        existingTool.detail = `${existingTool.count} neural links established`;
+                    }
+                } else {
+                    usedTools.push({ name: toolName, detail, icon, count: 1 });
                 }
 
                 setThoughtSteps(prev => [...prev, {
-                    id: `${Date.now()}-complete`,
-                    type: "complete",
-                    message: "Response synthesized with high confidence",
-                    icon: CheckCircle2,
+                    id: `${Date.now()}-${Math.random()}`,
+                    type: "tool",
+                    message: messageStr,
+                    icon,
                     time: "just now"
                 }]);
+            };
 
-                const assistantMessage: Message = {
-                    id: (Date.now() + 1).toString(),
-                    role: "assistant",
-                    content: data.response,
-                    timestamp: new Date(),
-                    tools: usedTools.length > 0 ? usedTools : undefined,
-                    pendingActions: data.pending_actions?.length > 0 ? data.pending_actions : undefined,
-                    confidence: data.confidence,
-                    reasoning: data.reasoning
-                };
-                setMessages((prev) => [...prev, assistantMessage]);
-                if (data.new_messages) {
-                    setAgentHistory((prev) => [...prev, ...data.new_messages]);
+            const processLine = (line: string) => {
+                if (!line.trim()) return;
+                let evt: ChatStreamEvent;
+                try {
+                    evt = JSON.parse(line);
+                } catch {
+                    return;
                 }
-                if (data.session_id && data.session_id !== currentSessionId) {
-                    setCurrentSessionId(data.session_id);
-                    fetchSessions();
+
+                if (evt.type === "status" && evt.message) {
+                    setThoughtSteps(prev => [...prev, {
+                        id: `${Date.now()}-${Math.random()}`,
+                        type: "thought",
+                        message: evt.message,
+                        icon: Terminal,
+                        time: "just now"
+                    }]);
+                    return;
                 }
-            } else {
-                console.error("Agent error:", data.message);
+                if (evt.type === "tool_call" && evt.tool_name) {
+                    applyToolEvent(evt.tool_name, evt.args);
+                    return;
+                }
+                if (evt.type === "final" && evt.data) {
+                    finalData = evt.data;
+                    return;
+                }
+                if (evt.type === "error") {
+                    throw new Error(evt.message || "Agent stream error");
+                }
+            };
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop() || "";
+                lines.forEach(processLine);
+            }
+            if (buffer.trim()) {
+                processLine(buffer);
+            }
+
+            if (!finalData || finalData.status !== "success") {
+                throw new Error("Stream ended without successful final payload.");
+            }
+
+            setThoughtSteps(prev => [...prev, {
+                id: `${Date.now()}-complete`,
+                type: "complete",
+                message: "Response synthesized with high confidence",
+                icon: CheckCircle2,
+                time: "just now"
+            }]);
+
+            const assistantMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: "assistant",
+                content: finalData.response,
+                timestamp: new Date(),
+                tools: usedTools.length > 0 ? usedTools : undefined,
+                pendingActions: finalData.pending_actions?.length > 0 ? finalData.pending_actions : undefined,
+                confidence: finalData.confidence,
+                reasoning: finalData.reasoning
+            };
+            setMessages((prev) => [...prev, assistantMessage]);
+            if (finalData.new_messages) {
+                setAgentHistory((prev) => [...prev, ...finalData.new_messages]);
+            }
+            if (finalData.session_id && finalData.session_id !== currentSessionId) {
+                setCurrentSessionId(finalData.session_id);
+                fetchSessions();
             }
         } catch (error) {
             console.error("Failed to connect to Aether backend:", error);
@@ -444,7 +489,7 @@ export default function ChatPage() {
 
                 {/* Chat Column */}
                 <div className="flex-1 flex flex-col relative overflow-hidden">
-                    {/* Chat Header — Standardized Style */}
+                    {/* Chat Header â€” Standardized Style */}
                     <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
@@ -663,7 +708,7 @@ export default function ChatPage() {
                         )}
                     </div>
 
-                    {/* Input Area — VSCode Style */}
+                    {/* Input Area â€” VSCode Style */}
                     <div className="px-4 md:px-6 py-4 shrink-0 bg-transparent relative">
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-[#1e1e1e] to-transparent pointer-events-none -top-10" />
                         <div className="flex items-center gap-2 bg-[#252526] border border-white/10 rounded-xl px-4 py-3 focus-within:border-purple-500/50 transition-all duration-300 relative z-10 shadow-lg shadow-black/20">
@@ -768,3 +813,4 @@ export default function ChatPage() {
         </div >
     );
 }
+
