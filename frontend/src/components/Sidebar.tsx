@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Brain, Database, Settings, Activity, MessageSquare, Network, BookOpen } from "lucide-react";
+import { Home, Brain, Database, Settings, Activity, MessageSquare, Network, BookOpen, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -16,6 +16,7 @@ const menuItems = [
     { icon: Activity, label: "Agent Logs", href: "/logs" },
     { icon: BookOpen, label: "Documentation", href: "/docs" },
     { icon: Settings, label: "Settings", href: "/settings" },
+    { icon: Sparkles, label: "Cognition", href: "/cognition" },
 ];
 
 export default function Sidebar() {
@@ -90,7 +91,7 @@ export default function Sidebar() {
                     </div>
                 </div>
                 <div className="text-center">
-                    <span className="text-[10px] text-neutral-600 font-mono tracking-widest">AETHER v1.2.0</span>
+                    <span className="text-[10px] text-neutral-600 font-mono tracking-widest">AETHER v1.2.1</span>
                 </div>
             </div>
         </div>

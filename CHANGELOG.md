@@ -1,8 +1,16 @@
 # Changelog
 
 All notable changes to the Aether Agent project will be documented in this file.
-+
-+## [1.2.0] - 2026-02-27
+## [1.2.1] - 2026-02-28
+### Added
+- **Cognition Center (Draft)**: A new premium UI section (`/cognition`) for fine-tuning agent personality, autonomy levels, and neural behaviors.
+- **UI Synchronization**: Fully aligned the "Settings" and "Cognition" pages to a unified VSCode-style system (borders, ribbons, and button styles).
+
+### Fixed
+- **Terminal Aesthetics**: Unified terminal input font and prompt size with the main chat module for a cleaner, professional look.
+- **Next.js Stability**: Fixed `ReferenceError` caused by missing `AnimatePresence` and `useState/useEffect` imports in new components.
+
+## [1.2.0] - 2026-02-27
 +### Added
 +- **Knowledge Base / Docs**: Full implementation of the `/docs` route with Mermaid diagram support.
 +- **New Documentation**: Added `FEATURES.md` (Premium system descriptions) and `API.md` (FastAPI technical reference).

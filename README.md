@@ -5,7 +5,7 @@
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
+[![Version](https://img.shields.io/badge/version-1.2.1-blue?style=flat-square)](https://github.com/takzen/aether-agent)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
@@ -42,7 +42,8 @@ Where traditional AI tools simply react to text, **Aether simulates and anticipa
 | 🕸️ **Concept Constellations** | Moving beyond standard RAG vectors. Aether links memories and facts into a dense relational graph within its core SQLite + Qdrant architecture. |
 | 📱 **Telegram Bridge** | Operate your entire codebase and read system briefings via an encrypted, native-feeling CLI bridge straight from the Telegram app on your phone. |
 | 🔌 **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory with other AIs. |
-| 🖥️ **Command Center** | Centralny punkt sterowania Next.js. Obsługuje zaawansowane skróty klawiszowe oraz slash commands (`/clear`, `/logclear`, `/logs`, `/simulate`) do kontroli nad systemem w czasie rzeczywistym. |
+| 🖥️ **Command Center** | Centralny punkt sterowania Next.js z minimalistycznym interfejsem terminala. Obsługuje zaawansowane skróty oraz slash commands (`/clear`, `/logclear`, `/logs`) do precyzyjnej diagnostyki. |
+| ✨ **Cognition Center** | Interaktywny panel do strojenia osobowości, autonomii i zachowań kognitywnych Agenta (*Draft - v1.2.1*). |
 | 💻 **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
 
 ---
