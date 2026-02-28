@@ -414,6 +414,7 @@ async def get_session_history(session_id: str):
             metadata = msg.get("metadata") if isinstance(msg.get("metadata"), dict) else None
             if metadata and isinstance(metadata.get("used_tools"), list):
                 cleaned_tools = []
+                seen_pairs = set()
                 for t in metadata["used_tools"]:
                     if not isinstance(t, dict):
                         continue
@@ -421,13 +422,19 @@ async def get_session_history(session_id: str):
                     detail = str(t.get("detail", "")).strip()
                     if not name:
                         continue
+                    norm = name.lower()
+                    # Drop output schema pseudo-tools and wrapper artifacts
+                    if norm in {"final_result", "finalresult", "aetherresponse"}:
+                        continue
                     # Drop obvious serialization artifacts (e.g. x2, {}, dict dumps)
                     if name in {"x2", "{}", "[]"} or name.startswith("{") or name.startswith("["):
                         continue
-                    if name == "final_result":
-                        detail = "final_result"
                     if detail.startswith("{'response'") or detail.startswith('{"response"'):
                         detail = name
+                    pair = (name, detail or name)
+                    if pair in seen_pairs:
+                        continue
+                    seen_pairs.add(pair)
                     cleaned_tools.append({"name": name, "detail": detail or name})
                 metadata["used_tools"] = cleaned_tools if cleaned_tools else None
             cleaned_msgs.append(msg)
@@ -826,12 +833,16 @@ async def chat_stream(request: ChatRequest):
 
             # Parse used tools from serialized messages (tool-call parts only).
             used_tools = []
+            seen_pairs = set()
             try:
                 for m in serialized_messages:
                     parts = m.get("parts", []) if isinstance(m, dict) else []
                     for p in parts:
                         if isinstance(p, dict) and p.get("part_kind") == "tool-call" and p.get("tool_name"):
                             tool_name = str(p.get("tool_name")).strip()
+                            norm_name = tool_name.lower()
+                            if norm_name in {"final_result", "finalresult", "aetherresponse"}:
+                                continue
                             args = p.get("args", {})
                             detail = ""
                             if isinstance(args, dict):
@@ -840,6 +851,10 @@ async def chat_stream(request: ChatRequest):
                                 detail = tool_name
 
                             if tool_name:
+                                pair = (tool_name, str(detail))
+                                if pair in seen_pairs:
+                                    continue
+                                seen_pairs.add(pair)
                                 used_tools.append({
                                     "name": tool_name,
                                     "detail": str(detail),
@@ -1010,12 +1025,16 @@ async def chat(request: ChatRequest):
         # This avoids persisting tool-return payloads like `final_result({...})`
         # as UI badges.
         used_tools = []
+        seen_pairs = set()
         try:
             for m in serialized_messages:
                 parts = m.get("parts", []) if isinstance(m, dict) else []
                 for p in parts:
                     if isinstance(p, dict) and p.get("part_kind") == "tool-call" and p.get("tool_name"):
                         tool_name = str(p.get("tool_name")).strip()
+                        norm_name = tool_name.lower()
+                        if norm_name in {"final_result", "finalresult", "aetherresponse"}:
+                            continue
                         args = p.get("args", {})
                         detail = ""
                         if isinstance(args, dict):
@@ -1024,6 +1043,10 @@ async def chat(request: ChatRequest):
                             detail = tool_name
 
                         if tool_name:
+                            pair = (tool_name, str(detail))
+                            if pair in seen_pairs:
+                                continue
+                            seen_pairs.add(pair)
                             used_tools.append({
                                 "name": tool_name,
                                 "detail": str(detail),
