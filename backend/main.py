@@ -696,6 +696,22 @@ async def chat_stream(request: ChatRequest):
             async for event in aether_agent.run_stream_events(**run_kwargs):
                 event_kind = getattr(event, "event_kind", "")
 
+                if event_kind == "part_start":
+                    part = getattr(event, "part", None)
+                    part_kind = getattr(part, "part_kind", "")
+                    if part_kind == "text":
+                        text_chunk = getattr(part, "content", "")
+                        if text_chunk:
+                            yield emit({"type": "token", "content": str(text_chunk)})
+
+                if event_kind == "part_delta":
+                    delta = getattr(event, "delta", None)
+                    delta_kind = getattr(delta, "part_delta_kind", "")
+                    if delta_kind == "text":
+                        text_chunk = getattr(delta, "content_delta", "")
+                        if text_chunk:
+                            yield emit({"type": "token", "content": str(text_chunk)})
+
                 if event_kind == "function_tool_call":
                     part = getattr(event, "part", None)
                     tool_name = getattr(part, "tool_name", None)

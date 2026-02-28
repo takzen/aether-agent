@@ -3,7 +3,7 @@
 import Sidebar from "@/components/Sidebar";
 import { Shield, Activity, MessageSquare, Send, Brain, Database, Check, Terminal } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useCommand, DashboardMessage } from "@/context/CommandContext";
 import ReactMarkdown from "react-markdown";
@@ -14,7 +14,7 @@ const getShikiHighlighter = () => {
   if (!shikiHighlighterPromise) {
     shikiHighlighterPromise = createHighlighter({
       themes: ["dark-plus"],
-      langs: ["txt", "python", "javascript", "typescript", "tsx", "json", "bash", "markdown", "yaml", "html", "css", "sql"]
+      langs: ["txt", "python", "javascript", "typescript", "tsx", "json", "bash", "markdown", "yaml", "html", "css", "sql", "diff"]
     });
   }
   return shikiHighlighterPromise;
@@ -31,15 +31,28 @@ const normalizeLang = (lang: string) => {
     shell: "bash",
     sh: "bash",
     zsh: "bash",
+    patch: "diff",
   };
   return map[lower] || lower;
 };
 
+interface ChatStreamEvent {
+  type: "status" | "tool_call" | "final" | "error" | "token";
+  message?: string;
+  tool_name?: string;
+  args?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  content?: string;
+}
+
 const DashboardCodeBlock = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   const [copied, setCopied] = useState(false);
-  const [highlightedHtml, setHighlightedHtml] = useState<string>("");
+  const [wrapLines, setWrapLines] = useState(false);
+  const [tokenLines, setTokenLines] = useState<{ content: string; color?: string; fontStyle?: number }[][]>([]);
   const language = className ? className.replace(/language-/, "") : "txt";
   const codeText = String(children).replace(/\n$/, "");
+  const normalizedLanguage = normalizeLang(language);
+  const isDiff = normalizedLanguage === "diff";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(codeText);
@@ -52,19 +65,22 @@ const DashboardCodeBlock = ({ children, className }: { children: React.ReactNode
     const render = async () => {
       try {
         const highlighter = await getShikiHighlighter();
-        let lang = normalizeLang(language);
+        let lang = normalizedLanguage;
         if (!highlighter.getLoadedLanguages().includes(lang)) {
           lang = "txt";
         }
-        const html = highlighter.codeToHtml(codeText, { lang, theme: "dark-plus" });
-        if (active) setHighlightedHtml(html);
+        const highlighted = highlighter.codeToTokens(codeText, { lang, theme: "dark-plus" }).tokens;
+        if (active) setTokenLines(highlighted);
       } catch {
-        if (active) setHighlightedHtml("");
+        if (active) {
+          const fallback = codeText.split("\n").map((line) => [{ content: line }]);
+          setTokenLines(fallback);
+        }
       }
     };
     render();
     return () => { active = false; };
-  }, [codeText, language]);
+  }, [codeText, normalizedLanguage]);
 
   return (
     <div className="group relative my-3 rounded-lg overflow-hidden border border-[#2a2d2e] bg-[#1e1e1e] shadow-lg">
@@ -73,23 +89,56 @@ const DashboardCodeBlock = ({ children, className }: { children: React.ReactNode
           <Terminal size={11} className="text-[#569cd6]" />
           <span className="text-[10px] font-bold text-[#9cdcfe] uppercase tracking-widest">{language}</span>
         </div>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold text-white/60 hover:text-white transition-all border border-white/10"
-        >
-          {copied ? <Check size={11} className="text-emerald-400" /> : <Database size={11} className="opacity-50" />}
-          {copied ? "COPIED" : "COPY"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setWrapLines(prev => !prev)}
+            className="flex items-center gap-1 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold text-white/60 hover:text-white transition-all border border-white/10"
+          >
+            {wrapLines ? "NO WRAP" : "WRAP"}
+          </button>
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold text-white/60 hover:text-white transition-all border border-white/10"
+          >
+            {copied ? <Check size={11} className="text-emerald-400" /> : <Database size={11} className="opacity-50" />}
+            {copied ? "COPIED" : "COPY"}
+          </button>
+        </div>
       </div>
-      <div className="p-3 overflow-x-auto custom-scrollbar font-mono text-[12px] text-[#d4d4d4] leading-relaxed whitespace-pre">
-        {highlightedHtml ? (
-          <div
-            className="[&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:!m-0"
-            dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-          />
-        ) : (
-          <code>{codeText}</code>
-        )}
+      <div className={`p-3 ${wrapLines ? "overflow-x-hidden" : "overflow-x-auto"} custom-scrollbar font-mono text-[12px] text-[#d4d4d4] leading-6`}>
+        <div className="min-w-full">
+          {tokenLines.map((line, idx) => {
+            const rawLine = line.map(t => t.content).join("");
+            const diffClass = isDiff
+              ? rawLine.startsWith("+")
+                ? "bg-emerald-500/10"
+                : rawLine.startsWith("-")
+                  ? "bg-red-500/10"
+                  : "bg-transparent"
+              : "bg-transparent";
+            return (
+              <div key={`${idx}-${rawLine.length}`} className={`flex ${diffClass}`}>
+                <span className="w-10 select-none text-right pr-3 text-[#858585] border-r border-[#2a2d2e] mr-3 shrink-0">
+                  {idx + 1}
+                </span>
+                <span className={`${wrapLines ? "whitespace-pre-wrap break-words" : "whitespace-pre"}`}>
+                  {line.length > 0 ? line.map((token, tokenIdx) => (
+                    <span
+                      key={`${idx}-${tokenIdx}-${token.content.length}`}
+                      style={{
+                        color: token.color || "#d4d4d4",
+                        fontStyle: token.fontStyle === 1 || token.fontStyle === 3 ? "italic" : "normal",
+                        fontWeight: token.fontStyle === 2 || token.fontStyle === 3 ? 700 : 400,
+                      }}
+                    >
+                      {token.content}
+                    </span>
+                  )) : " "}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -101,6 +150,10 @@ export default function Home() {
   const { messages, setMessages, clearMessages, isLoaded } = useCommand();
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyCursor, setHistoryCursor] = useState(-1);
+  const [renderMarkdown, setRenderMarkdown] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const COMMANDS = [
     { cmd: "/logs", desc: "Podgląd logów systemowych" },
@@ -113,6 +166,27 @@ export default function Home() {
   const [activities, setActivities] = useState<{ text: string; time: string; color: string; icon?: string }[]>([]);
   const [modelName, setModelName] = useState("Loading...");
   const [config, setConfig] = useState<{ [key: string]: string }>({ SYSTEM_LANGUAGE: 'pl' });
+
+  const getSeverity = (message: DashboardMessage) => {
+    if (message.isLogEntry) {
+      if (message.logType === "error") return "error";
+      if (message.logType === "warning") return "warn";
+      if (message.logType === "success") return "success";
+      return "info";
+    }
+    const content = (message.content || "").toLowerCase();
+    if (/\b(error|failed|exception|traceback)\b/.test(content)) return "error";
+    if (/\b(warn|warning|caution)\b/.test(content)) return "warn";
+    if (/\b(success|completed|done|ok)\b/.test(content)) return "success";
+    return "info";
+  };
+
+  const severityStyles: Record<string, string> = {
+    info: "border-cyan-500/50 bg-cyan-500/[0.03]",
+    warn: "border-amber-500/50 bg-amber-500/[0.03]",
+    error: "border-red-500/50 bg-red-500/[0.04]",
+    success: "border-emerald-500/50 bg-emerald-500/[0.03]",
+  };
 
   useEffect(() => {
     // Fetch stats
@@ -207,6 +281,29 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only on mount
 
+  useEffect(() => {
+    const onGlobalKey = (e: KeyboardEvent) => {
+      if (!e.ctrlKey) return;
+      if (e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+      if (e.key.toLowerCase() === "l") {
+        e.preventDefault();
+        clearMessages();
+        const lang = config.SYSTEM_LANGUAGE || "pl";
+        setMessages([{
+          id: "welcome-" + Date.now(),
+          role: "assistant",
+          content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+          isInitial: true
+        }]);
+      }
+    };
+    window.addEventListener("keydown", onGlobalKey);
+    return () => window.removeEventListener("keydown", onGlobalKey);
+  }, [clearMessages, config.SYSTEM_LANGUAGE, setMessages]);
+
   const handleUpdateConfig = async (key: string, value: string) => {
     // 1. Get latest state and calculate new values
     setConfig(prev => {
@@ -265,6 +362,9 @@ export default function Home() {
 
     const currentInput = input.trim();
     setInput("");
+    setSuggestions([]);
+    setHistoryCursor(-1);
+    setCommandHistory(prev => [currentInput, ...prev.filter(v => v !== currentInput)].slice(0, 100));
 
     // 1. Handle Slash Commands
     if (currentInput.startsWith("/")) {
@@ -364,21 +464,96 @@ export default function Home() {
     setIsProcessing(true);
 
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const streamingMessageId = "ai-stream-" + Date.now();
+      setMessages(prev => [...prev, {
+        id: streamingMessageId,
+        role: "assistant",
+        content: "",
+      }]);
+
+      const response = await fetch("http://localhost:8000/chat/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: currentInput }),
       });
-      const data = await response.json();
-      if (data.status === "success") {
-        setMessages(prev => [...prev, {
-          id: "ai-" + Date.now(),
-          role: "assistant",
-          content: data.response,
-        }]);
+
+      if (!response.ok || !response.body) {
+        throw new Error(`Streaming request failed (${response.status})`);
       }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let finalData: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+      let streamedContent = "";
+      const toolEvents: string[] = [];
+
+      const processLine = (line: string) => {
+        if (!line.trim()) return;
+        let evt: ChatStreamEvent;
+        try {
+          evt = JSON.parse(line);
+        } catch {
+          return;
+        }
+
+        if (evt.type === "token" && typeof evt.content === "string") {
+          streamedContent += evt.content;
+          const rendered = [streamedContent, ...toolEvents].filter(Boolean).join("\n\n");
+          setMessages(prev => prev.map(msg => msg.id === streamingMessageId ? { ...msg, content: rendered } : msg));
+          return;
+        }
+
+        if (evt.type === "tool_call" && evt.tool_name) {
+          const query = evt.args?.query || evt.args?.path || evt.args?.name || "";
+          const toolInfo = query ? `${evt.tool_name}: ${query}` : evt.tool_name;
+          toolEvents.push(`\`[tool]\` ${toolInfo}`);
+          const rendered = [streamedContent, ...toolEvents].filter(Boolean).join("\n\n");
+          setMessages(prev => prev.map(msg => msg.id === streamingMessageId ? { ...msg, content: rendered } : msg));
+          return;
+        }
+
+        if (evt.type === "final" && evt.data) {
+          finalData = evt.data;
+          return;
+        }
+
+        if (evt.type === "error") {
+          throw new Error(evt.message || "Agent stream error");
+        }
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        lines.forEach(processLine);
+      }
+      if (buffer.trim()) {
+        processLine(buffer);
+      }
+
+      if (!finalData || finalData.status !== "success") {
+        throw new Error("Stream ended without successful final payload.");
+      }
+
+      setMessages(prev => prev.map(msg =>
+        msg.id === streamingMessageId
+          ? {
+            ...msg,
+            content: finalData.response || streamedContent || "No response generated."
+          }
+          : msg
+      ));
     } catch (err) {
       console.error("Chat error:", err);
+      setMessages(prev => [...prev, {
+        id: "err-" + Date.now(),
+        role: "assistant",
+        content: `Error: ${err instanceof Error ? err.message : "Unknown error"}`
+      }]);
     } finally {
       setIsProcessing(false);
     }
@@ -401,6 +576,25 @@ export default function Home() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "l") {
+      e.preventDefault();
+      clearMessages();
+      const lang = config.SYSTEM_LANGUAGE || "pl";
+      setMessages([{
+        id: "welcome-" + Date.now(),
+        role: "assistant",
+        content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+        isInitial: true
+      }]);
+      return;
+    }
+
+    if (e.ctrlKey && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      inputRef.current?.focus();
+      return;
+    }
+
     if (e.key === "Enter") {
       // If suggestions are visible, autocomplete the command
       if (suggestions.length > 0) {
@@ -413,11 +607,26 @@ export default function Home() {
       if (suggestions.length > 0) {
         e.preventDefault();
         setActiveSuggestionIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
+      } else if (commandHistory.length > 0) {
+        e.preventDefault();
+        const nextIndex = Math.min(historyCursor + 1, commandHistory.length - 1);
+        setHistoryCursor(nextIndex);
+        setInput(commandHistory[nextIndex]);
       }
     } else if (e.key === "ArrowDown") {
       if (suggestions.length > 0) {
         e.preventDefault();
         setActiveSuggestionIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
+      } else if (commandHistory.length > 0) {
+        e.preventDefault();
+        const nextIndex = historyCursor - 1;
+        if (nextIndex < 0) {
+          setHistoryCursor(-1);
+          setInput("");
+        } else {
+          setHistoryCursor(nextIndex);
+          setInput(commandHistory[nextIndex]);
+        }
       }
     } else if (e.key === "Escape") {
       setSuggestions([]);
@@ -478,6 +687,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="col-span-8 bg-[#1e1e1e] border border-[#303030] rounded-2xl flex flex-col overflow-hidden shadow-2xl"
+              style={{ fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, 'Courier New', monospace" }}
             >
               {/* Terminal Title Bar */}
               <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.02] shrink-0">
@@ -488,6 +698,13 @@ export default function Home() {
                 </div>
                 <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — root@dashboard</span>
                 <div className="ml-auto flex items-center gap-1.5">
+                  <button
+                    onClick={() => setRenderMarkdown(prev => !prev)}
+                    className="text-[9px] bg-white/5 hover:bg-white/10 text-neutral-300 border border-white/10 px-2 py-0.5 rounded transition-colors font-mono"
+                  >
+                    {renderMarkdown ? "Rendered" : "Raw"}
+                  </button>
+                  <span className="text-[9px] text-neutral-600 font-mono hidden xl:inline">Ctrl+K focus | Ctrl+L clear</span>
                   <div className="flex bg-white/5 p-0.5 rounded border border-white/10 ml-3">
                     <button
                       onClick={() => handleUpdateConfig("SYSTEM_LANGUAGE", "pl")}
@@ -514,7 +731,7 @@ export default function Home() {
               </div>
 
               {/* Terminal Content */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-6 font-mono text-[13px] leading-relaxed scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
+              <div className="flex-1 overflow-y-auto p-5 space-y-6 font-mono text-[13px] leading-7 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
                 {isLoaded && messages.map((msg) => (
                   <div key={msg.id} className="space-y-4">
                     {msg.role === "user" ? (
@@ -528,7 +745,7 @@ export default function Home() {
                       <div className="space-y-4">
                         {/* Improved Log Entry Rendering */}
                         {msg.isLogEntry ? (
-                          <div className={`flex items-start gap-2 py-0.5 border-l-2 pl-3 ${msg.logType === 'error' ? 'border-red-500/50 bg-red-500/5' :
+                          <div className={`flex items-start gap-2 py-2 border-l-2 pl-3 ${msg.logType === 'error' ? 'border-red-500/50 bg-red-500/5' :
                             msg.logType === 'warning' ? 'border-yellow-500/50 bg-yellow-500/5' :
                               msg.logType === 'success' ? 'border-green-500/50 bg-green-500/5' : 'border-blue-500/50 bg-blue-500/5'
                             }`}>
@@ -552,7 +769,7 @@ export default function Home() {
                           </div>
                         ) : (
                           /* Main Response (Clean & Minimal) */
-                          <div className="space-y-2">
+                          <div className={`space-y-2 border-l-2 pl-3 py-2 ${severityStyles[getSeverity(msg)]}`}>
                             {/* Small simple badge for only major stuff */}
                             {(msg.isInitial || (msg.sources && (msg.sources.includes("aether.sleep_cycle") || msg.sources.includes("world_model.simulation")))) && (
                               <div className="flex items-center gap-2 mb-1 opacity-50">
@@ -563,33 +780,37 @@ export default function Home() {
                               </div>
                             )}
                             <div className="text-neutral-300 leading-relaxed">
-                              <ReactMarkdown
-                                components={{
-                                  p: ({ children }) => <p className="whitespace-pre-wrap mb-2">{children}</p>,
-                                  ul: ({ children }) => <ul className="list-disc ml-5 space-y-1 text-neutral-300">{children}</ul>,
-                                  ol: ({ children }) => <ol className="list-decimal ml-5 space-y-1 text-neutral-300">{children}</ol>,
-                                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                                  strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-                                  em: ({ children }) => <em className="text-neutral-200 italic">{children}</em>,
-                                  code: ({ className, children, ...props }) => {
-                                    const inline = !className;
-                                    if (inline) {
+                              {renderMarkdown ? (
+                                <ReactMarkdown
+                                  components={{
+                                    p: ({ children }) => <p className="whitespace-pre-wrap mb-2">{children}</p>,
+                                    ul: ({ children }) => <ul className="list-disc ml-5 space-y-1 text-neutral-300">{children}</ul>,
+                                    ol: ({ children }) => <ol className="list-decimal ml-5 space-y-1 text-neutral-300">{children}</ol>,
+                                    li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                                    strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
+                                    em: ({ children }) => <em className="text-neutral-200 italic">{children}</em>,
+                                    code: ({ className, children, ...props }) => {
+                                      const inline = !className;
+                                      if (inline) {
+                                        return (
+                                          <code className="px-1.5 py-0.5 rounded bg-[#252526] border border-[#3c3c3c] text-[#ce9178] text-[12px]">
+                                            {children}
+                                          </code>
+                                        );
+                                      }
                                       return (
-                                        <code className="px-1.5 py-0.5 rounded bg-[#252526] border border-[#3c3c3c] text-[#ce9178] text-[12px]">
+                                        <DashboardCodeBlock className={className} {...props}>
                                           {children}
-                                        </code>
+                                        </DashboardCodeBlock>
                                       );
-                                    }
-                                    return (
-                                      <DashboardCodeBlock className={className} {...props}>
-                                        {children}
-                                      </DashboardCodeBlock>
-                                    );
-                                  },
-                                }}
-                              >
-                                {typeof msg.content === "string" ? msg.content : "Data structure error"}
-                              </ReactMarkdown>
+                                    },
+                                  }}
+                                >
+                                  {typeof msg.content === "string" ? msg.content : "Data structure error"}
+                                </ReactMarkdown>
+                              ) : (
+                                <pre className="whitespace-pre-wrap break-words text-neutral-300">{typeof msg.content === "string" ? msg.content : "Data structure error"}</pre>
+                              )}
                               {msg.extra && (
                                 <ul className="mt-3 space-y-1 text-neutral-400 border-l border-white/10 pl-4">
                                   {msg.extra.map((item, idx) => (
@@ -605,7 +826,7 @@ export default function Home() {
                   </div>
                 ))}
 
-                {isProcessing && (
+                {isProcessing && !messages.some(m => m.id.startsWith("ai-stream-")) && (
                   <div className="space-y-2 animate-pulse">
                     <div className="flex items-center gap-2">
                       <span className="text-purple-400 font-bold">user@local</span>
@@ -645,6 +866,7 @@ export default function Home() {
                   )}
                   <span className="text-purple-400/50 font-mono text-sm font-bold">user@local:</span>
                   <input
+                    ref={inputRef}
                     type="text"
                     value={input}
                     onChange={handleInputChange}
