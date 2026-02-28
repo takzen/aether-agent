@@ -2,7 +2,7 @@
 
 import Sidebar from "@/components/Sidebar";
 import { Sparkles, Brain, Zap, Shield, Eye, Lock, RefreshCw, BarChart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CognitionPage() {

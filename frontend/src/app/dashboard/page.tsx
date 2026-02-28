@@ -22,8 +22,7 @@ export default function Home() {
   ];
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [activities, setActivities] = useState<any[]>([]);
+  const [activities, setActivities] = useState<{ text: string; time: string; color: string; icon?: string }[]>([]);
   const [modelName, setModelName] = useState("Loading...");
   const [config, setConfig] = useState<{ [key: string]: string }>({ SYSTEM_LANGUAGE: 'pl' });
 
@@ -162,12 +161,11 @@ export default function Home() {
       } else {
         throw new Error(data.message || "Unknown error");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+    } catch (err: unknown) {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: "assistant",
-        content: `Error running night cycle: ${err.message}`
+        content: `Error running night cycle: ${err instanceof Error ? err.message : "Unknown error"}`
       }]);
     } finally {
       setIsProcessing(false);
@@ -205,7 +203,7 @@ export default function Home() {
 
           if (data.status === "success" && data.logs) {
             const now = Date.now();
-            data.logs.reverse().forEach((l: any, idx: number) => {
+            data.logs.reverse().forEach((l: { id: number; message: string; type: string }, idx: number) => {
               setMessages(prev => [...prev, {
                 id: `log-${l.id}-${now}-${idx}`,
                 role: "assistant",
@@ -459,7 +457,7 @@ export default function Home() {
                                     const parsed = JSON.parse(msg.content);
                                     return parsed.brief;
                                   }
-                                } catch (e) { }
+                                } catch { }
                                 return msg.content;
                               })()}
                             </span>

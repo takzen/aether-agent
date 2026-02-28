@@ -6,13 +6,19 @@ import ThoughtStream, { ThoughtStep } from "@/components/ThoughtStream";
 import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2, LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import MermaidRenderer from "@/components/MermaidRenderer";
+
+interface AgentMessagePart {
+    part_kind: string;
+    tool_name: string;
+    args?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
 
 interface Message {
     id: string;
     role: "user" | "assistant";
     content: string;
     timestamp: Date;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tools?: { name: string; detail: string; icon: LucideIcon; count?: number }[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
@@ -20,8 +26,7 @@ interface Message {
     reasoning?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const SimpleHighlighter = ({ code }: { code: any }) => {
+const SimpleHighlighter = ({ code }: { code: React.ReactNode }) => {
     const text = String(code).replace(/\n$/, "");
 
     // Non-capturing groups (?:) are key to stable one-pass regex highlighting
@@ -79,8 +84,7 @@ const SimpleHighlighter = ({ code }: { code: any }) => {
     return <>{result}</>;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CodeBlock = ({ children, className }: { children: any; className?: string }) => {
+const CodeBlock = ({ children, className }: { children: React.ReactNode; className?: string }) => {
     const [copied, setCopied] = useState(false);
     const language = className ? className.replace(/language-/, "") : "code";
 
@@ -129,8 +133,7 @@ export default function ChatPage() {
         { id: 1, type: "thought", message: "Neural core active and waiting for instructions.", icon: Terminal, time: "just now" }
     ]);
     const [selectedModel] = useState<"gemini" | "ollama">("gemini");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [agentHistory, setAgentHistory] = useState<any[]>([]);
+    const [agentHistory, setAgentHistory] = useState<{ role: string; content: string; parts?: AgentMessagePart[] }[]>([]);
 
     // Session History State
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -156,13 +159,12 @@ export default function ChatPage() {
             const res = await fetch(`http://localhost:8000/sessions/${sessionId}/messages`);
             const data = await res.json();
             if (data.status === "success") {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const loadedMsgs = data.messages.map((m: any) => {
+                const loadedMsgs = data.messages.map((m: { id: number; role: string; content: string; timestamp: string; metadata?: any }) => { // eslint-disable-line @typescript-eslint/no-explicit-any
                     let loadedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] | undefined = undefined;
                     if (m.metadata?.used_tools && Array.isArray(m.metadata.used_tools)) {
                         const toolMap: { [key: string]: { name: string; detail: string; icon: LucideIcon; count: number } } = {};
 
-                        m.metadata.used_tools.forEach((t: any) => {
+                        m.metadata.used_tools.forEach((t: { name: string; detail?: string }) => {
                             let icon: LucideIcon = Database;
                             const name = t.name;
                             let detail = t.detail || t.name;
@@ -329,14 +331,12 @@ export default function ChatPage() {
                 const usedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] = [];
                 const newThoughts: ThoughtStep[] = [];
                 if (data.new_messages) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    data.new_messages.forEach((msg: any) => {
+                    data.new_messages.forEach((msg: { parts: AgentMessagePart[] }) => {
                         if (msg.parts) {
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            msg.parts.forEach((part: any) => {
+                            msg.parts.forEach((part: AgentMessagePart) => {
                                 if (part.part_kind === "tool-call") {
                                     let detail = "";
-                                    let icon: any = Database;
+                                    let icon: LucideIcon = Database;
                                     let messageStr = "";
                                     if (part.tool_name === "read_file" && part.args?.path) {
                                         detail = part.args.path;
@@ -556,6 +556,9 @@ export default function ChatPage() {
                                                                         {children}
                                                                     </code>
                                                                 );
+                                                            }
+                                                            if (className === "language-mermaid") {
+                                                                return <MermaidRenderer chart={String(children)} />;
                                                             }
                                                             return <CodeBlock className={className}>{children}</CodeBlock>;
                                                         }

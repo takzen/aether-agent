@@ -57,7 +57,7 @@ export default function AgentLogs() {
         return matchesSearch && matchesTab;
     });
 
-    const formatTime = (ts: any) => {
+    const formatTime = (ts: string | null | undefined) => {
         if (!ts || typeof ts !== 'string') return "--:--:--";
         try {
             const date = new Date(ts.replace(" ", "T"));

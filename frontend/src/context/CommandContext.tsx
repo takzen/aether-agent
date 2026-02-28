@@ -40,7 +40,8 @@ export function CommandProvider({ children }: { children: React.ReactNode }) {
 
     // Mark as loaded after first mount to enable saving
     useEffect(() => {
-        setIsLoaded(true);
+        const timer = setTimeout(() => setIsLoaded(true), 0);
+        return () => clearTimeout(timer);
     }, []);
 
     // Save to localStorage whenever messages change, only after initial load
