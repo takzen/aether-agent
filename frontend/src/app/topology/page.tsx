@@ -4,79 +4,128 @@ import Sidebar from "@/components/Sidebar";
 import MermaidRenderer from "@/components/MermaidRenderer";
 import { motion } from "framer-motion";
 
-export default function NeuralTopology() {
+export default function NeuralTopologyPage() {
+    // Ultra-Detailed Technical Map - Sanitized and simplified styles for Mermaid 11.1
+    // Fixed: Removed 'rgba' from style definitions as it causes parse errors in some Mermaid versions.
+    // Fixed: Using hex colors for all style definitions.
     const mermaidChart = `
-flowchart TD
-    %% Inicjalizacja
-    Start([Skierowanie zapytania/Zadanie]) --> Router{Analiza wymagań zadania}
+flowchart LR
+    %% Entry Layer
+    START(["USER_MESSAGE"]) --> GAP["get_agent_response: Glowne wejscie API"]
     
-    %% Główne ścieżki decyzyjne
-    Router -->|Pliki i kod| FS_Router{Operacje na plikach?}
-    Router -->|Baza wiedzy i pamięć| KB_Router{Typ wiedzy?}
-    Router -->|Świat zewnętrzny| Ext[web_search]
-    Router -->|Zarządzanie czasem| Time[get_current_time]
+    subgraph Configuration ["1. Konfiguracja Neuralna"]
+        GAP --> SETS["sqlite_service.get_settings: Pobranie konfiguracji Cognition"]
+        SETS --> DEPS["Inicjalizacja deps: persona, autonomia, reflection, circadian_lock"]
+        DEPS --> TEMP["Kreatywnosc to temperature: Mapowanie 0.1 - 1.0"]
+        TEMP --> MODEL["create_model_instance: Inicjalizacja Gemini lub Ollama"]
+    end
+
+    MODEL --> PROMPT_ENGINE["2. Budowa Dynamicznego Promptu Systemowego"]
+
+    subgraph PromptStream ["System Prompt Functions Lifecycle"]
+        B_P["inject_base_prompt: Kontrola jezyka pl/en + dyrektywy CORE-X"]
+        C_P["inject_cognition_prompt: Aplikacja persony i autonomii 1-3"]
+        D_P["inject_dynamic_context: Agregacja danych RAG i stanów"]
+    end
+
+    PROMPT_ENGINE --> B_P
+    B_P --> C_P
+    C_P --> D_P
+
+    subgraph RAG_Engine ["Hybrid Neural Context Injection"]
+        D_P --> CIRC["Digital Circadian Rhythm: Strateg/Wykonawca/Filozof"]
+        D_P --> MEM_S["memory_manager.search: Wyszukiwanie semantyczne"]
+        D_P --> DOC_S["db_service.search_documents: Przeszukiwanie Biblioteki"]
+    end
+
+    CIRC --> LLM_INPUT["Finalny Prompt: Instrukcje + Kontekst + Wiadomosc"]
+    MEM_S --> LLM_INPUT
+    DOC_S --> LLM_INPUT
+
+    %% Execution Loop
+    LLM_INPUT --> AGENT_RUN["aether_agent.run: Egzekucja w petli PydanticAI"]
     
-    %% Pod-drzewo: System plików
-    FS_Router -->|Eksploracja struktury| FS1[list_directory]
-    FS_Router -->|Analiza zawartości pliku| FS2[read_file]
-    FS_Router -->|Modyfikacja/Tworzenie| FS3[prepare_write_file]
+    AGENT_RUN --> TOOL_LOOP{"Decyzja o uzyciu narzedzia?"}
+
+    subgraph ToolRegistry ["3. Dostepne Moduly Operacyjne"]
+        T_FS["list_directory / read_file: Analiza projektu"]
+        T_WRITE["prepare_write_file: HITL Approval Flow"]
+        T_AUT["validate_path: Walidacja bezpieczenstwa sciezek"]
+        T_WEB["web_search: Zewnetrzny uplink via Tavily API"]
+        T_MEM["remember / recall: Zarzadzanie pamiecia semantyczna"]
+        T_KNG["connect_concepts / query_graph: Rozbudowa Grafu"]
+        T_SKB["search_knowledge_base: Gleboki RAG z limitem search_count"]
+    end
+
+    TOOL_LOOP --> T_FS
+    TOOL_LOOP --> T_WEB
+    TOOL_LOOP --> T_MEM
+    TOOL_LOOP --> T_KNG
+    TOOL_LOOP --> T_SKB
+    TOOL_LOOP --> T_WRITE
     
-    %% Pod-drzewo: Baza wiedzy
-    KB_Router -->|Pamięć o użytkowniku / przeszłość| Mem_Router{Akcja na pamięci?}
-    KB_Router -->|Wewnętrzna dokumentacja projektu| Doc[search_knowledge_base]
-    KB_Router -->|Relacje semantyczne / Graf| Graph_Router{Operacja na grafie?}
+    T_WRITE -- Autonomia ponizej 3 --> HITL["PENDING_ACTION: Oczekiwanie na decyzje"]
+    T_WRITE -- Autonomia rowna 3 --> AUTO_W["FILE_WRITTEN: Bezposredni zapis"]
     
-    %% Pamięć długotrwała
-    Mem_Router -->|Pobieranie kontekstu| M1[recall]
-    Mem_Router -->|Zapisywanie nowych faktów| M2[remember]
+    T_FS --> TOOL_RES["Wynik narzedzia to Agent Reasoning"]
+    T_WEB --> TOOL_RES
+    T_MEM --> TOOL_RES
+    T_KNG --> TOOL_RES
+    T_SKB --> TOOL_RES
+    HITL --> TOOL_RES
+    AUTO_W --> TOOL_RES
     
-    %% Graf wiedzy (Concept Constellations)
-    Graph_Router -->|Odkrywanie powiązań| G1[query_graph]
-    Graph_Router -->|Tworzenie nowych węzłów| G2[connect_concepts]
-    Graph_Router -->|Modyfikacja węzłów| G3[modify_concept]
+    TOOL_RES --> AGENT_RUN
+
+    %% Output Layer
+    TOOL_LOOP -->|Gotowa odpowiedź| CORE_X["4. Strukturyzacja CORE-X Engine"]
     
-    %% Ewaluacja po użyciu narzędzia
-    FS1 --> Eval
-    FS2 --> Eval
-    FS3 --> Eval
-    Ext --> Eval
-    Time --> Eval
-    Doc --> Eval
-    M1 --> Eval
-    M2 --> Eval
-    G1 --> Eval
-    G2 --> Eval
-    G3 --> Eval
+    subgraph OutputSchema ["AetherResponse Model"]
+        R_TXT["response: Markdown message"]
+        R_CONF["confidence_score: Ocena wiarygodnosci 0.1 - 1.0"]
+        R_TYPE["reasoning_type: DOCS / MEMORY / WEB / HYPOTHESIS"]
+    end
+
+    CORE_X --> R_TXT
+    CORE_X --> R_CONF
+    CORE_X --> R_TYPE
     
-    Eval[Ewaluacja pobranych danych i aktualizacja kontekstu] --> Decision{Dane wystarczające?}
+    R_TXT --> POST_PROC["Asynchroniczna asymilacja: add_log + history save"]
+    R_CONF --> POST_PROC
+    R_TYPE --> POST_PROC
     
-    %% Cykl lub Zakończenie
-    Decision -->|Nie, brakuje danych| Router
-    Decision -->|Tak| Final([Wywołanie final_result z Confidence Score])
-    
-    %% Stylowanie węzłów
-    classDef tool fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
-    classDef decision fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
-    classDef endpoint fill:#020617,stroke:#10b981,stroke-width:2px,color:#f8fafc;
-    
-    class FS1,FS2,FS3,Ext,Time,Doc,M1,M2,G1,G2,G3 tool;
-    class Router,FS_Router,KB_Router,Mem_Router,Graph_Router,Decision,Eval decision;
-    class Start,Final endpoint;
+    POST_PROC --> EXIT(["SYSTEM_READY"])
+
+    %% Technical Styles - Fixed: Using HEX only, no RGBA
+    style START fill:#9333ea,stroke:#fff,stroke-width:2px,color:#fff
+    style AGENT_RUN fill:#1a1a1b,stroke:#a855f7,stroke-width:4px,color:#fff
+    style ToolRegistry fill:#1e1b4b,stroke:#9333ea,stroke-dasharray: 8 4
+    style OutputSchema fill:#1e1b4b,stroke:#f59e0b,stroke-dasharray: 8 4
+    style EXIT fill:#22c55e,stroke:#fff,stroke-width:3px,color:#fff
+    style HITL fill:#ef4444,stroke:#fff,color:#fff
     `;
 
     return (
-        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden">
+        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden bg-[#1e1e1e]">
-                <div className="flex-1 overflow-auto flex items-center justify-center p-4">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="w-full max-w-[1600px] h-full flex items-center justify-center"
-                    >
-                        <MermaidRenderer chart={mermaidChart} />
-                    </motion.div>
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 select-none">
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <div>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural Topology</h3>
+                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                                <span>SYSTEM.AGENT_INTERNAL_ARCHITECTURE_DEEP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main Content Area - Scrollable */}
+                <div className="flex-1 relative bg-[#1e1e1e] overflow-hidden">
+                    <MermaidRenderer chart={mermaidChart} />
                 </div>
             </main>
         </div>
