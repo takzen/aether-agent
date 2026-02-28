@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import MermaidRenderer from "@/components/MermaidRenderer";
 import { createHighlighter } from "shiki";
+import { useSearchParams } from "next/navigation";
 
 interface AgentMessagePart {
     part_kind: string;
@@ -28,7 +29,7 @@ interface Message {
     role: "user" | "assistant";
     content: string;
     timestamp: Date;
-    tools?: { name: string; detail: string; icon: LucideIcon; count?: number }[];
+    tools?: { name: string; detail: string; icon: LucideIcon; count?: number; queries?: string[] }[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
     confidence?: number;
@@ -263,6 +264,7 @@ const CodeBlock = ({ children, className }: { children: React.ReactNode; classNa
 };
 
 export default function ChatPage() {
+    const searchParams = useSearchParams();
     const [mounted, setMounted] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -309,9 +311,9 @@ export default function ChatPage() {
             const data = await res.json();
             if (data.status === "success") {
                 const loadedMsgs = data.messages.map((m: { id: number; role: string; content: string; timestamp: string; metadata?: any }) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-                    let loadedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] | undefined = undefined;
+                    let loadedTools: { name: string; detail: string; icon: LucideIcon; count: number; queries?: string[] }[] | undefined = undefined;
                     if (m.metadata?.used_tools && Array.isArray(m.metadata.used_tools)) {
-                        const toolMap: { [key: string]: { name: string; detail: string; icon: LucideIcon; count: number } } = {};
+                        const toolMap: { [key: string]: { name: string; detail: string; icon: LucideIcon; count: number; queries?: string[] } } = {};
 
                         m.metadata.used_tools.forEach((t: { name: string; detail?: string }) => {
                             const name = t.name;
@@ -380,6 +382,13 @@ export default function ChatPage() {
         setMounted(true);
         fetchSessions();
     }, []);
+
+    useEffect(() => {
+        const prefill = searchParams.get("prefill");
+        if (prefill) {
+            setInput(prefill);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -491,20 +500,34 @@ export default function ChatPage() {
             const decoder = new TextDecoder();
             let buffer = "";
             let finalData: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
-            const usedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] = [];
+            const usedTools: { name: string; detail: string; icon: LucideIcon; count: number; queries?: string[] }[] = [];
 
             const applyToolEvent = (toolName: string, args?: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
                 const visual = mapToolVisual(toolName, args);
                 const { detail, icon, message: messageStr } = visual;
+                const query = typeof args?.query === "string" ? args.query.trim() : "";
 
                 const existingTool = usedTools.find(t => t.name === toolName);
                 if (existingTool) {
                     existingTool.count += 1;
+                    if (query) {
+                        const seen = new Set(existingTool.queries || []);
+                        seen.add(query);
+                        existingTool.queries = Array.from(seen).slice(-3);
+                    }
                     if (toolName === "connect_concepts" || toolName === "modify_concept") {
                         existingTool.detail = `${existingTool.count} neural links established`;
+                    } else if (toolName === "search_knowledge_base") {
+                        existingTool.detail = `Knowledge Base (${existingTool.count})`;
                     }
                 } else {
-                    usedTools.push({ name: toolName, detail, icon, count: 1 });
+                    usedTools.push({
+                        name: toolName,
+                        detail: toolName === "search_knowledge_base" ? "Knowledge Base (1)" : detail,
+                        icon,
+                        count: 1,
+                        queries: query ? [query] : []
+                    });
                 }
 
                 setThoughtSteps(prev => [...prev, {
@@ -770,6 +793,13 @@ export default function ChatPage() {
                                                                 <div className="text-xs text-neutral-200 truncate max-w-[200px]">
                                                                     {tool.detail}
                                                                 </div>
+                                                                {tool.queries && tool.queries.length > 0 && (
+                                                                    <div className="text-[10px] text-neutral-400 space-y-0.5 max-w-[220px]">
+                                                                        {tool.queries.map((q, qIdx) => (
+                                                                            <div key={`${tool.name}-q-${qIdx}`} className="truncate">- {q}</div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         );
                                                     })}

@@ -5,8 +5,10 @@ import Sidebar from "@/components/Sidebar";
 import ConceptGraph from "@/components/ConceptGraph";
 import { Brain, Network, Database, X, Trash2, List, Zap, ChevronRight, FileText, Share2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Memories() {
+    const router = useRouter();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [memories, setMemories] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +22,8 @@ export default function Memories() {
     const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [searchTerm, setSearchTerm] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState("all");
 
     const fetchMemories = async () => {
         try {
@@ -67,16 +71,56 @@ export default function Memories() {
         fetchGraph();
     }, []);
 
+    const categories = useMemo(() => {
+        const all = memories
+            .map((m) => String(m.category || "general").toLowerCase())
+            .filter(Boolean);
+        return Array.from(new Set(all)).sort();
+    }, [memories]);
+
+    const filteredMemories = useMemo(() => {
+        const q = searchTerm.trim().toLowerCase();
+        return memories.filter((mem) => {
+            const category = String(mem.category || "general").toLowerCase();
+            const content = String(mem.content || "").toLowerCase();
+            const categoryOk = categoryFilter === "all" || category === categoryFilter;
+            const searchOk = !q || content.includes(q) || category.includes(q) || String(mem.id || "").toLowerCase().includes(q);
+            return categoryOk && searchOk;
+        });
+    }, [memories, searchTerm, categoryFilter]);
+
     const graphNodes = useMemo(() => {
-        return memories.map((mem, index) => {
-            const angle = (index / (memories.length || 1)) * Math.PI * 2;
+        return filteredMemories.map((mem, index) => {
+            const angle = (index / (filteredMemories.length || 1)) * Math.PI * 2;
             const radiusOffset = Math.sin(index * 123.45) * 40;
             const dist = 100 + radiusOffset; // Cluster around Qdrant
             const x = 650 + dist * Math.cos(angle);
             const y = 350 + dist * Math.sin(angle);
             return { ...mem, x, y };
         });
-    }, [memories]);
+    }, [filteredMemories]);
+
+    const selectAndFocusMemory = (mem: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        setSelectedMemory(mem);
+        const graphMem = (typeof mem.x === "number" && typeof mem.y === "number")
+            ? mem
+            : graphNodes.find((n) => n.id === mem.id);
+        if (viewMode === "graph" && graphMem && typeof graphMem.x === "number" && typeof graphMem.y === "number") {
+            const s = Math.max(1, graphScale);
+            setGraphScale(s);
+            setPanOffset({
+                x: (400 - graphMem.x) * s,
+                y: (350 - graphMem.y) * s
+            });
+        }
+    };
+
+    const openInChat = () => {
+        if (!selectedMemory) return;
+        const category = selectedMemory.category || "general";
+        const prompt = `Use this memory as context (category: ${category}):\n${selectedMemory.content}`;
+        router.push(`/chat?prefill=${encodeURIComponent(prompt)}`);
+    };
 
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
@@ -92,12 +136,28 @@ export default function Memories() {
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
                                 <span>SYSTEM.MEM_GRAPH</span>
                                 <span className="text-neutral-700">|</span>
-                                <span>{memories.length} VECTORS LOADED</span>
+                                <span>{filteredMemories.length}/{memories.length} VECTORS VISIBLE</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
+                        <input
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search memory..."
+                            className="w-44 h-8 px-3 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-200 placeholder:text-neutral-500 focus:outline-none focus:border-blue-500/40"
+                        />
+                        <select
+                            value={categoryFilter}
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                            className="h-8 px-2 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-300 focus:outline-none focus:border-blue-500/40"
+                        >
+                            <option value="all">All categories</option>
+                            {categories.map((c) => (
+                                <option key={`cat-${c}`} value={c}>{c}</option>
+                            ))}
+                        </select>
                         {viewMode === "graph" && (
                             <div className="flex items-center gap-1 bg-[#252525] px-1 py-1 rounded-lg border border-[#303030] mr-2">
                                 <button
@@ -316,7 +376,7 @@ export default function Memories() {
                                                 key={node.id}
                                                 initial={{ scale: 0, opacity: 0 }}
                                                 animate={{ scale: 1, opacity: 1 }}
-                                                onClick={() => setSelectedMemory(node)}
+                                                onClick={() => selectAndFocusMemory(node)}
                                                 style={{ left: node.x, top: node.y }}
                                                 className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full flex items-center justify-center transition-all pointer-events-auto group ${selectedMemory?.id === node.id ? "bg-blue-500 scale-150 shadow-[0_0_20px_rgba(59,130,246,0.8)] z-20" : "bg-blue-500/20 border border-blue-500/40 hover:border-blue-400 hover:scale-150 z-10"}`}
                                             >
@@ -362,14 +422,14 @@ export default function Memories() {
                             // List View
                             <div className="p-8 max-w-5xl mx-auto">
                                 <div className="space-y-3">
-                                    {memories.length === 0 ? (
+                                    {filteredMemories.length === 0 ? (
                                         <div className="text-center py-20 text-neutral-500 flex flex-col items-center">
                                             <Brain className="w-12 h-12 mb-4 opacity-20" />
-                                            <p>No vectors recorded.</p>
+                                            <p>No memories match current filters.</p>
                                         </div>
                                     ) : (
-                                        memories.map(mem => (
-                                            <div key={mem.id} onClick={() => setSelectedMemory(mem)} className={`p-4 rounded-xl border transition-colors cursor-pointer flex justify-between items-center ${selectedMemory?.id === mem.id ? "bg-blue-500/10 border-blue-500/30" : "bg-[#181818] border-[#303030] hover:border-blue-500/20"}`}>
+                                        filteredMemories.map(mem => (
+                                            <div key={mem.id} onClick={() => selectAndFocusMemory(mem)} className={`p-4 rounded-xl border transition-colors cursor-pointer flex justify-between items-center ${selectedMemory?.id === mem.id ? "bg-blue-500/10 border-blue-500/30" : "bg-[#181818] border-[#303030] hover:border-blue-500/20"}`}>
                                                 <div className="min-w-0 pr-4">
                                                     <p className="text-sm text-neutral-200 line-clamp-1 truncate">{mem.content}</p>
                                                     <div className="flex gap-2 text-[10px] text-neutral-500 font-mono mt-1">
@@ -430,6 +490,22 @@ export default function Memories() {
                                         <div className="text-[10px] font-mono text-neutral-300">
                                             {selectedMemory.timestamp ? new Date(selectedMemory.timestamp).toLocaleString('en-GB', { hour12: false }) : 'UNKNOWN_TIMESTAMP'}
                                         </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={openInChat}
+                                            className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-300 text-[11px] uppercase tracking-wider font-bold rounded-lg transition-all"
+                                        >
+                                            <ChevronRight className="w-3.5 h-3.5" />
+                                            Open In Chat
+                                        </button>
+                                        <button
+                                            onClick={() => selectAndFocusMemory(selectedMemory)}
+                                            className="w-full flex items-center justify-center gap-2 py-2.5 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-300 text-[11px] uppercase tracking-wider font-bold rounded-lg transition-all"
+                                        >
+                                            <Network className="w-3.5 h-3.5" />
+                                            Focus Node
+                                        </button>
                                     </div>
 
                                     <div className="border-t border-[#303030] pt-6 mt-6">
