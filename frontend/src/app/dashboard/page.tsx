@@ -1,11 +1,99 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Shield, Activity, MessageSquare, Send, Brain, Database } from "lucide-react";
+import { Shield, Activity, MessageSquare, Send, Brain, Database, Check, Terminal } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useCommand, DashboardMessage } from "@/context/CommandContext";
+import ReactMarkdown from "react-markdown";
+import { createHighlighter } from "shiki";
+
+let shikiHighlighterPromise: ReturnType<typeof createHighlighter> | null = null;
+const getShikiHighlighter = () => {
+  if (!shikiHighlighterPromise) {
+    shikiHighlighterPromise = createHighlighter({
+      themes: ["dark-plus"],
+      langs: ["txt", "python", "javascript", "typescript", "tsx", "json", "bash", "markdown", "yaml", "html", "css", "sql"]
+    });
+  }
+  return shikiHighlighterPromise;
+};
+
+const normalizeLang = (lang: string) => {
+  const lower = (lang || "txt").toLowerCase();
+  const map: Record<string, string> = {
+    plaintext: "txt",
+    text: "txt",
+    py: "python",
+    js: "javascript",
+    ts: "typescript",
+    shell: "bash",
+    sh: "bash",
+    zsh: "bash",
+  };
+  return map[lower] || lower;
+};
+
+const DashboardCodeBlock = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  const [copied, setCopied] = useState(false);
+  const [highlightedHtml, setHighlightedHtml] = useState<string>("");
+  const language = className ? className.replace(/language-/, "") : "txt";
+  const codeText = String(children).replace(/\n$/, "");
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(codeText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const render = async () => {
+      try {
+        const highlighter = await getShikiHighlighter();
+        let lang = normalizeLang(language);
+        if (!highlighter.getLoadedLanguages().includes(lang)) {
+          lang = "txt";
+        }
+        const html = highlighter.codeToHtml(codeText, { lang, theme: "dark-plus" });
+        if (active) setHighlightedHtml(html);
+      } catch {
+        if (active) setHighlightedHtml("");
+      }
+    };
+    render();
+    return () => { active = false; };
+  }, [codeText, language]);
+
+  return (
+    <div className="group relative my-3 rounded-lg overflow-hidden border border-[#2a2d2e] bg-[#1e1e1e] shadow-lg">
+      <div className="flex items-center justify-between px-3 py-2 bg-[#252526] border-b border-[#2a2d2e]">
+        <div className="flex items-center gap-2">
+          <Terminal size={11} className="text-[#569cd6]" />
+          <span className="text-[10px] font-bold text-[#9cdcfe] uppercase tracking-widest">{language}</span>
+        </div>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-1 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold text-white/60 hover:text-white transition-all border border-white/10"
+        >
+          {copied ? <Check size={11} className="text-emerald-400" /> : <Database size={11} className="opacity-50" />}
+          {copied ? "COPIED" : "COPY"}
+        </button>
+      </div>
+      <div className="p-3 overflow-x-auto custom-scrollbar font-mono text-[12px] text-[#d4d4d4] leading-relaxed whitespace-pre">
+        {highlightedHtml ? (
+          <div
+            className="[&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:!m-0"
+            dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+          />
+        ) : (
+          <code>{codeText}</code>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -475,7 +563,33 @@ export default function Home() {
                               </div>
                             )}
                             <div className="text-neutral-300 leading-relaxed">
-                              <p className="whitespace-pre-wrap">{typeof msg.content === "string" ? msg.content : "Data structure error"}</p>
+                              <ReactMarkdown
+                                components={{
+                                  p: ({ children }) => <p className="whitespace-pre-wrap mb-2">{children}</p>,
+                                  ul: ({ children }) => <ul className="list-disc ml-5 space-y-1 text-neutral-300">{children}</ul>,
+                                  ol: ({ children }) => <ol className="list-decimal ml-5 space-y-1 text-neutral-300">{children}</ol>,
+                                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                                  strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
+                                  em: ({ children }) => <em className="text-neutral-200 italic">{children}</em>,
+                                  code: ({ className, children, ...props }) => {
+                                    const inline = !className;
+                                    if (inline) {
+                                      return (
+                                        <code className="px-1.5 py-0.5 rounded bg-[#252526] border border-[#3c3c3c] text-[#ce9178] text-[12px]">
+                                          {children}
+                                        </code>
+                                      );
+                                    }
+                                    return (
+                                      <DashboardCodeBlock className={className} {...props}>
+                                        {children}
+                                      </DashboardCodeBlock>
+                                    );
+                                  },
+                                }}
+                              >
+                                {typeof msg.content === "string" ? msg.content : "Data structure error"}
+                              </ReactMarkdown>
                               {msg.extra && (
                                 <ul className="mt-3 space-y-1 text-neutral-400 border-l border-white/10 pl-4">
                                   {msg.extra.map((item, idx) => (
