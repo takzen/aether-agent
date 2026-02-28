@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS concepts (
     type TEXT DEFAULT 'general', -- tech, project, person, concept
     description TEXT,
     metadata TEXT, -- JSON extra data
+    confidence REAL DEFAULT 1.0,
+    vector_id TEXT,
+    last_activated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

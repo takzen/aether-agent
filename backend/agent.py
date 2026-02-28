@@ -421,22 +421,41 @@ async def web_search(ctx: RunContext[dict], query: str) -> str:
         return f"Error performing web search: {str(e)}"
 
 @aether_agent.tool
-async def connect_concepts(ctx: RunContext[dict], source: str, target: str, relation: str) -> str:
+async def connect_concepts(ctx: RunContext[dict], source: str, target: str, relation: str, weight: float = 1.0) -> str:
     """
     Connects two concepts in the Graph Memory (Concept Constellation).
     Use this to build a knowledge graph of relationships between topics, people, projects, and technologies.
-    Example: source='Aether', target='Qdrant', relation='uses'
+    Example: source='Aether', target='Qdrant', relation='uses', weight=1.0
     Args:
         source: The name of the source concept (entity).
         target: The name of the target concept (entity).
         relation: Practical relationship description (e.g., 'uses', 'built_by', 'relates_to', 'part_of').
+        weight: The strength of the connection (0.1 to 1.0). Defaults to 1.0.
     """
     try:
-        await sqlite_service.add_concept_link(source, target, relation)
-        await sqlite_service.add_log("success", "GRAPH", f"New synaptic link forged: {source} --[{relation}]--> {target}")
-        return f"Concepts connected: {source} --[{relation}]--> {target}"
+        await sqlite_service.add_concept_link(source, target, relation, weight=weight)
+        await sqlite_service.add_log("success", "GRAPH", f"New synaptic link forged: {source} --[{relation}]--> {target} (w:{weight})")
+        return f"Concepts connected: {source} --[{relation}]--> {target} with weight {weight}"
     except Exception as e:
         return f"Error connecting concepts: {str(e)}"
+
+@aether_agent.tool
+async def modify_concept(ctx: RunContext[dict], name: str, description: str = None, type: str = None, confidence: float = None) -> str:
+    """
+    Updates an existing concept with more technical detail or adjusts its confidence score.
+    Use this when you learn more about a component or want to mark a hypothesis.
+    Args:
+        name: The name of the concept to modify.
+        description: Updated technical description.
+        type: The category (e.g., 'architecture_layer', 'code_file', 'infrastructure_component').
+        confidence: How certain you are about this concept (0.1 to 1.0).
+    """
+    try:
+        await sqlite_service.upsert_concept(name, c_type=type or 'general', description=description, confidence=confidence or 1.0)
+        await sqlite_service.add_log("info", "GRAPH", f"Concept '{name}' updated with confidence {confidence or 1.0}")
+        return f"Concept '{name}' successfully updated."
+    except Exception as e:
+        return f"Error modifying concept: {str(e)}"
 
 @aether_agent.tool
 async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:

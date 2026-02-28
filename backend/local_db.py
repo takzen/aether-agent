@@ -128,20 +128,23 @@ class SQLiteService:
 
     # --- GRAPH MEMORY (CONSTELLATIONS) ---
 
-    async def upsert_concept(self, name: str, c_type: str = 'general', description: str = None, metadata: Dict = None) -> str:
-        """Adds or updates a concept node."""
+    async def upsert_concept(self, name: str, c_type: str = 'general', description: str = None, metadata: Dict = None, confidence: float = 1.0, vector_id: str = None) -> str:
+        """Adds or updates a concept node with CORE-X enhancements."""
         concept_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, name.lower()))
         meta_json = json.dumps(metadata) if metadata else None
         
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(
-                """INSERT INTO concepts (id, name, type, description, metadata) 
-                   VALUES (?, ?, ?, ?, ?)
+                """INSERT INTO concepts (id, name, type, description, metadata, confidence, vector_id, last_activated_at) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
                    ON CONFLICT(name) DO UPDATE SET 
                      type=excluded.type, 
                      description=COALESCE(excluded.description, concepts.description),
-                     metadata=COALESCE(excluded.metadata, concepts.metadata)""",
-                (concept_id, name, c_type, description, meta_json)
+                     metadata=COALESCE(excluded.metadata, concepts.metadata),
+                     confidence=COALESCE(excluded.confidence, concepts.confidence),
+                     vector_id=COALESCE(excluded.vector_id, concepts.vector_id),
+                     last_activated_at=CURRENT_TIMESTAMP""",
+                (concept_id, name, c_type, description, meta_json, confidence, vector_id)
             )
             await db.commit()
         return concept_id
@@ -153,6 +156,9 @@ class SQLiteService:
         link_id = str(uuid.uuid4())
 
         async with aiosqlite.connect(self.db_path) as db:
+            # We also update last_activated_at for BOTH concepts being linked
+            await db.execute("UPDATE concepts SET last_activated_at = CURRENT_TIMESTAMP WHERE id IN (?, ?)", (s_id, t_id))
+            
             await db.execute(
                 """INSERT INTO concept_links (id, source_id, target_id, relation, weight)
                    VALUES (?, ?, ?, ?, ?)
