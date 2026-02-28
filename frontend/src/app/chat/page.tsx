@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import ThoughtStream, { ThoughtStep } from "@/components/ThoughtStream";
-import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2 } from "lucide-react";
+import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2, LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 
@@ -13,12 +13,105 @@ interface Message {
     content: string;
     timestamp: Date;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tools?: { name: string; detail: string; icon: any }[];
+    tools?: { name: string; detail: string; icon: LucideIcon }[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
     confidence?: number;
     reasoning?: string;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SimpleHighlighter = ({ code }: { code: any }) => {
+    const text = String(code).replace(/\n$/, "");
+
+    // Non-capturing groups (?:) are key to stable one-pass regex highlighting
+    const tokens = [
+        { type: "comment", regex: /(?:#.*|\/\/.*|\/\*[\s\S]*?\*\/)/g, color: "text-white/20 italic" },
+        { type: "string", regex: /(?:"[^"]*"|'[^']*'|`[^`]*`)/g, color: "text-indigo-300" },
+        { type: "keyword", regex: /\b(?:class|def|return|if|else|for|while|async|await|import|from|const|let|function|export|default|interface|type|try|except|with|as)\b/g, color: "text-purple-400 font-bold" },
+        { type: "type", regex: /\b(?:str|int|float|list|dict|bool|Field|BaseModel|Agent|Message|ThoughtStep|useState|useRef|useEffect|any|void|string|number|boolean|any)\b/g, color: "text-purple-200" },
+        { type: "function", regex: /\b[a-z_][a-z0-9_]*(?=\s*\()/gi, color: "text-white/90" },
+        { type: "number", regex: /\b\d+(?:\.\d+)?\b/g, color: "text-purple-300/60" },
+    ];
+
+    const allMatches: { start: number; end: number; content: string; color: string }[] = [];
+
+    tokens.forEach(token => {
+        let match;
+        const regex = new RegExp(token.regex, "g");
+        while ((match = regex.exec(text)) !== null) {
+            allMatches.push({
+                start: match.index,
+                end: match.index + match[0].length,
+                content: match[0],
+                color: token.color
+            });
+        }
+    });
+
+    // Sort and filter overlaps
+    const sorted = allMatches.sort((a, b) => a.start - b.start);
+    const filtered: typeof sorted = [];
+    let lastEnd = 0;
+
+    sorted.forEach(m => {
+        if (m.start >= lastEnd) {
+            filtered.push(m);
+            lastEnd = m.end;
+        }
+    });
+
+    const result: React.ReactNode[] = [];
+    let currentPos = 0;
+
+    filtered.forEach((m, i) => {
+        if (m.start > currentPos) {
+            result.push(text.substring(currentPos, m.start));
+        }
+        result.push(<span key={i} className={m.color}>{m.content}</span>);
+        currentPos = m.end;
+    });
+
+    if (currentPos < text.length) {
+        result.push(text.substring(currentPos));
+    }
+
+    return <>{result}</>;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CodeBlock = ({ children, className }: { children: any; className?: string }) => {
+    const [copied, setCopied] = useState(false);
+    const language = className ? className.replace(/language-/, "") : "code";
+
+    const handleCopy = () => {
+        const text = String(children).replace(/\n$/, "");
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="group relative my-4 rounded-lg overflow-hidden border border-white/10 bg-black/60 shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                    <Terminal size={12} className="text-purple-400" />
+                    <span className="text-[10px] font-bold text-purple-300 uppercase tracking-widest">{language}</span>
+                </div>
+                <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-bold text-white/50 hover:text-white transition-all border border-white/5"
+                >
+                    {copied ? <Check size={12} className="text-emerald-400" /> : <Database size={12} className="opacity-50" />}
+                    {copied ? "COPIED" : "COPY"}
+                </button>
+            </div>
+            <div className="p-4 overflow-x-auto custom-scrollbar font-mono text-[11px] text-white/90 leading-relaxed whitespace-pre font-medium">
+                <SimpleHighlighter code={children} />
+            </div>
+        </div>
+    );
+};
 
 export default function ChatPage() {
     const [mounted, setMounted] = useState(false);
@@ -435,9 +528,20 @@ export default function ChatPage() {
                                                             </li>
                                                         ),
                                                         strong: ({ ...props }) => <strong className="text-white font-bold" {...props} />,
-                                                        code: ({ ...props }) => (
-                                                            <code className="bg-black/40 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5" {...props} />
-                                                        )
+                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                        pre: ({ children }: any) => <>{children}</>,
+                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                        code: ({ inline, children, className, ...props }: any) => {
+                                                            const isMultiline = String(children).includes("\n");
+                                                            if (inline || !isMultiline) {
+                                                                return (
+                                                                    <code className="bg-black/40 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5" {...props}>
+                                                                        {children}
+                                                                    </code>
+                                                                );
+                                                            }
+                                                            return <CodeBlock className={className}>{children}</CodeBlock>;
+                                                        }
                                                     }}
                                                 >
                                                     {msg.content}
