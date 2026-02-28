@@ -23,6 +23,30 @@ export default function CognitionPage() {
         "Creative": "Thinking outside the vault. Explores unconventional solutions and detailed theoretical analogies."
     };
 
+    const autonomyOptions = [
+        { id: 1, label: "MANUAL_OVERRIDE", icon: Shield, desc: "Agent only acts on direct confirmation. High safety." },
+        { id: 2, label: "CO-PILOT_MODE", icon: Zap, desc: "Balanced. Agent handles safe reads and analysis independently." },
+        { id: 3, label: "FULL_AUTONOMY", icon: Sparkles, desc: "DANGER.ZONE_ACTIVE: Full cognitive freedom. Agent can modify any files without approval." }
+    ] as const;
+
+    const autonomyClasses: Record<number, { active: string; icon: string; accent: string }> = {
+        1: {
+            active: "bg-blue-500/5 border-blue-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100",
+            icon: "bg-blue-500/20 border-blue-500/30 text-blue-400",
+            accent: "text-blue-500"
+        },
+        2: {
+            active: "bg-purple-500/5 border-purple-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100",
+            icon: "bg-purple-500/20 border-purple-500/30 text-purple-400",
+            accent: "text-purple-500"
+        },
+        3: {
+            active: "bg-rose-500/5 border-rose-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100",
+            icon: "bg-rose-500/20 border-rose-500/30 text-rose-400",
+            accent: "text-rose-500"
+        }
+    };
+
     // Load settings from backend
     useEffect(() => {
         const fetchSettings = async () => {
@@ -275,26 +299,22 @@ export default function CognitionPage() {
                                             <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Autonomy_Engine</h2>
                                         </div>
                                         <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-4 min-h-[420px] backdrop-blur-md shadow-xl">
-                                            {[
-                                                { id: 1, label: "MANUAL_OVERRIDE", icon: Shield, color: "blue", desc: "Agent only acts on direct confirmation. High safety." },
-                                                { id: 2, label: "CO-PILOT_MODE", icon: Zap, color: "purple", desc: "Balanced. Agent handles safe reads and analysis independently." },
-                                                { id: 3, label: "FULL_AUTONOMY", icon: Sparkles, color: "rose", desc: "DANGER.ZONE_ACTIVE: Full cognitive freedom. Agent can modify any files without approval." }
-                                            ].map((opt) => (
+                                            {autonomyOptions.map((opt) => (
                                                 <button
                                                     key={opt.id}
                                                     onClick={() => setAutonomy(opt.id)}
                                                     className={`w-full p-4 rounded-xl border transition-all duration-300 text-left flex items-start gap-4 ${autonomy === opt.id
-                                                        ? `bg-${opt.color}-500/5 border-${opt.color}-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100`
+                                                        ? autonomyClasses[opt.id].active
                                                         : 'bg-[#1a1a1b] border-white/5 hover:border-white/10 opacity-60 hover:opacity-90'}`}
                                                 >
                                                     <div className={`p-2 border rounded-lg shrink-0 transition-colors ${autonomy === opt.id
-                                                        ? `bg-${opt.color}-500/20 border-${opt.color}-500/30 text-${opt.color}-400`
+                                                        ? autonomyClasses[opt.id].icon
                                                         : 'bg-neutral-800/50 border-neutral-700 text-neutral-500'}`}>
                                                         <opt.icon className="w-4 h-4" />
                                                     </div>
                                                     <div className="space-y-1">
                                                         <h5 className={`text-[10px] font-black uppercase tracking-widest ${autonomy === opt.id ? 'text-white' : 'text-neutral-400'}`}>
-                                                            {opt.label} {autonomy === opt.id && <span className={`ml-1 text-${opt.color}-500 font-black text-xs`}>!!!</span>}
+                                                            {opt.label} {autonomy === opt.id && <span className={`ml-1 ${autonomyClasses[opt.id].accent} font-black text-xs`}>!!!</span>}
                                                         </h5>
                                                         <p className="text-[9px] text-neutral-500 font-sans italic leading-tight">{opt.desc}</p>
                                                     </div>
