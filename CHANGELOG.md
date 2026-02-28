@@ -1,6 +1,18 @@
 # Changelog
 
 All notable changes to the Aether Agent project will be documented in this file.
+
+## [1.3.0] - 2026-02-28
+### Added
+- **Premium Mermaid Rendering**: Integrated advanced diagram visualization with interactive Pan & Zoom (Neural Focus Mode).
+- **Tool Call Aggregation**: Consecutive identical tool calls are now grouped with a counter (e.g., `connect_concepts x5`), reducing UI clutter.
+- **Glassmorphic Code Blocks**: Refined code display with a premium minimalist glassmorphism aesthetic.
+
+### Fixed
+- **ESLint Compliance**: Achieved a 100% clean build by resolving all `no-explicit-any` and `unused-vars` errors across the frontend.
+- **Hydration & SSR Stability**: Refactored `CommandContext` state initialization to prevent Next.js hydration mismatches.
+- **List Alignment**: Fixed vertical centering of list bullets and added hover glow effects.
+
 ## [1.2.1] - 2026-02-28
 ### Added
 - **Cognition Center (Draft)**: A new premium UI section (`/cognition`) for fine-tuning agent personality, autonomy levels, and neural behaviors.
