@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState, useRef } from "react";
 import mermaid from "mermaid";
@@ -7,8 +7,7 @@ import { motion } from "framer-motion";
 const MermaidRenderer = ({ chart }: { chart: string }) => {
     const [svg, setSvg] = useState<string>("");
     const [isLoaded, setIsLoaded] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [scale, setScale] = useState(2.5); // Default start BIG (250% scale)
+    const [scale, setScale] = useState(1);
 
     // Panning state
     const [isDragging, setIsDragging] = useState(false);
@@ -19,12 +18,27 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
     const contentRef = useRef<HTMLDivElement>(null);
 
     // Zoom Functions
-    const zoomIn = () => setScale(prev => Math.min(prev + 0.5, 10));
-    const zoomOut = () => setScale(prev => Math.max(prev - 0.5, 0.4));
+    const zoomIn = () => setScale(prev => Math.min(prev + 0.2, 4));
+    const zoomOut = () => setScale(prev => Math.max(prev - 0.2, 0.25));
 
-    // Fixed Reset to BIG scale
-    const resetToBig = () => {
-        setScale(2.5);
+    const resetView = () => {
+        if (containerRef.current && contentRef.current) {
+            const svgEl = contentRef.current.querySelector("svg");
+            if (svgEl) {
+                const vb = (svgEl as SVGSVGElement).viewBox?.baseVal;
+                const bbox = svgEl.getBBox();
+                const graphWidth = (vb && vb.width > 0) ? vb.width : bbox.width;
+                const graphHeight = (vb && vb.height > 0) ? vb.height : bbox.height;
+                const cw = containerRef.current.clientWidth;
+                const ch = containerRef.current.clientHeight;
+                const fitScale = Math.max(0.5, Math.min((cw * 0.9) / graphWidth, (ch * 0.9) / graphHeight, 1.8));
+                setScale(fitScale);
+            } else {
+                setScale(1);
+            }
+        } else {
+            setScale(1);
+        }
         setPosition({ x: 0, y: 0 });
     };
 
@@ -45,6 +59,12 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
 
     const onMouseUp = () => {
         setIsDragging(false);
+    };
+
+    const onWheel = (e: React.WheelEvent) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        setScale(prev => Math.max(0.25, Math.min(prev + delta, 4)));
     };
 
     useEffect(() => {
@@ -77,31 +97,35 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
         const renderChart = async () => {
             if (!chart) return;
             setIsLoaded(false);
-            setError(null);
 
             try {
                 const id = `mermaid-render-${Math.random().toString(36).substr(2, 9)}`;
                 const { svg: renderedSvg } = await mermaid.render(id, chart);
 
-                // FORCE HUGE DIMENSIONS
+                // Keep Mermaid native dimensions; only disable max-width shrinking.
                 const cleanedSvg = renderedSvg
-                    .replace(/width="[^"]*"/, 'width="2500px"')
-                    .replace(/height="[^"]*"/, 'height="auto"');
+                    .replace(/max-width:\s*[^;"]+;?/g, "max-width: none;");
 
                 setSvg(cleanedSvg);
                 setIsLoaded(true);
-                // Start with BIG scale
-                setScale(1.5);
+                setScale(1);
                 setPosition({ x: 0, y: 0 });
             } catch (err) {
                 console.error("Mermaid render error:", err);
-                setError("Diagram rendering failed. Check syntax.");
                 setIsLoaded(true);
             }
         };
 
         renderChart();
     }, [chart]);
+
+    useEffect(() => {
+        if (!svg || !containerRef.current || !contentRef.current) return;
+        const id = requestAnimationFrame(() => {
+            resetView();
+        });
+        return () => cancelAnimationFrame(id);
+    }, [svg]);
 
     return (
         <div className="w-full h-full relative flex flex-col bg-[#1e1e1e] overflow-hidden">
@@ -116,10 +140,10 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
                     </button>
                     <div className="w-px h-6 bg-white/10 mx-1" />
                     <button
-                        onClick={resetToBig}
+                        onClick={resetView}
                         className="px-6 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-[11px] font-mono text-purple-400 hover:text-purple-300 transition-all uppercase tracking-widest active:scale-95 font-bold"
                     >
-                        V-MAX {Math.round(scale * 100)}%
+                        FIT {Math.round(scale * 100)}%
                     </button>
                     <div className="w-px h-6 bg-white/10 mx-1" />
                     <button
@@ -139,6 +163,7 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
                 onMouseMove={onMouseMove}
                 onMouseUp={onMouseUp}
                 onMouseLeave={onMouseUp}
+                onWheel={onWheel}
             >
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <motion.div
@@ -160,11 +185,12 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
             {/* Instruction Banner */}
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 text-[10px] text-neutral-400 font-mono whitespace-nowrap pointer-events-none flex items-center gap-3">
                 <span className="flex items-center gap-1.5 underline decoration-purple-500/50 underline-offset-4 font-bold text-white uppercase italic">Ultra-Wide Architecture Map</span>
-                <span className="text-neutral-700 select-none">•</span>
-                <span>Chwyć łapką, by przesuwać ogromny schemat</span>
+                <span className="text-neutral-700 select-none">|</span>
+                <span>Drag to pan, wheel to zoom</span>
             </div>
         </div>
     );
 };
 
 export default MermaidRenderer;
+

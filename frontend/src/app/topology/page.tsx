@@ -2,7 +2,6 @@
 
 import Sidebar from "@/components/Sidebar";
 import MermaidRenderer from "@/components/MermaidRenderer";
-import { motion } from "framer-motion";
 
 export default function NeuralTopologyPage() {
     // Ultra-Detailed Technical Map - Sanitized and simplified styles for Mermaid 11.1
