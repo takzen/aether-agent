@@ -13,7 +13,7 @@ interface Message {
     content: string;
     timestamp: Date;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tools?: { name: string; detail: string; icon: LucideIcon }[];
+    tools?: { name: string; detail: string; icon: LucideIcon; count?: number }[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pendingActions?: any[];
     confidence?: number;
@@ -92,8 +92,8 @@ const CodeBlock = ({ children, className }: { children: any; className?: string 
     };
 
     return (
-        <div className="group relative my-4 rounded-lg overflow-hidden border border-white/10 bg-black/60 shadow-2xl">
-            <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
+        <div className="group relative my-4 rounded-lg overflow-hidden border border-white/5 bg-white/[0.02] backdrop-blur-sm shadow-xl">
+            <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5">
                 <div className="flex items-center gap-2">
                     <Terminal size={12} className="text-purple-400" />
                     <span className="text-[10px] font-bold text-purple-300 uppercase tracking-widest">{language}</span>
@@ -158,22 +158,33 @@ export default function ChatPage() {
             if (data.status === "success") {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const loadedMsgs = data.messages.map((m: any) => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    let loadedTools: any[] | undefined = undefined;
+                    let loadedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] | undefined = undefined;
                     if (m.metadata?.used_tools && Array.isArray(m.metadata.used_tools)) {
-                        loadedTools = m.metadata.used_tools.map((t: any) => {
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            let icon: any = Database;
+                        const toolMap: { [key: string]: { name: string; detail: string; icon: LucideIcon; count: number } } = {};
+
+                        m.metadata.used_tools.forEach((t: any) => {
+                            let icon: LucideIcon = Database;
+                            const name = t.name;
                             let detail = t.detail || t.name;
-                            if (t.name === "read_file") { icon = FileText; }
-                            else if (t.name === "search_knowledge_base") { icon = Database; detail = "The Library"; }
-                            else if (t.name === "recall") { icon = Brain; detail = "Vector Memory"; }
-                            else if (t.name === "list_directory") { icon = FolderSearch; detail = "File System"; }
-                            else if (t.name === "web_search") { icon = Globe; detail = "Tavily Web Search"; }
-                            else if (t.name === "connect_concepts") { icon = Brain; }
-                            else if (t.name === "modify_concept") { icon = Sparkles; }
-                            return { name: t.name, detail: detail, icon };
+
+                            if (name === "read_file") { icon = FileText; }
+                            else if (name === "search_knowledge_base") { icon = Database; detail = "The Library"; }
+                            else if (name === "recall") { icon = Brain; detail = "Vector Memory"; }
+                            else if (name === "list_directory") { icon = FolderSearch; detail = "File System"; }
+                            else if (name === "web_search") { icon = Globe; detail = "Tavily Web Search"; }
+                            else if (name === "connect_concepts") { icon = Brain; }
+                            else if (name === "modify_concept") { icon = Sparkles; }
+
+                            if (toolMap[name]) {
+                                toolMap[name].count += 1;
+                                if (name === "connect_concepts" || name === "modify_concept") {
+                                    toolMap[name].detail = `${toolMap[name].count} neural links established`;
+                                }
+                            } else {
+                                toolMap[name] = { name, detail, icon, count: 1 };
+                            }
                         });
+                        loadedTools = Object.values(toolMap);
                     }
 
                     return {
@@ -315,8 +326,7 @@ export default function ChatPage() {
             const data = await response.json();
 
             if (data.status === "success") {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const usedTools: { name: string; detail: string; icon: any }[] = [];
+                const usedTools: { name: string; detail: string; icon: LucideIcon; count: number }[] = [];
                 const newThoughts: ThoughtStep[] = [];
                 if (data.new_messages) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -361,17 +371,24 @@ export default function ChatPage() {
                                         messageStr = `Executing tool: ${part.tool_name}`;
                                     }
 
-                                    if (!usedTools.find(t => t.name === part.tool_name && t.detail === detail)) {
-                                        usedTools.push({ name: part.tool_name, detail, icon });
-
-                                        newThoughts.push({
-                                            id: `${Date.now()}-${Math.random()}`,
-                                            type: "tool",
-                                            message: messageStr,
-                                            icon: icon,
-                                            time: "just now"
-                                        });
+                                    const existingTool = usedTools.find(t => t.name === part.tool_name);
+                                    if (existingTool) {
+                                        existingTool.count += 1;
+                                        if (part.tool_name === "connect_concepts" || part.tool_name === "modify_concept") {
+                                            existingTool.detail = `${existingTool.count} neural links established`;
+                                        }
+                                    } else {
+                                        usedTools.push({ name: part.tool_name, detail, icon, count: 1 });
                                     }
+
+                                    // Still add to thought stream for transparency
+                                    newThoughts.push({
+                                        id: `${Date.now()}-${Math.random()}`,
+                                        type: "tool",
+                                        message: messageStr,
+                                        icon: icon,
+                                        time: "just now"
+                                    });
                                 }
                             });
                         }
@@ -522,9 +539,9 @@ export default function ChatPage() {
                                                         p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,
                                                         ul: ({ ...props }) => <ul className="list-none space-y-1.5 mb-3" {...props} />,
                                                         li: ({ ...props }) => (
-                                                            <li className="flex items-start gap-2">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500/50 mt-1.5 shrink-0" />
-                                                                <span {...props} />
+                                                            <li className="flex items-start gap-3 group">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500/40 mt-[0.55rem] shrink-0 transition-all group-hover:bg-purple-400 group-hover:shadow-[0_0_8px_rgba(168,85,247,0.4)]" />
+                                                                <span className="flex-1" {...props} />
                                                             </li>
                                                         ),
                                                         strong: ({ ...props }) => <strong className="text-white font-bold" {...props} />,
@@ -561,6 +578,11 @@ export default function ChatPage() {
                                                                 <div className="flex items-center gap-2 text-[10px] text-neutral-400 font-mono flex-1">
                                                                     <Icon className="w-3 h-3 text-purple-400" />
                                                                     <span>{tool.name}</span>
+                                                                    {tool.count && tool.count > 1 && (
+                                                                        <span className="px-1 py-0.5 rounded-sm bg-purple-500/20 text-purple-400 text-[8px] font-bold">
+                                                                            x{tool.count}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <div className="text-xs text-neutral-200 truncate max-w-[200px]">
                                                                     {tool.detail}

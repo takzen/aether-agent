@@ -24,22 +24,22 @@ interface CommandContextType {
 const CommandContext = createContext<CommandContextType | undefined>(undefined);
 
 export function CommandProvider({ children }: { children: React.ReactNode }) {
-    const [messages, setMessages] = useState<DashboardMessage[]>([]);
-    const [isLoaded, setIsLoaded] = useState(false);
-
-    // Initial load - SSR safe
-    useEffect(() => {
+    const [messages, setMessages] = useState<DashboardMessage[]>(() => {
         if (typeof window !== "undefined") {
-            const saved = localStorage.getItem("aether_terminal_history");
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    setMessages(parsed);
-                } catch {
-                    console.error("Failed to parse terminal history");
-                }
+            try {
+                const saved = localStorage.getItem("aether_terminal_history");
+                return saved ? JSON.parse(saved) : [];
+            } catch (e) {
+                console.error("Failed to parse terminal history", e);
+                return [];
             }
         }
+        return [];
+    });
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    // Mark as loaded after first mount to enable saving
+    useEffect(() => {
         setIsLoaded(true);
     }, []);
 
