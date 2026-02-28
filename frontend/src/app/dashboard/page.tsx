@@ -706,15 +706,15 @@ export default function Home() {
               <span className="flex items-center gap-1.5 text-blue-400/80">
                 <Database className="w-3 h-3" /> DOCS: {stats.documents}
               </span>
-              <span className="text-neutral-700 select-none">â€˘</span>
+              <span className="text-neutral-700 select-none">|</span>
               <span className="flex items-center gap-1.5 text-purple-400/80">
                 <Brain className="w-3 h-3" /> MEMS: {stats.memories}
               </span>
-              <span className="text-neutral-700 select-none">â€˘</span>
+              <span className="text-neutral-700 select-none">|</span>
               <span className="flex items-center gap-1.5 text-cyan-400/80">
                 <MessageSquare className="w-3 h-3" /> SESS: {stats.sessions}
               </span>
-              <span className="text-neutral-700 select-none">â€˘</span>
+              <span className="text-neutral-700 select-none">|</span>
               <span className="flex items-center gap-1.5 text-green-500/80">
                 <Shield className="w-3 h-3" /> {stats.reliability}%
               </span>
@@ -752,7 +752,7 @@ export default function Home() {
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
                 </div>
-                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether â€” root@dashboard</span>
+                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether - root@dashboard</span>
                 <div className="ml-auto flex items-center gap-1.5">
                   <button
                     onClick={() => setRenderMarkdown(prev => !prev)}
