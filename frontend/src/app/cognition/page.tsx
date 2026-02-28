@@ -1,8 +1,8 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Sparkles, Brain, Zap, Shield, Eye, Lock, RefreshCw, BarChart } from "lucide-react";
-import { useState } from "react";
+import { Sparkles, Brain, Zap, Shield, Eye, Lock, RefreshCw, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function CognitionPage() {
@@ -11,11 +11,75 @@ export default function CognitionPage() {
     const [creativity, setCreativity] = useState(60);
     const [isReflectionEnabled, setIsReflectionEnabled] = useState(true);
     const [isCircadianLocked, setIsCircadianLocked] = useState(false);
+    const [customDirectives, setCustomDirectives] = useState("");
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+    const [showToast, setShowToast] = useState(false);
 
     const personaDescriptions: Record<string, string> = {
         "Analytical": "Logic-first approach. Prioritizes code correctness and structural integrity. Minimal small talk.",
         "Balanced": "Default behavior. Adapts tone to the task at hand. Optimal mix of speed and depth.",
         "Creative": "Thinking outside the vault. Explores unconventional solutions and detailed theoretical analogies."
+    };
+
+    // Load settings from backend
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await fetch("http://localhost:8000/cognition/settings");
+                const data = await response.json();
+                if (data.status === "success") {
+                    setPersona(data.settings.persona);
+                    setAutonomy(data.settings.autonomy);
+                    setCreativity(data.settings.creativity);
+                    setIsReflectionEnabled(data.settings.reflection);
+                    setIsCircadianLocked(data.settings.circadian_lock);
+                    setCustomDirectives(data.settings.custom_directives || "");
+                }
+            } catch (error) {
+                console.error("Failed to fetch cognition settings:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSettings();
+    }, []);
+
+    const handleCommit = async () => {
+        setIsSaving(true);
+        try {
+            const response = await fetch("http://localhost:8000/cognition/settings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    persona,
+                    autonomy,
+                    creativity,
+                    reflection: isReflectionEnabled,
+                    circadian_lock: isCircadianLocked,
+                    custom_directives: customDirectives
+                })
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 3000);
+            }
+        } catch (error) {
+            console.error("Failed to save cognition settings:", error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handlePersonaChange = (p: string) => {
+        setPersona(p);
+        // Automatically calibrate Logical Drift (Temperature) based on persona
+        if (p === "Analytical") setCreativity(15);
+        else if (p === "Balanced") setCreativity(60);
+        else if (p === "Creative") setCreativity(95);
     };
 
     return (
@@ -26,18 +90,26 @@ export default function CognitionPage() {
                 {/* Header — VSCode Style Sync */}
                 <header className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-neutral-600 animate-pulse' : 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]'}`} />
                         <div>
                             <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural Cognition Center</h3>
                             <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>STATUS.CALIBRATING</span>
+                                <span>{isLoading ? "CALIBRATING_SENSORS..." : "SYSTEM.SYNAPSE_READY"}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 text-purple-400 rounded text-[10px] transition-all uppercase tracking-widest font-bold active:scale-95">
-                            <RefreshCw className="w-3.5 h-3.5" /> Commit_Neural_Config
+                        <button
+                            onClick={handleCommit}
+                            disabled={isSaving || isLoading}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded text-[10px] transition-all uppercase tracking-widest font-bold active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${autonomy === 3
+                                ? 'bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-pulse'
+                                : 'bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 text-purple-400'
+                                }`}
+                        >
+                            <RefreshCw className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} />
+                            {isSaving ? "Syncing..." : "Commit_Neural_Config"}
                         </button>
                     </div>
                 </header>
@@ -45,176 +117,236 @@ export default function CognitionPage() {
                 {/* Main Content Area — Settings Style Sync */}
                 <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
+                    {/* Background Visual Enhancements */}
+                    <div className="absolute inset-0 pointer-events-none opacity-20">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/5 blur-[120px] rounded-full" />
+                    </div>
+
                     <div className="flex-1 overflow-y-auto p-10 space-y-12 relative z-10 scrollbar-none max-w-5xl mx-auto w-full font-sans">
 
-                        {/* Top Row: Neural Health Monitors */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-purple-500/30 transition-all group backdrop-blur-md"
-                            >
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
-                                        <Brain className="w-5 h-5 text-purple-400" />
-                                    </div>
-                                    <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Self-Reflection</h4>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] text-neutral-500 italic font-sans">Autonomous overnight thinking</span>
-                                    <button
-                                        onClick={() => setIsReflectionEnabled(!isReflectionEnabled)}
-                                        className={`w-10 h-5 rounded-full transition-colors relative ${isReflectionEnabled ? 'bg-purple-500' : 'bg-neutral-800'}`}
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+                                <RefreshCw className="w-8 h-8 text-purple-500 animate-spin" />
+                                <span className="text-xs font-mono text-neutral-500 uppercase tracking-widest">Hydrating Synaptic Pathways...</span>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Top Row: Neural Health Monitors */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-purple-500/30 transition-all group backdrop-blur-md"
                                     >
-                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isReflectionEnabled ? 'left-6' : 'left-1'}`} />
-                                    </button>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-blue-500/30 transition-all group backdrop-blur-md"
-                            >
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
-                                        <Zap className="w-5 h-5 text-blue-400" />
-                                    </div>
-                                    <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Speed</h4>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] text-neutral-500 italic font-sans">Flash model usage vs Pro</span>
-                                    <span className="text-[9px] font-bold text-blue-500 bg-blue-500/10 px-2 py-1 rounded tracking-tighter uppercase">Optimized</span>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-yellow-500/30 transition-all group backdrop-blur-md"
-                            >
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
-                                        <Eye className="w-5 h-5 text-yellow-400" />
-                                    </div>
-                                    <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Context Eye</h4>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[10px] text-neutral-500 italic font-sans">Auto project scanning</span>
-                                    <span className="text-[9px] font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded tracking-tighter uppercase">Live</span>
-                                </div>
-                            </motion.div>
-                        </div>
-
-                        {/* Main Tuning Controls */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                            {/* Persona Configuration */}
-                            <section className="space-y-6">
-                                <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
-                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Persona_Profiles</h2>
-                                </div>
-                                <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-8 min-h-[420px] backdrop-blur-md">
-                                    <div className="flex gap-2 p-1 bg-[#1a1a1b] rounded-xl border border-white/5">
-                                        {["Analytical", "Balanced", "Creative"].map((p) => (
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
+                                                <Brain className="w-5 h-5 text-purple-400" />
+                                            </div>
+                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Self-Reflection</h4>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[10px] text-neutral-500 italic font-sans">Autonomous overnight thinking</span>
                                             <button
-                                                key={p}
-                                                onClick={() => setPersona(p)}
-                                                className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${persona === p ? 'bg-purple-600 text-white shadow-lg' : 'text-neutral-500 hover:text-neutral-300'}`}
+                                                onClick={() => setIsReflectionEnabled(!isReflectionEnabled)}
+                                                className={`w-12 h-6 rounded-full transition-all duration-500 relative shadow-inner overflow-hidden ${isReflectionEnabled ? 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-[#1a1a1b] border border-white/10'}`}
                                             >
-                                                {p}
+                                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-lg transition-all duration-500 ease-out flex items-center justify-center ${isReflectionEnabled ? 'left-7' : 'left-1'}`}>
+                                                    {isReflectionEnabled && <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />}
+                                                </div>
                                             </button>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    </motion.div>
 
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={persona}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: 10 }}
-                                            className="space-y-6"
-                                        >
-                                            <div className="p-5 bg-white/[0.02] border border-white/10 rounded-xl border-l-4 border-l-purple-500 font-sans">
-                                                <p className="text-xs text-neutral-300 leading-relaxed italic">
-                                                    &quot;{personaDescriptions[persona]}&quot;
-                                                </p>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-blue-500/30 transition-all group backdrop-blur-md"
+                                    >
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
+                                                <Zap className="w-5 h-5 text-blue-400" />
                                             </div>
+                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Speed</h4>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[10px] text-neutral-500 italic font-sans">Flash model usage vs Pro</span>
+                                            <span className="text-[9px] font-bold text-blue-500 bg-blue-500/10 px-2 py-1 rounded tracking-tighter uppercase">Optimized</span>
+                                        </div>
+                                    </motion.div>
 
-                                            <div className="space-y-6">
-                                                <div className="space-y-3">
-                                                    <div className="flex justify-between text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
-                                                        <span>LOGICAL_DRIFT</span>
-                                                        <span>{creativity}%</span>
-                                                    </div>
-                                                    <input
-                                                        type="range"
-                                                        min="0" max="100"
-                                                        value={creativity}
-                                                        onChange={(e) => setCreativity(parseInt(e.target.value))}
-                                                        className="w-full h-1 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-purple-500 focus:outline-none"
-                                                    />
-                                                </div>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-yellow-500/30 transition-all group backdrop-blur-md"
+                                    >
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="p-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
+                                                <Eye className="w-5 h-5 text-yellow-400" />
+                                            </div>
+                                            <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Context Eye</h4>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[10px] text-neutral-500 italic font-sans">Auto project scanning</span>
+                                            <span className="text-[9px] font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded tracking-tighter uppercase">Live</span>
+                                        </div>
+                                    </motion.div>
+                                </div>
 
-                                                <div className="flex items-center justify-between p-4 bg-[#1a1a1b] rounded-xl border border-[#303030] hover:border-white/5 transition-colors">
-                                                    <div className="flex items-center gap-3">
-                                                        <Lock className="w-4 h-4 text-purple-400/50" />
-                                                        <span className="text-[10px] text-neutral-400 font-sans uppercase tracking-wider">Lock Dynamic Mood</span>
-                                                    </div>
+                                {/* Main Tuning Controls */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                                    {/* Persona Configuration */}
+                                    <section className="space-y-6">
+                                        <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
+                                            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Persona_Profiles</h2>
+                                        </div>
+                                        <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-8 min-h-[420px] backdrop-blur-md shadow-xl">
+                                            <div className="flex gap-2 p-1 bg-[#1a1a1b] rounded-xl border border-white/5">
+                                                {["Analytical", "Balanced", "Creative"].map((p) => (
                                                     <button
-                                                        onClick={() => setIsCircadianLocked(!isCircadianLocked)}
-                                                        className={`w-10 h-5 rounded-full transition-colors relative ${isCircadianLocked ? 'bg-blue-500/80 shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'bg-neutral-800'}`}
+                                                        key={p}
+                                                        onClick={() => handlePersonaChange(p)}
+                                                        className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${persona === p ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'text-neutral-500 hover:text-neutral-300'}`}
                                                     >
-                                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isCircadianLocked ? 'left-6' : 'left-1'}`} />
+                                                        {p}
                                                     </button>
-                                                </div>
+                                                ))}
                                             </div>
-                                        </motion.div>
-                                    </AnimatePresence>
-                                </div>
-                            </section>
 
-                            {/* Autonomy Engine */}
-                            <section className="space-y-6">
-                                <div className="flex items-center justify-between border-l-2 border-blue-500/30 pl-6 py-2 bg-[#252526]/50">
-                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Autonomy_Engine</h2>
-                                </div>
-                                <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-6 min-h-[420px] backdrop-blur-md">
-                                    <div className="space-y-4">
-                                        {[
-                                            { id: 1, label: "MANUAL_OVERRIDE", icon: Shield, desc: "Agent only acts on direct confirmation. High safety." },
-                                            { id: 2, label: "CO-PILOT_MODE", icon: Zap, desc: "Balanced. Agent handles safe reads and analysis independently." },
-                                            { id: 3, label: "FULL_AUTONOMY", icon: Sparkles, desc: "Full cognitive freedom. can modify files based on task." }
-                                        ].map((opt) => (
-                                            <button
-                                                key={opt.id}
-                                                onClick={() => setAutonomy(opt.id)}
-                                                className={`w-full p-4 rounded-xl border transition-all text-left flex items-start gap-4 ${autonomy === opt.id ? 'bg-purple-500/5 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.05)]' : 'bg-[#1a1a1b] border-white/5 hover:border-white/10 opacity-70 hover:opacity-100'}`}
-                                            >
-                                                <div className={`p-2 border rounded-lg shrink-0 transition-colors ${autonomy === opt.id ? 'bg-purple-500/20 border-purple-500/30 text-purple-400' : 'bg-neutral-800/50 border-neutral-700 text-neutral-500'}`}>
-                                                    <opt.icon className="w-4 h-4" />
+                                            <AnimatePresence mode="wait">
+                                                <motion.div
+                                                    key={persona}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: 10 }}
+                                                    className="space-y-6"
+                                                >
+                                                    <div className="p-5 bg-white/[0.02] border border-white/10 rounded-xl border-l-4 border-l-purple-500 font-sans shadow-inner">
+                                                        <p className="text-[11px] text-neutral-300 leading-relaxed italic">
+                                                            &quot;{personaDescriptions[persona]}&quot;
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="space-y-6">
+                                                        <div className="flex flex-col gap-4 p-4 bg-[#1a1a1b] rounded-xl border border-[#303030] hover:border-white/5 transition-colors group">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <Lock className={`w-4 h-4 transition-colors ${isCircadianLocked ? 'text-blue-400' : 'text-neutral-600'}`} />
+                                                                    <span className="text-[10px] text-neutral-400 font-sans uppercase tracking-wider">Digital Circadian Rhythm</span>
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => setIsCircadianLocked(!isCircadianLocked)}
+                                                                    className={`w-10 h-5 rounded-full transition-colors relative ${isCircadianLocked ? 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]' : 'bg-neutral-800'}`}
+                                                                >
+                                                                    <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isCircadianLocked ? 'left-6' : 'left-1'}`} />
+                                                                </button>
+                                                            </div>
+                                                            <p className="text-[9px] text-neutral-500 font-sans leading-relaxed border-t border-white/5 pt-3">
+                                                                {isCircadianLocked
+                                                                    ? "CYCLE_LOCKED: Agent maintains a stable technical mode regardless of the time."
+                                                                    : "CYCLE_ACTIVE: Personality flows dynamically (Strategist AM, Executor Day, Philosopher PM)."}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            </AnimatePresence>
+
+                                            {/* Custom Neural Handlers */}
+                                            <section className="pt-4 space-y-4">
+                                                <div className="flex items-center gap-2">
+                                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                                                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Custom_Directives</h3>
+                                                </div>
+                                                <textarea
+                                                    value={customDirectives}
+                                                    onChange={(e) => setCustomDirectives(e.target.value)}
+                                                    placeholder="Enter additional instructions for style, tone, or specific rules (e.g., 'Always use medical analogies' or 'Be extremely polite')..."
+                                                    className="w-full h-32 bg-[#1a1a1b] border border-white/5 rounded-xl p-4 text-[11px] text-neutral-300 placeholder:text-neutral-600 focus:outline-none focus:border-purple-500/50 transition-all resize-none font-sans leading-relaxed"
+                                                />
+                                            </section>
+                                        </div>
+                                    </section>
+
+                                    {/* Autonomy Engine */}
+                                    <section className="space-y-6">
+                                        <div className="flex items-center justify-between border-l-2 border-blue-500/30 pl-6 py-2 bg-[#252526]/50">
+                                            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Autonomy_Engine</h2>
+                                        </div>
+                                        <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-4 min-h-[420px] backdrop-blur-md shadow-xl">
+                                            {[
+                                                { id: 1, label: "MANUAL_OVERRIDE", icon: Shield, color: "blue", desc: "Agent only acts on direct confirmation. High safety." },
+                                                { id: 2, label: "CO-PILOT_MODE", icon: Zap, color: "purple", desc: "Balanced. Agent handles safe reads and analysis independently." },
+                                                { id: 3, label: "FULL_AUTONOMY", icon: Sparkles, color: "rose", desc: "DANGER.ZONE_ACTIVE: Full cognitive freedom. Agent can modify any files without approval." }
+                                            ].map((opt) => (
+                                                <button
+                                                    key={opt.id}
+                                                    onClick={() => setAutonomy(opt.id)}
+                                                    className={`w-full p-4 rounded-xl border transition-all duration-300 text-left flex items-start gap-4 ${autonomy === opt.id
+                                                        ? `bg-${opt.color}-500/5 border-${opt.color}-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100`
+                                                        : 'bg-[#1a1a1b] border-white/5 hover:border-white/10 opacity-60 hover:opacity-90'}`}
+                                                >
+                                                    <div className={`p-2 border rounded-lg shrink-0 transition-colors ${autonomy === opt.id
+                                                        ? `bg-${opt.color}-500/20 border-${opt.color}-500/30 text-${opt.color}-400`
+                                                        : 'bg-neutral-800/50 border-neutral-700 text-neutral-500'}`}>
+                                                        <opt.icon className="w-4 h-4" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h5 className={`text-[10px] font-black uppercase tracking-widest ${autonomy === opt.id ? 'text-white' : 'text-neutral-400'}`}>
+                                                            {opt.label} {autonomy === opt.id && <span className={`ml-1 text-${opt.color}-500 font-black text-xs`}>!!!</span>}
+                                                        </h5>
+                                                        <p className="text-[9px] text-neutral-500 font-sans italic leading-tight">{opt.desc}</p>
+                                                    </div>
+                                                </button>
+                                            ))}
+
+                                            <div className={`mt-4 p-4 rounded-xl transition-all duration-500 flex items-start gap-4 border ${autonomy === 3
+                                                ? 'bg-rose-500/10 border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)] animate-pulse'
+                                                : autonomy === 2
+                                                    ? 'bg-purple-500/5 border-purple-500/10'
+                                                    : 'bg-blue-500/5 border-blue-500/10'
+                                                }`}>
+                                                <div className={`p-2 rounded-lg shrink-0 ${autonomy === 3 ? 'bg-rose-500 text-white' : 'bg-neutral-800 text-neutral-400'}`}>
+                                                    <Shield className="w-3.5 h-3.5" />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <h5 className={`text-[11px] font-bold uppercase tracking-wider ${autonomy === opt.id ? 'text-white' : 'text-neutral-400'}`}>{opt.label} {autonomy === opt.id && "√"}</h5>
-                                                    <p className="text-[10px] text-neutral-500 font-sans italic leading-tight">{opt.desc}</p>
+                                                    <h6 className={`text-[9px] font-black uppercase tracking-widest ${autonomy === 3 ? 'text-rose-400' : 'text-neutral-400'}`}>
+                                                        {autonomy === 3 ? "CRITICAL_SYSTEM_WARNING" : "Safety_Protocol_Insights"}
+                                                    </h6>
+                                                    <p className={`text-[10px] font-sans leading-relaxed ${autonomy === 3 ? 'text-rose-200/80 font-bold' : 'text-neutral-500'}`}>
+                                                        {autonomy === 3
+                                                            ? "WARNING: Full Autonomy mode allows me to modify code without your explicit approval. Please use only in trusted environments. All changes are logged."
+                                                            : "In Levels 1 and 2, I will always ask for your confirmation before writing any changes to files."}
+                                                    </p>
                                                 </div>
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10 flex items-start gap-3">
-                                        <BarChart className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-                                        <p className="text-[10px] text-purple-400/80 leading-relaxed font-sans">
-                                            Note: High autonomy requires Gemini 3.1 Pro for safety reasons. Local models throttle to Co-Pilot mode.
-                                        </p>
-                                    </div>
+                                            </div>
+                                        </div>
+                                    </section>
                                 </div>
-                            </section>
-
-                        </div>
+                            </>
+                        )}
                     </div>
+
+                    {/* Notification Toast */}
+                    <AnimatePresence>
+                        {showToast && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 50 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="fixed bottom-10 right-10 bg-[#181818] border border-emerald-500/30 p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center gap-4 z-[9999] backdrop-blur-xl"
+                            >
+                                <div className="p-2 bg-emerald-500/10 rounded-xl">
+                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                </div>
+                                <div>
+                                    <h4 className="text-[11px] font-bold text-white uppercase tracking-widest">Neural Calibration Successful</h4>
+                                    <p className="text-[10px] text-neutral-500 italic mt-0.5">Aether Core updated with new cognitive directives.</p>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </main>
         </div>

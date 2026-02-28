@@ -4,6 +4,11 @@ All notable changes to the Aether Agent project will be documented in this file.
 
 ## [1.3.0] - 2026-02-28
 ### Added
+- **Neuromorphic Cognition Engine**: Official release of the `/cognition` center.
+  - **Persona Profiles**: Analytical, Balanced, and Creative profiles with automatic temperature calibration.
+  - **Custom Directives**: Manual neural override for persistent style and behavioral instructions.
+  - **Digital Circadian Rhythm**: Time-aware personality shifts (Strategist, Executor, Philosopher).
+  - **Safety-First Autonomy**: Visual "Danger Zone" indicators and multi-tier autonomy levels (Manual, Co-Pilot, Full).
 - **Premium Mermaid Rendering**: Integrated advanced diagram visualization with interactive Pan & Zoom (Neural Focus Mode).
 - **Tool Call Aggregation**: Consecutive identical tool calls are now grouped with a counter (e.g., `connect_concepts x5`), reducing UI clutter.
 - **Glassmorphic Code Blocks**: Refined code display with a premium minimalist glassmorphism aesthetic.
@@ -23,17 +28,17 @@ All notable changes to the Aether Agent project will be documented in this file.
 - **Next.js Stability**: Fixed `ReferenceError` caused by missing `AnimatePresence` and `useState/useEffect` imports in new components.
 
 ## [1.2.0] - 2026-02-27
-+### Added
-+- **Knowledge Base / Docs**: Full implementation of the `/docs` route with Mermaid diagram support.
-+- **New Documentation**: Added `FEATURES.md` (Premium system descriptions) and `API.md` (FastAPI technical reference).
-+- **React 19 Compatibility**: Complete refactor of `CommandContext` to resolve hydration errors and comply with the `set-state-in-effect` rule.
-+- **Enhanced Terminal**: Implemented minimalist UI, improved `/logs` with unique React keys to fix "Duplicate Key" errors, and added `/logclear` to wipe system telemetry history.
+### Added
+- **Knowledge Base / Docs**: Full implementation of the `/docs` route with Mermaid diagram support.
+- **New Documentation**: Added `FEATURES.md` (Premium system descriptions) and `API.md` (FastAPI technical reference).
+- **React 19 Compatibility**: Complete refactor of `CommandContext` to resolve hydration errors and comply with the `set-state-in-effect` rule.
+- **Enhanced Terminal**: Implemented minimalist UI, improved `/logs` with unique React keys to fix "Duplicate Key" errors, and added `/logclear` to wipe system telemetry history.
 - **Backend Optimizations**: Added `limit` and `from_id` support to the `/logs` API for flexible telemetry fetches.
-+
-+### Fixed
-+- **Hydration Errors**: Resolved Next.js SSR mismatch issues in the dashboard views.
-+- **Command Leakage**: Slash commands no longer fall through to the LLM when typed with arguments or typos.
-+
+
+### Fixed
+- **Hydration Errors**: Resolved Next.js SSR mismatch issues in the dashboard views.
+- **Command Leakage**: Slash commands no longer fall through to the LLM when typed with arguments or typos.
+
 ## [1.1.1] - 2026-02-27
 ### Added
 - **Global Terminal Persistence**: The Dashboard terminal now uses `CommandContext` and `localStorage` to persist messages across page navigations and refreshes.

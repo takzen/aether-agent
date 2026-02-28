@@ -1,12 +1,12 @@
-# API Reference
+# Referencja API
 
-Backend Aether Agenta oparty jest na frameworku FastAPI i udostępnia zestaw endpointów RESTful do komunikacji z Dashboardem, zarządzania dokumentami oraz obsługi agenta.
+Backend Aether Agenta oparty jest na frameworku FastAPI i udostępnia zestaw endpointów RESTful do komunikacji z Dashboardem, zarządzania dokumentami oraz obsługi Agenta.
 
-## System Core
+## Rdzeń Systemu (System Core)
 
 ### `GET /ping`
 Sprawdza status serwera Backend.
-- **Odpowiedź:** `{"status": "success", "message": "pong", "version": "1.0.0"}`
+- **Odpowiedź:** `{"status": "success", "message": "pong", "version": "1.3.0"}`
 
 ### `GET /stats`
 Zwraca statystyki systemowe: liczbę dokumentów, wspomnień, sesji i wskaźnik niezawodności (Reliability).
@@ -14,20 +14,20 @@ Zwraca statystyki systemowe: liczbę dokumentów, wspomnień, sesji i wskaźnik 
 ### `GET /config` | `POST /config`
 Zarządzanie konfiguracją systemową (Klucze API, URL do bazy Qdrant, wybór modelu).
 
-## Telemetry & Logs
+## Telemetria i Logi (Telemetry & Logs)
 
 ### `GET /logs`
 Pobiera najnowsze logi systemowe.
-- **Parametry:** `limit` (default: 50), `from_id` (ID logu, od którego zacząć).
+- **Parametry:** `limit` (domyślnie: 50), `from_id` (ID logu, od którego zacząć).
 - **Zastosowanie:** Podgląd stanu pracy jądra systemu.
 
 ### `DELETE /logs`
 Czyści wszystkie rekordy w tabeli `system_logs`.
 
-## Agent & Chat
+## Agent i Czat (Agent & Chat)
 
 ### `POST /chat`
-Główny punkt wejścia do komunikacji z agentem. Obsługuje strumieniowanie myśli i odpowiedzi.
+Główny punkt wejścia do komunikacji z Agentem. Obsługuje strumieniowanie myśli (Thought Stream) i odpowiedzi.
 
 ### `GET /sessions` | `GET /sessions/{session_id}`
 Zarządzanie historią sesji czatu.
@@ -35,7 +35,7 @@ Zarządzanie historią sesji czatu.
 ### `POST /approve_action`
 Punkt wejścia dla systemu Human-in-the-Loop. Służy do potwierdzania akcji krytycznych przez użytkownika.
 
-## Knowledge Base
+## Baza Wiedzy (Knowledge Base)
 
 ### `GET /knowledge`
 Lista wszystkich dokumentów zaindeksowanych w systemie oraz tych oczekujących na dysku.
@@ -49,15 +49,15 @@ Ręczne wyzwalanie procesu indeksowania (embedding) pliku znajdującego się na 
 ### `DELETE /knowledge/{filename}`
 Usuwanie dokumentu z bazy wektorowej oraz z dysku.
 
-## Memory Manager
+## Zarządzanie Pamięcią (Memory Manager)
 
 ### `GET /memories`
-Lista semantycznych wspomnień wygenerowanych przez agenta.
+Lista semantycznych wspomnień wygenerowanych przez Agenta.
 
 ### `DELETE /memories/{memory_id}`
 Usuwanie konkretnego wspomnienia.
 
-## Documentation System
+## System Dokumentacji (Documentation System)
 
 ### `GET /system/docs`
 Pobiera listę plików `.md` z folderu dokumentacji projektu.
@@ -66,4 +66,4 @@ Pobiera listę plików `.md` z folderu dokumentacji projektu.
 Pobiera surową treść dokumentu markdown do wyświetlenia w UI.
 
 ---
-*Aether API Documentation — Generowane automatycznie przez system.*
+*Dokumentacja API Aether — Generowana automatycznie przez system.*

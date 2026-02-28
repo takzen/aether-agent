@@ -108,7 +108,34 @@ class SQLiteService:
             async with db.execute(query, (from_id, limit)) as cursor:
                 rows = await cursor.fetchall()
                 return [dict(row) for row in rows]
+                
+    async def get_settings(self) -> Dict[str, Any]:
+        """Retrieve all application settings."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT key, value FROM settings") as cursor:
+                rows = await cursor.fetchall()
+                # Default settings if none found
+                current = {
+                    "COGNITION_PERSONA": "Balanced",
+                    "COGNITION_AUTONOMY": "2",
+                    "COGNITION_CREATIVITY": "60",
+                    "COGNITION_REFLECTION": "true",
+                    "COGNITION_CIRCADIAN_LOCK": "false"
+                }
+                for row in rows:
+                    current[row['key']] = row['value']
+                return current
 
+    async def set_setting(self, key: str, value: Any):
+        """Set a single application setting."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                "INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=CURRENT_TIMESTAMP",
+                (key, str(value))
+            )
+            await db.commit()
+            
     async def get_checkpoint(self, module_key: str) -> int:
         """Gets the last processed log ID for a module."""
         async with aiosqlite.connect(self.db_path) as db:

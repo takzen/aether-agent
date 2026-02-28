@@ -53,3 +53,10 @@ CREATE TABLE IF NOT EXISTS system_checkpoints (
     last_log_id INTEGER NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Core-X Phase 7: Neural Settings (Cognition)
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

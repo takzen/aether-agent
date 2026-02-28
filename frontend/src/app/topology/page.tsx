@@ -1,91 +1,82 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Zap, Moon, Sun } from "lucide-react";
-import { useState, useEffect } from "react";
-import NeuralTopologyView from "@/components/NeuralTopologyView";
+import MermaidRenderer from "@/components/MermaidRenderer";
+import { motion } from "framer-motion";
 
 export default function NeuralTopology() {
-    const [memories, setMemories] = useState([]);
-    const [conceptGraph, setConceptGraph] = useState({ nodes: [], links: [] });
-    const [isNightMode, setIsNightMode] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch memories
-                const memRes = await fetch("http://localhost:8000/memories");
-                const memData = await memRes.json();
-                if (memData.status === "success") {
-                    setMemories(memData.memories);
-                }
-
-                // Fetch graph
-                const graphRes = await fetch("http://localhost:8000/graph");
-                const graphData = await graphRes.json();
-                if (graphData.status === "success") {
-                    setConceptGraph(graphData.graph);
-                }
-            } catch (error) {
-                console.error("Failed to fetch data", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+    const mermaidChart = `
+flowchart TD
+    %% Inicjalizacja
+    Start([Skierowanie zapytania/Zadanie]) --> Router{Analiza wymagań zadania}
+    
+    %% Główne ścieżki decyzyjne
+    Router -->|Pliki i kod| FS_Router{Operacje na plikach?}
+    Router -->|Baza wiedzy i pamięć| KB_Router{Typ wiedzy?}
+    Router -->|Świat zewnętrzny| Ext[web_search]
+    Router -->|Zarządzanie czasem| Time[get_current_time]
+    
+    %% Pod-drzewo: System plików
+    FS_Router -->|Eksploracja struktury| FS1[list_directory]
+    FS_Router -->|Analiza zawartości pliku| FS2[read_file]
+    FS_Router -->|Modyfikacja/Tworzenie| FS3[prepare_write_file]
+    
+    %% Pod-drzewo: Baza wiedzy
+    KB_Router -->|Pamięć o użytkowniku / przeszłość| Mem_Router{Akcja na pamięci?}
+    KB_Router -->|Wewnętrzna dokumentacja projektu| Doc[search_knowledge_base]
+    KB_Router -->|Relacje semantyczne / Graf| Graph_Router{Operacja na grafie?}
+    
+    %% Pamięć długotrwała
+    Mem_Router -->|Pobieranie kontekstu| M1[recall]
+    Mem_Router -->|Zapisywanie nowych faktów| M2[remember]
+    
+    %% Graf wiedzy (Concept Constellations)
+    Graph_Router -->|Odkrywanie powiązań| G1[query_graph]
+    Graph_Router -->|Tworzenie nowych węzłów| G2[connect_concepts]
+    Graph_Router -->|Modyfikacja węzłów| G3[modify_concept]
+    
+    %% Ewaluacja po użyciu narzędzia
+    FS1 --> Eval
+    FS2 --> Eval
+    FS3 --> Eval
+    Ext --> Eval
+    Time --> Eval
+    Doc --> Eval
+    M1 --> Eval
+    M2 --> Eval
+    G1 --> Eval
+    G2 --> Eval
+    G3 --> Eval
+    
+    Eval[Ewaluacja pobranych danych i aktualizacja kontekstu] --> Decision{Dane wystarczające?}
+    
+    %% Cykl lub Zakończenie
+    Decision -->|Nie, brakuje danych| Router
+    Decision -->|Tak| Final([Wywołanie final_result z Confidence Score])
+    
+    %% Stylowanie węzłów
+    classDef tool fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+    classDef decision fill:#0f172a,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+    classDef endpoint fill:#020617,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    
+    class FS1,FS2,FS3,Ext,Time,Doc,M1,M2,G1,G2,G3 tool;
+    class Router,FS_Router,KB_Router,Mem_Router,Graph_Router,Decision,Eval decision;
+    class Start,Final endpoint;
+    `;
 
     return (
-        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
+        <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10">
-                {/* Header */}
-                <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
-                    <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${isNightMode ? 'bg-amber-500' : 'bg-blue-500'} animate-pulse`} />
-                        <div>
-                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural Topology Scan</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.NEURAL_MAP</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>{isNightMode ? 'CONSOLIDATING_KNOWLEDGE' : 'MAPPING_GALLANT_ATLAS'}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsNightMode(!isNightMode)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all font-mono text-[10px] font-bold uppercase tracking-tighter ${isNightMode
-                                ? 'bg-amber-500/10 border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                                : 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                                }`}
-                        >
-                            {isNightMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
-                            {isNightMode ? 'Sleep Cycle Active' : 'Day Mode'}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Main Content Area */}
-                <div className="flex-1 overflow-hidden relative flex bg-[#1e1e1e]">
-                    {isLoading ? (
-                        <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-neutral-500 animate-pulse font-mono text-xs flex items-center gap-2">
-                                <Zap className="w-4 h-4" /> Initiating Neural Topography...
-                            </span>
-                        </div>
-                    ) : (
-                        <NeuralTopologyView
-                            memories={memories}
-                            conceptGraph={conceptGraph}
-                            isNightMode={isNightMode}
-                        />
-                    )}
-
+            <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden bg-[#1e1e1e]">
+                <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="w-full max-w-[1600px] h-full flex items-center justify-center"
+                    >
+                        <MermaidRenderer chart={mermaidChart} />
+                    </motion.div>
                 </div>
             </main>
         </div>

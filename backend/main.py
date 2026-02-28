@@ -7,6 +7,27 @@ import asyncio
 import os
 from ingest import process_content
 from local_db import sqlite_service
+from world_model import run_active_world_model_simulation
+
+async def reflection_loop():
+    """Autonomous background task for periodic self-reflection (AWM)."""
+    while True:
+        try:
+            # Wait 60 minutes between reflection cycles
+            await asyncio.sleep(3600)
+            
+            # Check if self-reflection is enabled in neural settings
+            settings = await sqlite_service.get_settings()
+            if settings.get("COGNITION_REFLECTION", "true").lower() == "true":
+                print("[CORE] Initiating autonomous Self-Reflection (AWM)...")
+                await run_active_world_model_simulation()
+                await sqlite_service.add_log("info", "CORE", "Autonomous Self-Reflection cycle completed.")
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            print(f"[CORE] Reflection loop error: {e}")
+            await asyncio.sleep(60) # Wait a bit before retry on error
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic
@@ -21,6 +42,9 @@ async def lifespan(app: FastAPI):
     # Start Telegram Bridge in background
     from telegram_bridge import run_telegram_bot
     asyncio.create_task(run_telegram_bot())
+
+    # Start Autonomous Reflection Loop (Phase 7: Cognition)
+    asyncio.create_task(reflection_loop())
     
     yield
     
@@ -103,6 +127,44 @@ async def read_configuration():
         return {"status": "success", "config": conf}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+class CognitionSettings(BaseModel):
+    persona: str = "Balanced"
+    autonomy: int = 2
+    creativity: int = 60
+    reflection: bool = True
+    circadian_lock: bool = False
+    custom_directives: str = ""
+
+@app.get("/cognition/settings")
+async def get_cognition_settings():
+    """Returns the current neural cognition settings."""
+    settings = await sqlite_service.get_settings()
+    return {
+        "status": "success",
+        "settings": {
+            "persona": settings["COGNITION_PERSONA"],
+            "autonomy": int(settings["COGNITION_AUTONOMY"]),
+            "creativity": int(settings["COGNITION_CREATIVITY"]),
+            "reflection": settings["COGNITION_REFLECTION"].lower() == "true",
+            "circadian_lock": settings["COGNITION_CIRCADIAN_LOCK"].lower() == "true",
+            "custom_directives": settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
+        }
+    }
+
+@app.post("/cognition/settings")
+async def update_cognition_settings(settings: CognitionSettings):
+    """Updates the neural cognition settings."""
+    await sqlite_service.set_setting("COGNITION_PERSONA", settings.persona)
+    await sqlite_service.set_setting("COGNITION_AUTONOMY", settings.autonomy)
+    await sqlite_service.set_setting("COGNITION_CREATIVITY", settings.creativity)
+    await sqlite_service.set_setting("COGNITION_REFLECTION", str(settings.reflection).lower())
+    await sqlite_service.set_setting("COGNITION_CIRCADIAN_LOCK", str(settings.circadian_lock).lower())
+    await sqlite_service.set_setting("COGNITION_CUSTOM_DIRECTIVES", settings.custom_directives)
+    
+    await sqlite_service.add_log("info", "CORE", f"Cognition calibration updated: persona={settings.persona}, autonomy={settings.autonomy}")
+    
+    return {"status": "success", "message": "Neural configuration committed successfully."}
 
 @app.post("/config")
 async def update_configuration(new_conf: ConfigUpdate):

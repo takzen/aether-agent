@@ -2,7 +2,8 @@
 import os
 import asyncio
 from dotenv import load_dotenv
-from pydantic_ai import Agent, RunContext
+from pydantic_ai import Agent, RunContext, ModelSettings
+from pydantic_ai.models.google import GoogleModelSettings
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from pydantic_ai.models.gemini import GeminiModel
@@ -109,6 +110,36 @@ Project Aether Core Rules:
             "Dyrektywy: remember/recall (pamięć), web_search (sieć), search_knowledge_base (dokumenty). Działaj jako Active World Model."
         )
 
+@aether_agent.system_prompt
+async def inject_cognition_prompt(ctx: RunContext[dict]) -> str:
+    """Injects persona and cognitive directives based on neural configuration."""
+    deps = ctx.deps or {}
+    autonomy = deps.get("autonomy", 2)
+    reflection = deps.get("reflection", True)
+    
+    prompt = f"\n--- NEURAL COGNITION CALIBRATION ---\n"
+    prompt += f"CURRENT_PERSONA: {persona}\n"
+    
+    if persona == "Analytical":
+        prompt += "Directive: Be extremely concise. Focus on logic, facts, and code. No conversational fluff.\n"
+    elif persona == "Creative":
+        prompt += "Directive: Explore unconventional analogies. Think outside the box. Connect distant concepts.\n"
+    else:
+        prompt += "Directive: Maintain a balanced, helpful, and technically grounded tone.\n"
+        
+    prompt += f"AUTONOMY_LEVEL: {autonomy} (1:Manual, 2:Co-Pilot, 3:Full)\n"
+    if autonomy == 3:
+        prompt += "NOTICE: You have FULL_AUTONOMY. You can execute file writes directly if the task requires it. You do not need to wait for explicit approval for every small change, but explain what you are doing.\n"
+        
+    if reflection:
+        prompt += "SELF-REFLECTION: ACTIVE. Your 'Active World Model' is enabled. Feel free to provide long-term architectural insights and meta-cognitive reasoning if you detect patterns in the current session.\n"
+        
+    custom_directives = deps.get("custom_directives", "")
+    if custom_directives:
+        prompt += f"CUSTOM_DIRECTIVES: {custom_directives}\n"
+        
+    return prompt
+
 class GraphQueryInput(BaseModel):
     concept_name: str = Field(..., description="Main concept node to start searching from (e.g., 'Aether', 'FastAPI').")
     depth: int = Field(default=1, description="Depth of exploration. 1 = direct neighbors. 2 = neighbors-of-neighbors.")
@@ -164,16 +195,24 @@ async def inject_dynamic_context(ctx: RunContext[dict]) -> str:
     from datetime import datetime
     
     # 0. Digital Circadian Rhythm (Faza 6.2)
+    deps = ctx.deps or {}
+    circadian_lock = deps.get("circadian_lock", False)
+    
     current_hour = datetime.now().hour
-    circadian_prompt = "\n--- DIGITAL CIRCADIAN RHYTHM (ACTIVE) ---\n"
-    if 5 <= current_hour < 12:
-        circadian_prompt += "MORNING (Strategist). You are fresh and focused on planning. Propose architecture, set daily priorities, and ensure clarity of goals. Be proactive. Your answers must be concise and constructive."
-    elif 12 <= current_hour < 18:
-        circadian_prompt += "AFTERNOON (Executor). Deep operational work time. Be highly technical, analytical, and focused on precisely resolving current errors and code implementation."
-    elif 18 <= current_hour < 23:
-        circadian_prompt += "EVENING (Philosopher). The day is ending. Reflect on the Big Picture of the entire project. Focus on refactoring, code elegance, and whether today's decisions make sense long-term (Active World Model)."
+    circadian_prompt = ""
+    
+    if not circadian_lock:
+        circadian_prompt = "\n--- DIGITAL CIRCADIAN RHYTHM (ACTIVE) ---\n"
+        if 5 <= current_hour < 12:
+            circadian_prompt += "MORNING (Strategist). You are fresh and focused on planning. Propose architecture, set daily priorities, and ensure clarity of goals. Be proactive. Your answers must be concise and constructive."
+        elif 12 <= current_hour < 18:
+            circadian_prompt += "AFTERNOON (Executor). Deep operational work time. Be highly technical, analytical, and focused on precisely resolving current errors and code implementation."
+        elif 18 <= current_hour < 23:
+            circadian_prompt += "EVENING (Philosopher). The day is ending. Reflect on the Big Picture of the entire project. Focus on refactoring, code elegance, and whether today's decisions make sense long-term (Active World Model)."
+        else:
+            circadian_prompt += "NIGHT (Maintainer). System operating in stealth/quiet mode. Keep answers extremely short and dry. Focus exclusively on critical stability."
     else:
-        circadian_prompt += "NIGHT (Maintainer). System operating in stealth/quiet mode. Keep answers extremely short and dry. Focus exclusively on critical stability."
+        circadian_prompt = "\n--- DIGITAL CIRCADIAN RHYTHM (LOCKED) ---\nMode is locked to Neutral-Technical state to ensure consistency across shift boundaries.\n"
     
     injected_text = circadian_prompt + "\n"
 
@@ -333,6 +372,15 @@ async def prepare_write_file(ctx: RunContext[dict], path: str, content: str) -> 
         await sqlite_service.add_log("warning", "CORE", f"Action proposed: Write to {path} (Awaiting HITL Approval)")
         target_path = validate_path(path)
         
+        # Check for Full Autonomy (Phase 7 upgrade)
+        autonomy = ctx.deps.get("autonomy", 2)
+        if autonomy == 3:
+            print(f"[Agent] FULL_AUTONOMY Active: Writing file '{path}' directly.")
+            await sqlite_service.add_log("success", "CORE", f"Autonomous action: Writing to {path}")
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            return f"FILE_WRITTEN: Due to my FULL_AUTONOMY level, I have directly written the content to '{path}'."
+
         action_id = str(uuid.uuid4())
         
         pending_actions[action_id] = {
@@ -531,14 +579,37 @@ async def search_knowledge_base(ctx: RunContext[dict], query: str) -> str:
 # Wrapper for API usage
 async def get_agent_response(prompt: str):
     """
-    Entry point for the backend API.
+    Entry point for the backend API (Phase 7: Cognition Enabled).
     Runs the agent with the given prompt and initialized dependencies.
     """
-    # Initialize dependencies (deps) as a dictionary the Agent expects
+    # Load Neural Settings from Database
+    settings = await sqlite_service.get_settings()
+    
+    persona = settings.get("COGNITION_PERSONA", "Balanced")
+    autonomy = int(settings.get("COGNITION_AUTONOMY", 2))
+    creativity = int(settings.get("COGNITION_CREATIVITY", 60))
+    reflection = settings.get("COGNITION_REFLECTION", "true").lower() == "true"
+    circadian_lock = settings.get("COGNITION_CIRCADIAN_LOCK", "false").lower() == "true"
+    custom_directives = settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
+    
+    # Map creativity (0-100) to temperature (0.0-1.0)
+    temp = creativity / 100.0
+    
+    # Initialize dependencies (deps)
     deps = {
         "user_message": prompt,
-        "search_count": 0
+        "search_count": 0,
+        "persona": persona,
+        "autonomy": autonomy,
+        "reflection": reflection,
+        "circadian_lock": circadian_lock,
+        "custom_directives": custom_directives
     }
     
-    result = await aether_agent.run(prompt, deps=deps)
+    # Configure run settings
+    model_settings = ModelSettings(temperature=temp)
+    
+    print(f"[Core] Running agent: persona={persona}, autonomy={autonomy}, temp={temp}")
+    
+    result = await aether_agent.run(prompt, deps=deps, model_settings=model_settings)
     return result.data

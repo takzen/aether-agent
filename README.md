@@ -43,7 +43,7 @@ Where traditional AI tools simply react to text, **Aether simulates and anticipa
 | 📱 **Telegram Bridge** | Operate your entire codebase and read system briefings via an encrypted, native-feeling CLI bridge straight from the Telegram app on your phone. |
 | 🔌 **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory with other AIs. |
 | 🖥️ **Command Center** | Centralny punkt sterowania Next.js z minimalistycznym interfejsem terminala. Obsługuje zaawansowane skróty oraz slash commands (`/clear`, `/logclear`, `/logs`) do precyzyjnej diagnostyki. |
-| ✨ **Cognition Center** | Interaktywny panel do strojenia osobowości, autonomii i zachowań kognitywnych Agenta (*Draft - v1.2.1*). |
+| ✨ **Cognition Center** | Interaktywny panel do strojenia osobowości, autonomii i zachowań kognitywnych Agenta (V1.3.0 Stable). |
 | 💻 **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
 
 ---

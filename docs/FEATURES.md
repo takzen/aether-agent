@@ -26,5 +26,14 @@ Concept Constellation to warstwa wizualnej i semantycznej topologii wiedzy. To g
 -   **Dynamiczne Relacje:** Relacje między pojęciami są budowane automatycznie na podstawie podobieństwa semantycznego (OpenAI Embeddings / FastEmbed).
 -   **Neural Topology:** Użytkownik może przeglądać tę mapę w dedykowanym widoku "Topology", co pozwala zrozumieć, jak agent łączy ze sobą różne fakty i moduły systemu.
 
+## Neuromorphic Cognition (SNC)
+
+Neuralny silnik kognitywny (Static/Dynamic Neural Cognition) pozwala na głęboką personalizację zachowania agenta i kontrolę jego decyzyjności.
+
+-   **Profile Persony:** Możliwość wyboru między trybem Analitycznym, Zrównoważonym lub Kreatywnym. Każdy profil automatycznie kalibruje parametry kreatywności (Temperature) modelu.
+-   **Digital Circadian Rhythm:** System cyklu dobowego, który płynnie zmienia osobowość agenta (Strateg rano, Wykonawca w dzień, Filozof wieczorem) w zależności od aktualnej godziny.
+-   **Autonomy Engine:** Trzystopniowa skala zaufania (Manual, Co-Pilot, Full Autonomy), która określa uprawnienia agenta do samodzielnej modyfikacji plików systemowych.
+-   **Custom Directives:** Możliwość ręcznego wstrzykiwania niskopoziomowych instrukcji stylu i zachowania, które są priorytetowo traktowane przez rdzeń modelu.
+
 ---
 *Dokumentacja funkcji Premium Projektu Aether.*
