@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
 
 import Sidebar from "@/components/Sidebar";
 import { Shield, Activity, MessageSquare, Send, Brain, Database, Check, Terminal } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useCommand, DashboardMessage } from "@/context/CommandContext";
@@ -145,6 +146,7 @@ const DashboardCodeBlock = ({ children, className }: { children: React.ReactNode
 };
 
 export default function Home() {
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const { messages, setMessages, clearMessages, isLoaded } = useCommand();
@@ -153,13 +155,15 @@ export default function Home() {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyCursor, setHistoryCursor] = useState(-1);
   const [renderMarkdown, setRenderMarkdown] = useState(true);
+  const [showActivity, setShowActivity] = useState(true);
+  const [activityFilter, setActivityFilter] = useState<"all" | "errors" | "memory" | "sessions">("all");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const COMMANDS = [
-    { cmd: "/logs", desc: "Podgląd logów systemowych" },
-    { cmd: "/clear", desc: "Wyczyść okno terminala" },
-    { cmd: "/logclear", desc: "Wyczyść bazę logów systemowych" },
-    { cmd: "/simulate", desc: "Uruchom symulację modelu świata" }
+    { cmd: "/logs", desc: "PodglÄ…d logĂłw systemowych" },
+    { cmd: "/clear", desc: "WyczyĹ›Ä‡ okno terminala" },
+    { cmd: "/logclear", desc: "WyczyĹ›Ä‡ bazÄ™ logĂłw systemowych" },
+    { cmd: "/simulate", desc: "Uruchom symulacjÄ™ modelu Ĺ›wiata" }
   ];
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
@@ -186,6 +190,28 @@ export default function Home() {
     warn: "border-amber-500/50 bg-amber-500/[0.03]",
     error: "border-red-500/50 bg-red-500/[0.04]",
     success: "border-emerald-500/50 bg-emerald-500/[0.03]",
+  };
+
+  const getActivityKind = (activity: { text: string; icon?: string }) => {
+    const t = (activity.text || "").toLowerCase();
+    if (/\berror|failed|exception|warning|warn\b/.test(t)) return "errors";
+    if (activity.icon === "Brain" || /\bmemory|memories|recall|concept\b/.test(t)) return "memory";
+    if (activity.icon === "MessageSquare" || /\bsession|chat|conversation|message\b/.test(t)) return "sessions";
+    return "all";
+  };
+
+  const filteredActivities = activities.filter((activity) => {
+    if (activityFilter === "all") return true;
+    return getActivityKind(activity) === activityFilter;
+  });
+
+  const handleActivityClick = (activity: { text: string; icon?: string }) => {
+    const kind = getActivityKind(activity);
+    if (kind === "sessions") {
+      router.push("/chat");
+      return;
+    }
+    router.push("/logs");
   };
 
   useEffect(() => {
@@ -223,7 +249,7 @@ export default function Home() {
               setMessages([{
                 id: "init-welcome",
                 role: "assistant",
-                content: currentLang === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "Rdzeń Aether zainicjowany. Wszystkie systemy sprawne. W czym mogę Ci dzisiaj pomóc?",
+                content: currentLang === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "RdzeĹ„ Aether zainicjowany. Wszystkie systemy sprawne. W czym mogÄ™ Ci dzisiaj pomĂłc?",
                 isInitial: true
               }]);
             }
@@ -262,7 +288,7 @@ export default function Home() {
             setMessages([{
               id: "startup-" + Date.now(),
               role: "assistant",
-              content: config.SYSTEM_LANGUAGE === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "Rdzeń Aether zainicjowany. Wszystkie systemy sprawne. W czym mogę Ci dzisiaj pomóc?",
+              content: config.SYSTEM_LANGUAGE === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "RdzeĹ„ Aether zainicjowany. Wszystkie systemy sprawne. W czym mogÄ™ Ci dzisiaj pomĂłc?",
               isInitial: true
             }]);
           }
@@ -282,6 +308,30 @@ export default function Home() {
   }, []); // Only on mount
 
   useEffect(() => {
+    try {
+      const savedShow = localStorage.getItem("aether_dashboard_show_activity");
+      const savedFilter = localStorage.getItem("aether_dashboard_activity_filter");
+      if (savedShow !== null) {
+        setShowActivity(savedShow === "1");
+      }
+      if (savedFilter === "all" || savedFilter === "errors" || savedFilter === "memory" || savedFilter === "sessions") {
+        setActivityFilter(savedFilter);
+      }
+    } catch {
+      // ignore localStorage issues
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("aether_dashboard_show_activity", showActivity ? "1" : "0");
+      localStorage.setItem("aether_dashboard_activity_filter", activityFilter);
+    } catch {
+      // ignore localStorage issues
+    }
+  }, [showActivity, activityFilter]);
+
+  useEffect(() => {
     const onGlobalKey = (e: KeyboardEvent) => {
       if (!e.ctrlKey) return;
       if (e.key.toLowerCase() === "k") {
@@ -295,7 +345,7 @@ export default function Home() {
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+          content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "RdzeĹ„ Aether zainicjowany. Terminal wyczyszczony.",
           isInitial: true
         }]);
       }
@@ -376,7 +426,7 @@ export default function Home() {
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === 'en' ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+          content: lang === 'en' ? "Aether Core initialized. Terminal cleared." : "RdzeĹ„ Aether zainicjowany. Terminal wyczyszczony.",
           isInitial: true
         }]);
         return;
@@ -583,7 +633,7 @@ export default function Home() {
       setMessages([{
         id: "welcome-" + Date.now(),
         role: "assistant",
-        content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+        content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "RdzeĹ„ Aether zainicjowany. Terminal wyczyszczony.",
         isInitial: true
       }]);
       return;
@@ -656,15 +706,15 @@ export default function Home() {
               <span className="flex items-center gap-1.5 text-blue-400/80">
                 <Database className="w-3 h-3" /> DOCS: {stats.documents}
               </span>
-              <span className="text-neutral-700 select-none">•</span>
+              <span className="text-neutral-700 select-none">â€˘</span>
               <span className="flex items-center gap-1.5 text-purple-400/80">
                 <Brain className="w-3 h-3" /> MEMS: {stats.memories}
               </span>
-              <span className="text-neutral-700 select-none">•</span>
+              <span className="text-neutral-700 select-none">â€˘</span>
               <span className="flex items-center gap-1.5 text-cyan-400/80">
                 <MessageSquare className="w-3 h-3" /> SESS: {stats.sessions}
               </span>
-              <span className="text-neutral-700 select-none">•</span>
+              <span className="text-neutral-700 select-none">â€˘</span>
               <span className="flex items-center gap-1.5 text-green-500/80">
                 <Shield className="w-3 h-3" /> {stats.reliability}%
               </span>
@@ -672,6 +722,12 @@ export default function Home() {
             <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 font-mono hidden lg:block">
               {modelName}
             </div>
+            <button
+              onClick={() => setShowActivity(prev => !prev)}
+              className="text-[10px] font-mono px-2.5 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              {showActivity ? "Hide Activity" : "Show Activity"}
+            </button>
           </div>
         </div>
 
@@ -686,7 +742,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="col-span-8 bg-[#1e1e1e] border border-[#303030] rounded-2xl flex flex-col overflow-hidden shadow-2xl"
+              className={`${showActivity ? "col-span-8" : "col-span-12"} bg-[#1e1e1e] border border-[#303030] rounded-2xl flex flex-col overflow-hidden shadow-2xl`}
               style={{ fontFamily: "'Fira Code', 'JetBrains Mono', Consolas, 'Courier New', monospace" }}
             >
               {/* Terminal Title Bar */}
@@ -696,7 +752,7 @@ export default function Home() {
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
                 </div>
-                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether — root@dashboard</span>
+                <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether â€” root@dashboard</span>
                 <div className="ml-auto flex items-center gap-1.5">
                   <button
                     onClick={() => setRenderMarkdown(prev => !prev)}
@@ -872,7 +928,7 @@ export default function Home() {
                     onChange={handleInputChange}
                     placeholder={config.SYSTEM_LANGUAGE === 'en'
                       ? "Execute system command or run task..."
-                      : "Wydaj komendę systemową lub zleć zadanie..."
+                      : "Wydaj komendÄ™ systemowÄ… lub zleÄ‡ zadanie..."
                     }
                     className="flex-1 bg-transparent text-[#cccccc] text-sm placeholder:text-[#858585] focus:outline-none"
                     onKeyDown={handleKeyDown}
@@ -888,46 +944,56 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right: Recent Activity */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="col-span-4 bg-[#252526] border border-[#303030] rounded-2xl flex flex-col overflow-hidden"
-            >
-              <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
-                <h3 className="text-sm font-bold text-white">Recent Activity</h3>
-                <Link href="/logs" className="text-[10px] text-purple-400/60 hover:text-purple-400 transition-colors font-mono">
-                  View All →
-                </Link>
-              </div>
-              <div className="flex-1 overflow-y-auto overflow-x-hidden divide-y divide-white/5">
-                {activities.map((activity, i) => {
-                  let Icon = Activity;
-                  if (activity.icon === "Brain") Icon = Brain;
-                  if (activity.icon === "MessageSquare") Icon = MessageSquare;
+                        {/* Right: Recent Activity */}
+            {showActivity && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="col-span-4 bg-[#252526] border border-[#303030] rounded-2xl flex flex-col overflow-hidden"
+              >
+                <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between shrink-0">
+                  <h3 className="text-sm font-bold text-white">Recent Activity</h3>
+                  <Link href="/logs" className="text-[10px] text-purple-400/60 hover:text-purple-400 transition-colors font-mono">
+                    View All {"->"}
+                  </Link>
+                </div>
+                <div className="px-3 py-2 border-b border-white/5 flex items-center gap-1.5">
+                  <button onClick={() => setActivityFilter("all")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "all" ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>All</button>
+                  <button onClick={() => setActivityFilter("errors")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "errors" ? "bg-red-500/20 border-red-500/30 text-red-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Errors</button>
+                  <button onClick={() => setActivityFilter("memory")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "memory" ? "bg-purple-500/20 border-purple-500/30 text-purple-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Memory</button>
+                  <button onClick={() => setActivityFilter("sessions")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "sessions" ? "bg-blue-500/20 border-blue-500/30 text-blue-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Sessions</button>
+                </div>
+                <div className="flex-1 overflow-y-auto overflow-x-hidden divide-y divide-white/5">
+                  {filteredActivities.map((activity, i) => {
+                    let Icon = Activity;
+                    if (activity.icon === "Brain") Icon = Brain;
+                    if (activity.icon === "MessageSquare") Icon = MessageSquare;
 
-                  return (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 + i * 0.05 }}
-                      className="px-5 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-default"
-                    >
-                      <Icon className={`w-3.5 h-3.5 ${activity.color} shrink-0 mt-0.5`} />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-xs text-neutral-300 leading-relaxed block truncate">{activity.text}</span>
-                        <span className="text-[10px] text-neutral-600 font-mono">{activity.time}</span>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-                {activities.length === 0 && (
-                  <div className="px-5 py-8 text-center text-xs text-neutral-500 italic">No recent activity detected.</div>
-                )}
-              </div>
-            </motion.div>
+                    return (
+                      <motion.button
+                        key={`${activity.time}-${i}-${activity.text.slice(0, 12)}`}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 + i * 0.04 }}
+                        onClick={() => handleActivityClick(activity)}
+                        className="w-full text-left px-5 py-3 flex items-start gap-3 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                        title="Open related view"
+                      >
+                        <Icon className={`w-3.5 h-3.5 ${activity.color} shrink-0 mt-0.5`} />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs text-neutral-300 leading-relaxed block truncate">{activity.text}</span>
+                          <span className="text-[10px] text-neutral-600 font-mono">{activity.time}</span>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
+                  {filteredActivities.length === 0 && (
+                    <div className="px-5 py-8 text-center text-xs text-neutral-500 italic">No activity in this filter.</div>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </div>
 
 
@@ -938,3 +1004,4 @@ export default function Home() {
     </div>
   );
 }
+
