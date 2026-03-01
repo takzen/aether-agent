@@ -34,6 +34,7 @@ interface Message {
     pendingActions?: any[];
     confidence?: number;
     reasoning?: string;
+    activeSkills?: { id?: string; name: string; matched_by?: string }[];
 }
 
 const parseTimestamp = (value?: string | null): Date => {
@@ -408,7 +409,8 @@ export default function ChatPage() {
                         tools: loadedTools,
                         pendingActions: m.metadata?.pendingActions,
                         confidence: m.metadata?.confidence,
-                        reasoning: m.metadata?.reasoning
+                        reasoning: m.metadata?.reasoning,
+                        activeSkills: Array.isArray(m.metadata?.active_skills) ? m.metadata.active_skills : undefined
                     };
                 });
                 setMessages(loadedMsgs);
@@ -673,7 +675,8 @@ export default function ChatPage() {
                 tools: usedTools.length > 0 ? usedTools : undefined,
                 pendingActions: finalData.pending_actions?.length > 0 ? finalData.pending_actions : undefined,
                 confidence: finalData.confidence,
-                reasoning: finalData.reasoning
+                reasoning: finalData.reasoning,
+                activeSkills: Array.isArray(finalData.active_skills) && finalData.active_skills.length > 0 ? finalData.active_skills : undefined
             };
             setMessages((prev) => [...prev, assistantMessage]);
             if (finalData.new_messages) {
@@ -799,6 +802,19 @@ export default function ChatPage() {
                                                             SOURCE: {msg.reasoning}
                                                         </div>
                                                     )}
+                                                </div>
+                                            )}
+                                            {msg.role === "assistant" && msg.activeSkills && msg.activeSkills.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mb-2">
+                                                    {msg.activeSkills.map((skill, idx) => (
+                                                        <span
+                                                            key={`${skill.id || skill.name}-${idx}`}
+                                                            title={skill.matched_by ? `Matched by: ${skill.matched_by}` : "Global skill"}
+                                                            className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
+                                                        >
+                                                            Skill: {skill.name}
+                                                        </span>
+                                                    ))}
                                                 </div>
                                             )}
 

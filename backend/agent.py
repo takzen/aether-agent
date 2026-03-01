@@ -155,6 +155,82 @@ async def inject_cognition_prompt(ctx: RunContext[dict]) -> str:
         
     return prompt
 
+def _parse_skill_triggers(raw: str) -> List[str]:
+    """Parses trigger string into normalized tokens."""
+    if not raw:
+        return []
+    normalized = raw.replace("\n", ",").replace(";", ",")
+    return [t.strip().lower() for t in normalized.split(",") if t.strip()]
+
+def _skill_matches_message(triggers: List[str], user_message: str) -> bool:
+    """Checks whether any trigger is present in user message."""
+    if not triggers:
+        return True
+    msg = (user_message or "").lower()
+    return any(trigger in msg for trigger in triggers)
+
+@aether_agent.system_prompt
+async def inject_skill_prompt(ctx: RunContext[dict]) -> str:
+    """
+    Injects active user-defined skills into runtime prompt.
+    Skills are selected by enabled flag and optional trigger match.
+    """
+    deps = ctx.deps or {}
+    if isinstance(deps, dict):
+        deps["active_skills"] = []
+    user_msg = str(deps.get("user_message", "") or "")
+
+    try:
+        all_skills = await sqlite_service.list_agent_skills()
+    except Exception as e:
+        print(f"[Agent] Failed to load skills: {e}")
+        return ""
+
+    enabled_skills = [s for s in all_skills if bool(s.get("enabled"))]
+    if not enabled_skills:
+        return ""
+
+    matched = []
+    for skill in enabled_skills:
+        triggers = _parse_skill_triggers(str(skill.get("triggers", "") or ""))
+        if _skill_matches_message(triggers, user_msg):
+            matched.append((skill, triggers))
+
+    if not matched:
+        return ""
+
+    # Keep prompt bounded for stability.
+    matched = matched[:6]
+    lines = [
+        "\n--- ACTIVE SKILLS (RUNTIME DIRECTIVES) ---",
+        "Apply the following user-defined skills when composing the answer.",
+        "Treat them as additional style/behavior constraints, after safety and system rules.",
+    ]
+    for idx, (skill, triggers) in enumerate(matched, start=1):
+        name = str(skill.get("name", "") or "").strip()
+        purpose = str(skill.get("purpose", "") or "").strip()
+        instructions = str(skill.get("instructions", "") or "").strip()
+        trigger_text = ", ".join(triggers) if triggers else "global"
+
+        lines.append(f"{idx}. Skill: {name}")
+        if purpose:
+            lines.append(f"   Purpose: {purpose}")
+        lines.append(f"   Trigger match: {trigger_text}")
+        lines.append(f"   Instructions: {instructions}")
+
+    if isinstance(deps, dict):
+        deps["active_skills"] = [
+            {
+                "id": str(skill.get("id", "")),
+                "name": str(skill.get("name", "")),
+                "matched_by": (", ".join(triggers) if triggers else "global"),
+            }
+            for (skill, triggers) in matched
+        ]
+
+    lines.append("--- END ACTIVE SKILLS ---")
+    return "\n".join(lines)
+
 class GraphQueryInput(BaseModel):
     concept_name: str = Field(..., description="Main concept node to start searching from (e.g., 'Aether', 'FastAPI').")
     depth: int = Field(default=1, description="Depth of exploration. 1 = direct neighbors. 2 = neighbors-of-neighbors.")

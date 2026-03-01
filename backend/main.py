@@ -961,6 +961,14 @@ async def chat_stream(request: ChatRequest):
             current_pending = [
                 {"id": k, **v} for k, v in pending_actions.items() if v["status"] == "pending"
             ]
+            active_skills = []
+            try:
+                deps_obj = run_kwargs.get("deps", {})
+                raw_skills = deps_obj.get("active_skills", []) if isinstance(deps_obj, dict) else []
+                if isinstance(raw_skills, list):
+                    active_skills = raw_skills
+            except Exception:
+                active_skills = []
 
             # Serialize messages to load into the frontend Context
             serialized_messages = ModelMessagesTypeAdapter.dump_python(result.new_messages())
@@ -971,7 +979,8 @@ async def chat_stream(request: ChatRequest):
                 "pendingActions": current_pending if current_pending else None,
                 "confidence": confidence,
                 "reasoning": reasoning,
-                "used_tools": []
+                "used_tools": [],
+                "active_skills": active_skills if active_skills else None
             }
 
             # Parse used tools from serialized messages (tool-call parts only).
@@ -1024,7 +1033,8 @@ async def chat_stream(request: ChatRequest):
                     "reasoning": reasoning,
                     "internal_thought": internal_thought,
                     "new_messages": serialized_messages,
-                    "pending_actions": current_pending
+                    "pending_actions": current_pending,
+                    "active_skills": active_skills
                 }
             })
         except Exception as e:
@@ -1151,6 +1161,14 @@ async def chat(request: ChatRequest):
         current_pending = [
             {"id": k, **v} for k, v in pending_actions.items() if v["status"] == "pending"
         ]
+        active_skills = []
+        try:
+            deps_obj = run_kwargs.get("deps", {})
+            raw_skills = deps_obj.get("active_skills", []) if isinstance(deps_obj, dict) else []
+            if isinstance(raw_skills, list):
+                active_skills = raw_skills
+        except Exception:
+            active_skills = []
         
         # Serialize messages to load into the frontend Context
         serialized_messages = ModelMessagesTypeAdapter.dump_python(result.new_messages())
@@ -1161,7 +1179,8 @@ async def chat(request: ChatRequest):
             "pendingActions": current_pending if current_pending else None,
             "confidence": confidence,
             "reasoning": reasoning,
-            "used_tools": []
+            "used_tools": [],
+            "active_skills": active_skills if active_skills else None
         }
         
         # Parse used tools from serialized messages (tool-call parts only).
@@ -1214,7 +1233,8 @@ async def chat(request: ChatRequest):
             "reasoning": reasoning,
             "internal_thought": internal_thought,
             "new_messages": serialized_messages,
-            "pending_actions": current_pending
+            "pending_actions": current_pending,
+            "active_skills": active_skills
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
