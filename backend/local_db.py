@@ -360,6 +360,8 @@ class SQLiteService:
             await db.execute("PRAGMA foreign_keys = ON")
             await db.execute("DELETE FROM concepts")
             await db.execute("DELETE FROM concept_links")
+            await db.execute("DELETE FROM messages")
+            await db.execute("DELETE FROM agent_skills")
             await db.execute("DELETE FROM sessions")
             await db.execute("DELETE FROM system_logs")
             await db.execute("DELETE FROM system_checkpoints")
