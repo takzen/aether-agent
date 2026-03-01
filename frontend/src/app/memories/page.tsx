@@ -138,40 +138,43 @@ export default function Memories() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
-                            Memories: {filteredMemories.length}/{memories.length}
+                        {/* Hidden on tablet portrait (< 1280px) to save space for Graph/Zoom */}
+                        <div className="hidden xl:flex items-center gap-2">
+                            <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono">
+                                Memories: {filteredMemories.length}/{memories.length}
+                            </div>
+                            <input
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search memories..."
+                                className="w-44 h-8 px-3 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-200 placeholder:text-neutral-500 focus:outline-none focus:border-purple-500/40"
+                            />
+                            <select
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
+                                className="h-8 px-2 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-300 focus:outline-none focus:border-purple-500/40"
+                            >
+                                <option value="all">All categories</option>
+                                {categories.map((c) => (
+                                    <option key={`cat-${c}`} value={c}>{c}</option>
+                                ))}
+                            </select>
                         </div>
-                        <input
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search memories..."
-                            className="w-44 h-8 px-3 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-200 placeholder:text-neutral-500 focus:outline-none focus:border-purple-500/40"
-                        />
-                        <select
-                            value={categoryFilter}
-                            onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="h-8 px-2 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-300 focus:outline-none focus:border-purple-500/40"
-                        >
-                            <option value="all">All categories</option>
-                            {categories.map((c) => (
-                                <option key={`cat-${c}`} value={c}>{c}</option>
-                            ))}
-                        </select>
                         {viewMode === "graph" && (
-                            <div className="flex items-center gap-1 bg-[#252525] px-1 py-1 rounded-lg border border-[#303030] mr-2">
+                            <div className="flex items-center gap-1 bg-[#252525] px-1 py-1 rounded-lg border border-[#303030] mr-2 transition-all">
                                 <button
-                                    onClick={() => setGraphScale(prev => Math.min(prev + 0.1, 2))}
-                                    className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
+                                    onClick={() => setGraphScale(prev => Math.min(prev + 0.1, 2.5))}
+                                    className="px-2 py-0.5 rounded text-neutral-400 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
                                 >Zoom +</button>
                                 <div className="w-[1px] h-3 bg-[#303030]" />
                                 <button
-                                    onClick={() => setGraphScale(prev => Math.max(prev - 0.1, 0.5))}
-                                    className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
-                                >Zoom -</button>
+                                    onClick={() => setGraphScale(prev => Math.max(prev - 0.1, 0.4))}
+                                    className="px-2 py-0.5 rounded text-neutral-400 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
+                                >-</button>
                                 <div className="w-[1px] h-3 bg-[#303030]" />
                                 <button
                                     onClick={() => { setGraphScale(1); setPanOffset({ x: 0, y: 0 }); }}
-                                    className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
+                                    className="px-2 py-0.5 rounded text-neutral-400 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
                                 >Reset</button>
                             </div>
                         )}

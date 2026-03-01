@@ -733,21 +733,21 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
+            <div className="flex items-center gap-3 xl:gap-4 text-[10px] font-mono whitespace-nowrap">
               <span className="flex items-center gap-1.5 text-cyan-400/80">
-                <Database className="w-3 h-3" /> Documents: {stats.documents}
+                <Database className="w-3 h-3" /> <span className="hidden xl:inline">Documents:</span> {stats.documents}
               </span>
-              <span className="text-neutral-700 select-none">|</span>
+              <span className="text-neutral-700 select-none hidden sm:inline">|</span>
               <span className="flex items-center gap-1.5 text-purple-400/80">
-                <Brain className="w-3 h-3" /> Memories: {stats.memories}
+                <Brain className="w-3 h-3" /> <span className="hidden xl:inline">Memories:</span> {stats.memories}
               </span>
-              <span className="text-neutral-700 select-none">|</span>
+              <span className="text-neutral-700 select-none hidden md:inline">|</span>
               <span className="flex items-center gap-1.5 text-cyan-400/80">
-                <MessageSquare className="w-3 h-3" /> Sessions: {stats.sessions}
+                <MessageSquare className="w-3 h-3" /> <span className="hidden xl:inline">Sessions:</span> {stats.sessions}
               </span>
-              <span className="text-neutral-700 select-none">|</span>
+              <span className="text-neutral-700 select-none hidden lg:inline">|</span>
               <span className="flex items-center gap-1.5 text-green-500/80">
-                <Shield className="w-3 h-3" /> Reliability: {stats.reliability}%
+                <Shield className="w-3 h-3" /> <span className="hidden xl:inline">Reliability:</span> {stats.reliability}%
               </span>
             </div>
             <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 font-mono hidden lg:block">
