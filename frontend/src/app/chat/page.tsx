@@ -36,6 +36,20 @@ interface Message {
     reasoning?: string;
 }
 
+const parseTimestamp = (value?: string | null): Date => {
+    if (!value) return new Date();
+    const direct = new Date(value);
+    if (!Number.isNaN(direct.getTime())) return direct;
+    const normalized = value.includes(" ") ? value.replace(" ", "T") : value;
+    const fallback = new Date(normalized);
+    return Number.isNaN(fallback.getTime()) ? new Date() : fallback;
+};
+
+const formatMessageTime = (value: Date): string => {
+    if (Number.isNaN(value.getTime())) return "--:--";
+    return value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
 const mapToolVisual = (toolName: string, args?: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     let detail = toolName;
     let icon: LucideIcon = Database;
@@ -268,14 +282,14 @@ const MarkdownMessage = memo(function MarkdownMessage({ content }: { content: st
         <div className="text-sm text-neutral-300 leading-relaxed markdown-content">
             <ReactMarkdown
                 components={{
-                    h1: ({ ...props }) => <h1 className="text-lg font-bold text-purple-400 mt-4 mb-2 uppercase tracking-wider border-b border-purple-500/20 pb-1" {...props} />,
-                    h2: ({ ...props }) => <h2 className="text-md font-bold text-purple-400 mt-4 mb-2 uppercase tracking-tight" {...props} />,
+                    h1: ({ ...props }) => <h1 className="text-lg font-bold text-neutral-100 mt-4 mb-2 uppercase tracking-wider border-b border-white/10 pb-1" {...props} />,
+                    h2: ({ ...props }) => <h2 className="text-md font-bold text-neutral-200 mt-4 mb-2 uppercase tracking-tight" {...props} />,
                     h3: ({ ...props }) => <h3 className="text-sm font-bold text-white/90 mt-3 mb-1" {...props} />,
                     p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,
                     ul: ({ ...props }) => <ul className="list-none space-y-1.5 mb-3" {...props} />,
                     li: ({ ...props }) => (
                         <li className="flex items-start gap-3 group">
-                            <span className="w-1.5 h-1.5 rounded-full bg-purple-500/40 mt-[0.55rem] shrink-0 transition-all group-hover:bg-purple-400 group-hover:shadow-[0_0_8px_rgba(168,85,247,0.4)]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500/40 mt-[0.55rem] shrink-0 transition-all group-hover:bg-cyan-400 group-hover:shadow-[0_0_8px_rgba(34,211,238,0.4)]" />
                             <span className="flex-1" {...props} />
                         </li>
                     ),
@@ -287,7 +301,7 @@ const MarkdownMessage = memo(function MarkdownMessage({ content }: { content: st
                         const isMultiline = String(children).includes("\n");
                         if (inline || !isMultiline) {
                             return (
-                                <code className="bg-black/40 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5" {...props}>
+                                <code className="bg-white/5 text-neutral-200 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/10" {...props}>
                                     {children}
                                 </code>
                             );
@@ -390,7 +404,7 @@ export default function ChatPage() {
                         id: m.id.toString(),
                         role: m.role as "user" | "assistant",
                         content: m.content,
-                        timestamp: new Date(m.timestamp),
+                        timestamp: parseTimestamp(m.timestamp),
                         tools: loadedTools,
                         pendingActions: m.metadata?.pendingActions,
                         confidence: m.metadata?.confidence,
@@ -705,38 +719,33 @@ export default function ChatPage() {
                     {/* Chat Header â€” Standardized Style */}
                     <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                            <MessageSquare className="w-4 h-4 text-cyan-400" />
                             <div>
-                                <h3 className="text-sm font-bold tracking-wider text-white uppercase">Aether Agent</h3>
-                                <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono whitespace-nowrap">
-                                    <span>SYSTEM.NEURAL_CORE</span>
-                                    <span className="text-neutral-700">|</span>
-                                    <span>ACTIVE_SESSION</span>
-                                </div>
+                                <h3 className="text-sm font-bold tracking-wider text-white uppercase">Chat</h3>
+                                <p className="text-[10px] text-neutral-500 font-mono whitespace-nowrap">Talk with Aether and run agent tasks</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap shrink-0">
-                            {/* New Chat Button */}
+                            <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
+                                Sessions: {sessions.length}
+                            </div>
                             <button
                                 onClick={startNewSession}
                                 title="Start a new chat session"
                                 aria-label="Start new chat session"
-                                className="flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors"
+                                className="flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-colors"
                             >
                                 <Plus className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">New Chat</span>
+                                <span className="hidden sm:inline">New Session</span>
                             </button>
-                            {/* History Toggle */}
                             <button
                                 onClick={() => setIsHistoryOpen(!isHistoryOpen)}
                                 title={isHistoryOpen ? "Hide chat history panel" : "Show chat history panel"}
                                 aria-label={isHistoryOpen ? "Hide chat history panel" : "Show chat history panel"}
-                                className={`flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded border transition-colors
-                                        ${isHistoryOpen ? "bg-purple-500/15 border-purple-400/40 text-purple-300" : "border-white/10 text-neutral-300 hover:text-white hover:bg-white/5"}
-                                    `}
+                                className="flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors"
                             >
                                 <History className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">History</span>
+                                <span className="hidden sm:inline">{isHistoryOpen ? "Hide History Panel" : "Show History Panel"}</span>
                             </button>
                         </div>
                     </div>
@@ -795,7 +804,7 @@ export default function ChatPage() {
 
                                             <MarkdownMessage content={msg.content} />
                                             <p className="text-[10px] text-neutral-600 font-mono mt-2 uppercase">
-                                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {formatMessageTime(msg.timestamp)}
                                             </p>
 
                                             {/* Tool Calls Visualization */}
@@ -871,7 +880,7 @@ export default function ChatPage() {
 
                                         {msg.role === "user" && (
                                             <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
-                                                <span className="text-[8px] font-bold text-white/60">TK</span>
+                                                <span className="text-[8px] font-bold text-white/60">You</span>
                                             </div>
                                         )}
                                     </motion.div>

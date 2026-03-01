@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Database, Cpu, Save, Globe, AlertTriangle, Trash2, RefreshCcw } from "lucide-react";
+import { Database, Cpu, Save, Globe, AlertTriangle, Trash2, RefreshCcw, SlidersHorizontal } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotificationModal from "@/components/modals/NotificationModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
@@ -96,14 +96,14 @@ export default function Settings() {
             if (data.status === "success") {
                 setNotification({
                     isOpen: true,
-                    title: "SYSTEM_PURGED",
+                    title: "System Purged",
                     message: "All sessions, graph data and logs have been permanently deleted.",
                     type: "success"
                 });
             } else {
                 setNotification({
                     isOpen: true,
-                    title: "PURGE_FAILED",
+                    title: "Purge Failed",
                     message: data.message || "Unknown error occurred.",
                     type: "error"
                 });
@@ -112,7 +112,7 @@ export default function Settings() {
             console.error(err);
             setNotification({
                 isOpen: true,
-                title: "CONNECTION_ERROR",
+                title: "Connection Error",
                 message: "Could not reach the Aether Kernel.",
                 type: "error"
             });
@@ -130,12 +130,10 @@ export default function Settings() {
                 {/* Header — VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <SlidersHorizontal className="w-4 h-4 text-cyan-400" />
                         <div>
-                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural System Configuration</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.CONFIG_V1</span>
-                            </div>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Settings</h3>
+                            <p className="text-[10px] text-neutral-500 font-mono">Configure model providers, keys and system behavior</p>
                         </div>
                     </div>
 
@@ -143,8 +141,8 @@ export default function Settings() {
                         <button
                             onClick={handleSave}
                             disabled={isSaving}
-                            className={`flex items-center gap-2 px-3 py-1.5 border rounded text-[10px] transition-all uppercase tracking-widest font-bold ${isSaving ? 'bg-neutral-800 border-neutral-700 text-neutral-600' : 'bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20 text-purple-400'}`}>
-                            <Save className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} /> {isSaving ? 'Committing...' : 'Commit_Changes'}
+                            className={`text-[10px] font-mono px-2.5 py-1 rounded border transition-colors flex items-center gap-1.5 disabled:opacity-50 ${isSaving ? 'border-neutral-700 text-neutral-600 bg-neutral-800' : 'border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200'}`}>
+                            <Save className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} /> {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
                 </div>
@@ -156,8 +154,8 @@ export default function Settings() {
 
                         {/* Section: Operational Secrets */}
                         <section className="space-y-6">
-                            <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
-                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">API_Configuration</h2>
+                                <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
+                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">API Configuration</h2>
 
                             </div>
 
@@ -184,8 +182,8 @@ export default function Settings() {
 
                                 <div className="flex flex-col gap-4 bg-[#252526] border border-[#303030] p-6 rounded-2xl backdrop-blur-md">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg shrink-0">
-                                            <Globe className="w-5 h-5 text-blue-400" />
+                                        <div className="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg shrink-0">
+                                            <Globe className="w-5 h-5 text-cyan-400" />
                                         </div>
                                         <div>
                                             <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">TAVILY_API_KEY</h4>
@@ -198,7 +196,7 @@ export default function Settings() {
                                         value={config.TAVILY_API_KEY}
                                         onChange={(e) => setConfig({ ...config, TAVILY_API_KEY: e.target.value })}
                                         placeholder="tvly-..."
-                                        className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-blue-500/50 transition-colors"
+                                        className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white placeholder:text-neutral-600 focus:outline-none focus:border-purple-500/50 transition-colors"
                                     />
                                 </div>
                             </div>
@@ -207,8 +205,8 @@ export default function Settings() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Section: AI Configuration */}
                             <section className="space-y-6">
-                                <div className="flex items-center justify-between border-l-2 border-blue-500/30 pl-6 py-2 bg-[#252526]/50">
-                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Intelligence_Params</h2>
+                                <div className="flex items-center justify-between border-l-2 border-cyan-500/30 pl-6 py-2 bg-[#252526]/50">
+                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Intelligence Parameters</h2>
                                 </div>
 
                                 <div className="space-y-3">
@@ -219,13 +217,13 @@ export default function Settings() {
                                             </div>
                                             <div>
                                                 <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Model Cluster</h4>
-                                                <p className="text-[10px] text-neutral-500">SELECT RUNTIME ENGINE</p>
+                                                <p className="text-[10px] text-neutral-500">Select runtime model</p>
                                             </div>
                                         </div>
                                         <select
                                             value={config.MODEL_OVERRIDE}
                                             onChange={(e) => setConfig({ ...config, MODEL_OVERRIDE: e.target.value })}
-                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-colors uppercase cursor-pointer"
+                                            className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500/50 transition-colors cursor-pointer"
                                         >
                                             <optgroup label="Google Gemini (SOTA 2026)" className="bg-[#1e1e1e]">
                                                 <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview (Recommended)</option>
@@ -246,7 +244,7 @@ export default function Settings() {
                             {/* Section: Database Sync */}
                             <section className="space-y-6">
                                 <div className="flex items-center justify-between border-l-2 border-yellow-500/30 pl-6 py-2 bg-[#252526]/50">
-                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Vector_Memory</h2>
+                                    <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Vector Memory</h2>
                                 </div>
 
                                 <div className="space-y-3">
@@ -284,7 +282,7 @@ export default function Settings() {
                         {/* Section: Danger Zone */}
                         <section className="space-y-6 pt-10">
                             <div className="flex items-center justify-between border-l-2 border-red-500/30 pl-6 py-2 bg-[#252526]/50">
-                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-red-500/70">Danger_Zone</h2>
+                                <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-red-500/70">Danger Zone</h2>
                             </div>
 
                             <div className="p-6 bg-[#252526] border border-red-500/10 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md relative overflow-hidden group">
@@ -294,7 +292,7 @@ export default function Settings() {
                                         <AlertTriangle className="w-6 h-6 text-red-500" />
                                     </div>
                                     <div>
-                                        <h4 className="text-[12px] font-bold text-white uppercase tracking-wider mb-1">Pure Workflow (Purge)</h4>
+                                        <h4 className="text-[12px] font-bold text-white uppercase tracking-wider mb-1">System Purge</h4>
                                         <p className="text-[11px] text-neutral-500 leading-relaxed max-w-md">
                                             Removes all chat sessions, graph connections (Neural Topology), and system logs.
                                             <span className="text-red-500/70 font-bold ml-1">This action cannot be undone.</span>
@@ -311,7 +309,7 @@ export default function Settings() {
                                         }`}
                                 >
                                     {isClearing ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                    {isClearing ? "PURGING..." : "PURGE_SYSTEM"}
+                                    {isClearing ? "Purging..." : "Purge System"}
                                 </button>
                             </div>
                         </section>
@@ -343,3 +341,5 @@ export default function Settings() {
         </div>
     );
 }
+
+

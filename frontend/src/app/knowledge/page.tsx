@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Search, FileText, Upload, ExternalLink, Code, Loader2, Trash, Zap, X } from "lucide-react";
+import { Search, FileText, Upload, ExternalLink, Code, Loader2, Trash, Zap, X, Database } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
@@ -53,7 +53,7 @@ export default function KnowledgeBase() {
                     type: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? 'code' : 'doc',
                     title: doc.filename,
                     added: doc.status === 'indexed' ? 'INDEXED' : 'ON_DISK',
-                    size: doc.size || "Unknown",
+                    Size: doc.size || "Unknown",
                     icon: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? Code : FileText,
                     lines: doc.metadata?.total_chunks || 0
                 }));
@@ -218,23 +218,22 @@ export default function KnowledgeBase() {
 
             <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10">
 
-                {/* Header — Aligned with Dashboard Style */}
+                {/* Header â€” Aligned with Dashboard Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                        <Database className="w-4 h-4 text-cyan-400" />
                         <div>
                             <h3 className="text-sm font-bold tracking-wider text-white uppercase">Knowledge Base</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.KNOWLEDGE_CORE</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>{items.length} SOURCES ACTIVE</span>
-                            </div>
+                            <p className="text-[10px] text-neutral-500 font-mono">Store, browse and manage indexed source files</p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
-                        <div className="flex flex-col items-end justify-center mr-3">
-                            <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest hidden sm:block">Tested formats:</span>
-                            <span className="text-[10px] text-emerald-500/80 font-mono font-bold uppercase tracking-widest hidden sm:block">.TXT, .MD</span>
+                    <div className="flex items-center gap-2">
+                        <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
+                            Documents: {items.length}
+                        </div>
+                        <div className="flex flex-col items-end justify-center mr-2">
+                            <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest hidden sm:block">Supported formats</span>
+                            <span className="text-[10px] text-emerald-500/80 font-mono font-bold uppercase tracking-widest hidden sm:block">.TXT, .MD, .PDF</span>
                         </div>
                         <input
                             type="file"
@@ -247,10 +246,10 @@ export default function KnowledgeBase() {
                         <button
                             onClick={handleFileClick}
                             disabled={isUploading}
-                            className="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-[11px] font-mono font-bold text-blue-400 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="text-[10px] font-mono px-2.5 py-1 rounded border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                            {isUploading ? "UPLOADING..." : "ADD_SOURCE_FILE"}
+                            {isUploading ? "Uploading..." : "Add Source File"}
                         </button>
                     </div>
                 </div>
@@ -258,8 +257,8 @@ export default function KnowledgeBase() {
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
 
-                    {/* Search Bar — VSCode Style */}
-                    <div className="relative max-w-2xl bg-[#252526] border border-[#3c3c3c] rounded-xl px-4 py-3 focus-within:border-[#007acc]/50 transition-all flex items-center gap-3">
+                    {/* Search Bar â€” VSCode Style */}
+                    <div className="relative max-w-2xl bg-[#252526] border border-[#3c3c3c] rounded-xl px-4 py-3 focus-within:border-purple-500/50 transition-all flex items-center gap-3">
                         <Search className="h-4 w-4 text-[#858585]" />
                         <input
                             type="search"
@@ -267,7 +266,7 @@ export default function KnowledgeBase() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="bg-transparent w-full text-[#cccccc] text-sm placeholder:text-[#858585] focus:outline-none"
-                            placeholder="Type a message..."
+                            placeholder="Search source files..."
                             autoComplete="off"
                             autoCorrect="off"
                             spellCheck="false"
@@ -278,7 +277,7 @@ export default function KnowledgeBase() {
                     </div>
 
                     {/* Content Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {isLoading ? (
                             <div className="col-span-full py-20 text-center text-neutral-500 font-mono text-xs animate-pulse">
                                 SYNCHRONizing_KNOWLEDGE_CORE...
@@ -293,7 +292,7 @@ export default function KnowledgeBase() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className="group relative p-5 rounded-2xl bg-[#252526] border border-[#303030] hover:bg-[#2d2d2d] hover:border-blue-500/30 transition-all cursor-pointer overflow-hidden"
+                                className="group relative p-4 rounded-xl bg-[#252526] border border-[#303030] hover:bg-[#2d2d2d] hover:border-cyan-500/30 transition-all cursor-pointer overflow-hidden"
                             >
                                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/5 p-1 rounded-lg">
                                     <button
@@ -305,55 +304,58 @@ export default function KnowledgeBase() {
                                     </button>
                                     <button
                                         onClick={(e) => handlePreview(e, item.title)}
-                                        className="p-1.5 hover:bg-white/10 text-blue-400 rounded transition-colors"
+                                        className="p-1.5 hover:bg-white/10 text-cyan-400 rounded transition-colors"
                                         title="Preview Document"
                                     >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                     </button>
                                 </div>
 
-                                <div className="flex items-start gap-4 mb-4">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400 group-hover:bg-blue-500/20 transition-colors shrink-0">
-                                        <item.icon className="w-5 h-5" />
+                                <div className="flex items-start gap-3 mb-3">
+                                    <div className="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/20 transition-colors shrink-0">
+                                        <item.icon className="w-4 h-4" />
                                     </div>
                                     <div className="min-w-0 pr-16 text-left">
-                                        <h3 className="text-[13px] font-bold text-neutral-200 mb-1 line-clamp-1 group-hover:text-white transition-colors uppercase tracking-tight tracking-wide" title={item.title}>
+                                        <h3 className="text-[13px] font-bold text-neutral-200 mb-1 line-clamp-1 group-hover:text-white transition-colors tracking-tight" title={item.title}>
                                             {item.title}
                                         </h3>
                                         <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
-                                            <span className={`px-2 py-0.5 rounded ${item.added === 'INDEXED' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                                                {item.added}
+                                            <span
+                                                className={`inline-flex items-center text-[10px] font-mono ${item.added === "INDEXED" ? "text-purple-300/80" : "text-amber-300/80"}`}
+                                                aria-label={`Status: ${item.added === "INDEXED" ? "Indexed" : "On disk"}`}
+                                            >
+                                                {item.added === "INDEXED" ? "Indexed" : "On disk"}
                                             </span>
-                                            <span className="text-neutral-700">•</span>
-                                            <span>{item.type.toUpperCase()}</span>
+                                            <span className="text-neutral-700">|</span>
+                                            <span>{item.type === "code" ? "Code" : "Document"}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between mt-2">
+                                <div className="flex items-center justify-between mt-1.5">
                                     {item.type === 'doc' && (
                                         <div className="text-[10px] text-neutral-500 font-mono bg-white/5 px-2 py-1 rounded inline-block">
-                                            SIZE: {item.size}
+                                            Size: {item.size}
                                         </div>
                                     )}
                                     {item.type === 'code' && (
-                                        <div className="text-[10px] text-green-400/60 font-mono bg-green-500/5 px-2 py-1 rounded inline-block">
-                                            CHUNKS: {item.lines}
+                                        <div className="text-[10px] text-emerald-400/80 font-mono bg-emerald-500/10 px-2 py-1 rounded inline-block border border-emerald-500/20">
+                                            Chunks: {item.lines}
                                         </div>
                                     )}
 
                                     {item.added === 'ON_DISK' && (
                                         <button
                                             onClick={(e) => handleIndex(e, item.title)}
-                                            className="text-[10px] font-bold font-mono text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-500 px-3 py-1 rounded transition-all flex items-center gap-2 border border-blue-500/30"
+                                            className="text-[10px] font-mono text-purple-300 hover:text-purple-200 bg-purple-500/10 hover:bg-purple-500/15 px-3 py-1 rounded border border-purple-500/30 transition-colors flex items-center gap-2"
                                         >
-                                            <Zap className="w-3 h-3" /> INDEX_NOW
+                                            <Zap className="w-3 h-3" /> Index Now
                                         </button>
                                     )}
                                 </div>
 
                                 {/* Card Status Strip */}
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                             </motion.div>
                         ))}
 
@@ -363,13 +365,13 @@ export default function KnowledgeBase() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
                             onClick={handleFileClick}
-                            className={`p-5 rounded-2xl border border-dashed border-white/5 flex flex-col items-center justify-center gap-3 text-neutral-600 hover:text-blue-400 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all cursor-pointer min-h-[140px] ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+                            className={`p-4 rounded-xl border border-dashed border-white/5 flex flex-col items-center justify-center gap-2.5 text-neutral-600 hover:text-cyan-400 hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all cursor-pointer min-h-[124px] ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
                         >
                             <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
                                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                             </div>
                             <span className="text-[11px] font-mono uppercase tracking-widest font-bold">
-                                {isUploading ? "Indexing..." : "Connect_Core_Source"}
+                                {isUploading ? "Indexing..." : "Add Another Source"}
                             </span>
                         </motion.div>
                     </div>
@@ -448,3 +450,6 @@ export default function KnowledgeBase() {
         </div>
     );
 }
+
+
+

@@ -171,12 +171,17 @@ export default function CronPage() {
               <p className="text-[10px] text-neutral-500 font-mono">Plan and execute autonomous background tasks</p>
             </div>
           </div>
-          <button
-            onClick={load}
-            className="text-[10px] font-mono px-2.5 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-1.5"
-          >
-            <RefreshCcw className="w-3.5 h-3.5" /> Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
+              Jobs: {jobs.length}
+            </div>
+            <button
+              onClick={load}
+              className="text-[10px] font-mono px-2.5 py-1 rounded border border-purple-500/30 text-purple-300 hover:bg-purple-500/10 hover:text-purple-200 transition-colors flex items-center gap-1.5"
+            >
+              <RefreshCcw className="w-3.5 h-3.5" /> Refresh
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 relative overflow-y-auto bg-[#1e1e1e]">
@@ -185,35 +190,35 @@ export default function CronPage() {
 
             <div className="grid grid-cols-12 gap-4">
               <section className="col-span-12 lg:col-span-4 bg-[#181818] border border-[#303030] rounded-2xl p-4 space-y-3">
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider">New Job</h2>
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">Create Job</h2>
 
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Job name"
-                  className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                 />
 
                 <input
                   value={schedule}
                   onChange={(e) => setSchedule(e.target.value)}
                   placeholder="Cron expression (e.g. 0 3 * * *)"
-                  className={`w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50 ${scheduleMode === "simple" ? "opacity-70" : ""}`}
+                  className={`w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50 ${scheduleMode === "simple" ? "opacity-70" : ""}`}
                   disabled={scheduleMode === "simple"}
                 />
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setScheduleMode("simple")}
-                    className={`text-[10px] font-mono px-2 py-1 rounded border ${scheduleMode === "simple" ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300" : "border-white/10 text-neutral-300 hover:bg-white/5"}`}
+                    className={`text-[10px] font-mono px-2 py-1 rounded border ${scheduleMode === "simple" ? "bg-purple-500/20 border-purple-500/40 text-purple-300" : "border-white/10 text-neutral-300 hover:bg-white/5"}`}
                   >
                     Simple
                   </button>
                   <button
                     onClick={() => setScheduleMode("advanced")}
-                    className={`text-[10px] font-mono px-2 py-1 rounded border ${scheduleMode === "advanced" ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300" : "border-white/10 text-neutral-300 hover:bg-white/5"}`}
+                    className={`text-[10px] font-mono px-2 py-1 rounded border ${scheduleMode === "advanced" ? "bg-purple-500/20 border-purple-500/40 text-purple-300" : "border-white/10 text-neutral-300 hover:bg-white/5"}`}
                   >
-                    Advanced (CRON)
+                    Advanced (Cron)
                   </button>
                 </div>
 
@@ -223,7 +228,7 @@ export default function CronPage() {
                     <select
                       value={repeatMode}
                       onChange={(e) => setRepeatMode(e.target.value as "daily" | "weekly" | "monthly" | "once")}
-                      className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                      className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                     >
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>
@@ -238,7 +243,7 @@ export default function CronPage() {
                           type="time"
                           value={timeOfDay}
                           onChange={(e) => setTimeOfDay(e.target.value)}
-                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                         />
                       </>
                     ) : (
@@ -248,7 +253,7 @@ export default function CronPage() {
                           type="datetime-local"
                           value={runAtLocal}
                           onChange={(e) => setRunAtLocal(e.target.value)}
-                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                         />
                       </>
                     )}
@@ -259,7 +264,7 @@ export default function CronPage() {
                         <select
                           value={weekday}
                           onChange={(e) => setWeekday(e.target.value)}
-                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                         >
                           <option value="1">Monday</option>
                           <option value="2">Tuesday</option>
@@ -281,7 +286,7 @@ export default function CronPage() {
                           max={31}
                           value={dayOfMonth}
                           onChange={(e) => setDayOfMonth(e.target.value)}
-                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                          className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                         />
                       </>
                     )}
@@ -292,13 +297,13 @@ export default function CronPage() {
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
                   placeholder="Timezone (e.g. Europe/Warsaw)"
-                  className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                 />
 
                 <select
                   value={task}
                   onChange={(e) => setTask(e.target.value)}
-                  className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                 >
                   {taskOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -310,7 +315,7 @@ export default function CronPage() {
                     value={agentPrompt}
                     onChange={(e) => setAgentPrompt(e.target.value)}
                     placeholder="Agent prompt (what should Aether do on each run?)"
-                    className="w-full min-h-[100px] bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                    className="w-full min-h-[100px] bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                   />
                 )}
 
@@ -327,14 +332,14 @@ export default function CronPage() {
                     || (scheduleMode === "simple" && repeatMode === "once" && !runAtLocal.trim())
                   }
                   onClick={createJob}
-                  className="w-full text-[10px] font-mono px-2.5 py-2 rounded border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  className="w-full text-[10px] font-mono px-2.5 py-2 rounded border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" /> Create Job
                 </button>
               </section>
 
               <section className="col-span-12 lg:col-span-8 bg-[#181818] border border-[#303030] rounded-2xl p-4">
-                <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Jobs</h2>
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-3">Scheduled Jobs</h2>
 
                 <div className="space-y-3">
                   {jobs.length === 0 && !isLoading && (
@@ -345,7 +350,12 @@ export default function CronPage() {
                     <div key={job.id} className="border border-white/10 rounded-xl p-3 bg-[#1e1e1e]">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="text-sm text-white font-semibold">{job.name}</div>
+                          <div className="text-sm text-white font-semibold flex items-center gap-2">
+                            {job.name}
+                            <span className={`text-[10px] font-mono ${job.enabled ? "text-emerald-300/80" : "text-neutral-500"}`}>
+                              {job.enabled ? "Enabled" : "Paused"}
+                            </span>
+                          </div>
                           <div className="text-[11px] text-neutral-400 font-mono">
                             {job.trigger_type === "date" ? `One-time @ ${job.run_at || "-"}` : `${job.schedule} (${job.timezone})`}
                           </div>
@@ -393,3 +403,4 @@ export default function CronPage() {
     </div>
   );
 }
+

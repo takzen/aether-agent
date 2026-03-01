@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
@@ -130,28 +130,27 @@ export default function Memories() {
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <Brain className="w-4 h-4 text-cyan-400" />
                         <div>
-                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural Memory Core</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.MEM_GRAPH</span>
-                                <span className="text-neutral-700">|</span>
-                                <span>{filteredMemories.length}/{memories.length} VECTORS VISIBLE</span>
-                            </div>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Memories</h3>
+                            <p className="text-[10px] text-neutral-500 font-mono">Explore and manage stored memory vectors and graph links</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
+                        <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
+                            Memories: {filteredMemories.length}/{memories.length}
+                        </div>
                         <input
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search memory..."
-                            className="w-44 h-8 px-3 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-200 placeholder:text-neutral-500 focus:outline-none focus:border-blue-500/40"
+                            placeholder="Search memories..."
+                            className="w-44 h-8 px-3 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-200 placeholder:text-neutral-500 focus:outline-none focus:border-purple-500/40"
                         />
                         <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="h-8 px-2 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-300 focus:outline-none focus:border-blue-500/40"
+                            className="h-8 px-2 rounded-lg bg-[#252525] border border-[#303030] text-[11px] text-neutral-300 focus:outline-none focus:border-purple-500/40"
                         >
                             <option value="all">All categories</option>
                             {categories.map((c) => (
@@ -163,39 +162,35 @@ export default function Memories() {
                                 <button
                                     onClick={() => setGraphScale(prev => Math.min(prev + 0.1, 2))}
                                     className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
-                                >
-                                    ZOOM+
-                                </button>
+                                >Zoom +</button>
                                 <div className="w-[1px] h-3 bg-[#303030]" />
                                 <button
                                     onClick={() => setGraphScale(prev => Math.max(prev - 0.1, 0.5))}
                                     className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
-                                >
-                                    ZOOM-
-                                </button>
+                                >Zoom -</button>
                                 <div className="w-[1px] h-3 bg-[#303030]" />
                                 <button
                                     onClick={() => { setGraphScale(1); setPanOffset({ x: 0, y: 0 }); }}
                                     className="px-2 py-0.5 rounded text-neutral-500 hover:text-white hover:bg-white/5 transition-colors text-[10px] font-mono font-bold"
-                                >
-                                    RESET
-                                </button>
+                                >Reset</button>
                             </div>
                         )}
                         <div className="flex items-center gap-1 bg-[#252525] px-1 py-1.5 rounded-lg border border-[#303030]">
                             <button
                                 onClick={() => setViewMode("graph")}
-                                className={`px-2 py-0.5 rounded-md transition-colors flex items-center justify-center ${viewMode === "graph" ? "bg-blue-500/20 text-blue-400" : "text-neutral-500 hover:text-neutral-300"}`}
+                                className={`px-2 py-1 rounded-md transition-colors flex items-center justify-center gap-1.5 text-[10px] font-mono ${viewMode === "graph" ? "bg-purple-500/20 text-purple-300" : "text-neutral-500 hover:text-neutral-300"}`}
                                 title="Graph View"
                             >
                                 <Network className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">Graph</span>
                             </button>
                             <button
                                 onClick={() => setViewMode("list")}
-                                className={`px-2 py-0.5 rounded-md transition-colors flex items-center justify-center ${viewMode === "list" ? "bg-blue-500/20 text-blue-400" : "text-neutral-500 hover:text-neutral-300"}`}
+                                className={`px-2 py-1 rounded-md transition-colors flex items-center justify-center gap-1.5 text-[10px] font-mono ${viewMode === "list" ? "bg-purple-500/20 text-purple-300" : "text-neutral-500 hover:text-neutral-300"}`}
                                 title="List View"
                             >
                                 <List className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">List</span>
                             </button>
                         </div>
                     </div>
@@ -433,8 +428,8 @@ export default function Memories() {
                                                 <div className="min-w-0 pr-4">
                                                     <p className="text-sm text-neutral-200 line-clamp-1 truncate">{mem.content}</p>
                                                     <div className="flex gap-2 text-[10px] text-neutral-500 font-mono mt-1">
-                                                        <span className="text-blue-400">{mem.category}</span>
-                                                        <span className="text-neutral-700">•</span>
+                                                        <span className="text-cyan-400">{mem.category}</span>
+                                                        <span className="text-neutral-700">|</span>
                                                         <span>{new Date(mem.timestamp).toLocaleString()}</span>
                                                     </div>
                                                 </div>
@@ -457,8 +452,8 @@ export default function Memories() {
                                             <Database className="w-4 h-4 text-blue-400" />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Node Inspector</h3>
-                                            <div className="text-[9px] text-neutral-500 font-mono">VECTOR_MEMORY_DETAILS</div>
+                                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Memory Details</h3>
+                                            <div className="text-[9px] text-neutral-500 font-mono">Selected memory node</div>
                                         </div>
                                     </div>
                                     <button onClick={() => setSelectedMemory(null)} className="p-1.5 text-neutral-500 hover:bg-[#303030] hover:text-white transition-colors rounded-md">
@@ -563,3 +558,6 @@ export default function Memories() {
         </div>
     );
 }
+
+
+

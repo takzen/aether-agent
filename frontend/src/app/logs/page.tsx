@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Sidebar from "@/components/Sidebar";
 import { Hash, Clock, Search, Activity } from "lucide-react";
@@ -76,43 +76,44 @@ export default function AgentLogs() {
 
             <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 select-none">
 
-                {/* Header — VSCode Style */}
+                {/* Header â€” VSCode Style */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <Activity className="w-4 h-4 text-cyan-400" />
                         <div>
-                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">System Execution Logs</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.KERNEL_LOGS</span>
-                            </div>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Agent Logs</h3>
+                            <p className="text-[10px] text-neutral-500 font-mono">Track runtime events, warnings and system errors</p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-4 text-[9px] font-mono whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                        <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
+                            Showing: {filteredLogs.length}/{logs.length}
+                        </div>
+                        <div className="flex items-center gap-4 text-[9px] font-mono whitespace-nowrap hidden xl:flex">
                             <span className="text-blue-500/80">
-                                [ INFO ] SYSTEM_INFO
+                                Info
                             </span>
-                            <span className="text-neutral-700 select-none">•</span>
+                            <span className="text-neutral-700 select-none">|</span>
                             <span className="text-green-500/80">
-                                [  OK  ] SUCCESS_LOG
+                                Success
                             </span>
-                            <span className="text-neutral-700 select-none">•</span>
+                            <span className="text-neutral-700 select-none">|</span>
                             <span className="text-yellow-500/80">
-                                [ WARN ] WARNING_EVENT
+                                Warning
                             </span>
-                            <span className="text-neutral-700 select-none">•</span>
+                            <span className="text-neutral-700 select-none">|</span>
                             <span className="text-red-500/80">
-                                [ ERR! ] CRITICAL_ERROR
+                                Error
                             </span>
                         </div>
-                        <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 flex items-center gap-2 font-mono">
+                        <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-3 flex items-center gap-2 font-mono">
                             <Clock className="w-3 h-3" /> {currentTime}
                         </div>
                     </div>
                 </div>
 
-                {/* Main Content Area — VSCode Editor Style */}
+                {/* Main Content Area â€” VSCode Editor Style */}
                 <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
                     {/* Tactical Elements (Removed for clarity/VSCode aesthetic) */}
@@ -121,7 +122,7 @@ export default function AgentLogs() {
                     {/* Filter Bar */}
                     <div className="px-6 py-2 border-b border-[#303030] bg-[#252526] flex items-center justify-between z-10">
                         <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded-md px-2.5 py-1 focus-within:border-[#007acc]/50 transition-all">
+                            <div className="flex items-center gap-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded-md px-2.5 py-1 focus-within:border-purple-500/50 transition-all">
                                 <Search className="w-3 h-3 text-[#858585]" />
                                 <input
                                     type="text"
@@ -132,7 +133,7 @@ export default function AgentLogs() {
                                 />
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className="text-[9px] text-neutral-600 uppercase">Sources:</span>
+                                <span className="text-[9px] text-neutral-600 uppercase">Source:</span>
                                 <div className="flex gap-1">
                                     {['ALL', 'CORE', 'MEM', 'NET', 'WEB'].map(tag => (
                                         <button
@@ -145,7 +146,7 @@ export default function AgentLogs() {
                                 </div>
                             </div>
                         </div>
-                        <span className="text-[9px] text-neutral-600">LIVE_TELEMETRY: ON</span>
+                        <span className="text-[9px] text-neutral-600">Live telemetry: On</span>
                     </div>
 
                     {/* Logs Container */}
@@ -186,7 +187,7 @@ export default function AgentLogs() {
                         {/* Animated Cursor Entry */}
                         <div className="flex gap-4 py-1 border-l border-white/5 pl-4 opacity-50">
                             <span className="text-neutral-600 w-24 shrink-0">{currentTime}.995</span>
-                            <span className="text-blue-500/50 w-20 shrink-0 font-bold uppercase tracking-widest">TRACE</span>
+                            <span className="text-blue-500/50 w-20 shrink-0 font-bold uppercase tracking-widest">Trace</span>
                             <span className="flex items-center gap-1">
                                 <span className="text-neutral-500 italic">Listening for system events</span>
                                 <motion.span
@@ -205,3 +206,6 @@ export default function AgentLogs() {
         </div>
     );
 }
+
+
+

@@ -91,17 +91,17 @@ export default function DocsPage() {
 
                 <header className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                        <Book className="w-4 h-4 text-cyan-400" />
                         <div>
-                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Aether Knowledge Base</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>SYSTEM.DOCUMENTATION_V1</span>
-                            </div>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Documentation</h3>
+                            <p className="text-[10px] text-neutral-500 font-mono">Read system guides, architecture notes and operational docs</p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-[10px] text-neutral-600 font-mono uppercase tracking-widest hidden md:flex">
-                        {/* Empty right side as requested */}
+                    <div className="flex items-center gap-2">
+                        <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
+                            Docs: {docs.length}
+                        </div>
                     </div>
                 </header>
 
@@ -116,7 +116,7 @@ export default function DocsPage() {
                                     placeholder="Search articles..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-[#1e1e1e] border border-[#3c3c3c] rounded-lg py-2 pl-10 pr-4 text-xs text-[#cccccc] focus:outline-none focus:border-blue-500/50 transition-all placeholder:text-neutral-700"
+                                    className="w-full bg-[#1e1e1e] border border-[#3c3c3c] rounded-lg py-2 pl-10 pr-4 text-xs text-[#cccccc] focus:outline-none focus:border-purple-500/50 transition-all placeholder:text-neutral-700"
                                 />
                             </div>
                         </div>
@@ -131,11 +131,11 @@ export default function DocsPage() {
                                         : "text-neutral-500 hover:text-neutral-300 hover:bg-[#252526]/30"
                                         }`}
                                 >
-                                    <div className={`p-1.5 rounded-lg border transition-colors ${selectedDoc === doc ? "bg-blue-500/10 border-blue-500/20 text-blue-400" : "bg-neutral-800/50 border-white/5 text-neutral-700 group-hover:text-neutral-500"}`}>
+                                    <div className={`p-1.5 rounded-lg border transition-colors ${selectedDoc === doc ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" : "bg-neutral-800/50 border-white/5 text-neutral-700 group-hover:text-neutral-500"}`}>
                                         <FileText className="w-3.5 h-3.5" />
                                     </div>
                                     <span className="text-[13px] font-medium truncate flex-1">{doc.replace(".md", "").replace(/_/g, " ")}</span>
-                                    {selectedDoc === doc && <ChevronRight className="w-4 h-4 text-blue-500/50" />}
+                                    {selectedDoc === doc && <ChevronRight className="w-4 h-4 text-cyan-500/50" />}
                                 </button>
                             ))}
                         </nav>
@@ -148,7 +148,7 @@ export default function DocsPage() {
                                 <AnimatePresence mode="wait">
                                     {loading ? (
                                         <div className="flex items-center justify-center p-20">
-                                            <div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                                            <div className="w-6 h-6 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
                                         </div>
                                     ) : (
                                         <motion.div
@@ -160,8 +160,8 @@ export default function DocsPage() {
                                             className="bg-[#252526] border border-[#303030] rounded-3xl p-10 lg:p-16 shadow-2xl backdrop-blur-md"
                                         >
                                             <div className="flex items-center gap-4 mb-10 border-b border-white/5 pb-8">
-                                                <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
-                                                    <Book className="w-6 h-6 text-blue-400" />
+                                                <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl">
+                                                    <Book className="w-6 h-6 text-cyan-400" />
                                                 </div>
                                                 <div>
                                                     <h1 className="text-3xl font-bold text-white tracking-tight">{selectedDoc?.replace(".md", "").replace(/_/g, " ")}</h1>
@@ -173,7 +173,7 @@ export default function DocsPage() {
                                                     components={{
                                                         h1: ({ children }) => <span className="hidden">{children}</span>,
                                                         h2: ({ children }) => <h2 className="text-xl font-bold text-white mt-12 mb-6 tracking-tight flex items-center gap-4">
-                                                            <div className="w-1 h-5 bg-blue-500 rounded-full" />
+                                                            <div className="w-1 h-5 bg-cyan-500 rounded-full" />
                                                             {children}
                                                         </h2>,
                                                         h3: ({ children }) => <h3 className="text-base font-bold text-neutral-300 mt-10 mb-4 uppercase tracking-widest">{children}</h3>,
@@ -181,7 +181,7 @@ export default function DocsPage() {
                                                         ul: ({ children }) => <ul className="space-y-4 my-8 pl-6 border-l border-white/5">{children}</ul>,
                                                         li: ({ children }) => (
                                                             <li className="flex items-start gap-3 text-neutral-400 text-[17px]">
-                                                                <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-blue-500/30 shrink-0" />
+                                                                <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-cyan-500/30 shrink-0" />
                                                                 <span>{children}</span>
                                                             </li>
                                                         ),
@@ -195,7 +195,7 @@ export default function DocsPage() {
                                                             }
 
                                                             return isInline
-                                                                ? <code className="bg-[#1e1e1e] text-blue-300 px-1.5 py-0.5 rounded text-sm font-mono border border-white/5">{children}</code>
+                                                                ? <code className="bg-[#1e1e1e] text-purple-300 px-1.5 py-0.5 rounded text-sm font-mono border border-white/5">{children}</code>
                                                                 : <div className="my-10 rounded-2xl border border-[#303030] bg-[#1a1a1b] p-8 shadow-inner relative group">
                                                                     <pre className="font-mono text-sm leading-relaxed text-neutral-400 overflow-x-auto">
                                                                         {children}

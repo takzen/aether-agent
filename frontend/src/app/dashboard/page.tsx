@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Sidebar from "@/components/Sidebar";
 import { Shield, Activity, MessageSquare, Send, Brain, Database, Check, Terminal } from "lucide-react";
@@ -711,31 +711,29 @@ export default function Home() {
         {/* Standardized Header */}
         <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+            <Terminal className="w-4 h-4 text-cyan-400" />
             <div>
               <h3 className="text-sm font-bold tracking-wider text-white uppercase">Command Center</h3>
-              <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                <span>Core Interface & Command Control</span>
-              </div>
+              <p className="text-[10px] text-neutral-500 font-mono">Monitor system state and execute terminal commands</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
-              <span className="flex items-center gap-1.5 text-blue-400/80">
-                <Database className="w-3 h-3" /> DOCS: {stats.documents}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
+              <span className="flex items-center gap-1.5 text-cyan-400/80">
+                <Database className="w-3 h-3" /> Documents: {stats.documents}
               </span>
               <span className="text-neutral-700 select-none">|</span>
               <span className="flex items-center gap-1.5 text-purple-400/80">
-                <Brain className="w-3 h-3" /> MEMS: {stats.memories}
+                <Brain className="w-3 h-3" /> Memories: {stats.memories}
               </span>
               <span className="text-neutral-700 select-none">|</span>
               <span className="flex items-center gap-1.5 text-cyan-400/80">
-                <MessageSquare className="w-3 h-3" /> SESS: {stats.sessions}
+                <MessageSquare className="w-3 h-3" /> Sessions: {stats.sessions}
               </span>
               <span className="text-neutral-700 select-none">|</span>
               <span className="flex items-center gap-1.5 text-green-500/80">
-                <Shield className="w-3 h-3" /> {stats.reliability}%
+                <Shield className="w-3 h-3" /> Reliability: {stats.reliability}%
               </span>
             </div>
             <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-4 font-mono hidden lg:block">
@@ -920,7 +918,7 @@ export default function Home() {
 
               {/* Terminal Input Area */}
               <div className="px-4 py-3 border-t border-[#303030] bg-[#1e1e1e] shrink-0">
-                <div className="relative flex items-center gap-2 bg-[#3c3c3c]/30 border border-[#3c3c3c] rounded-lg px-4 py-2 focus-within:border-[#007acc]/50 transition-all bg-[#252526]">
+                <div className="relative flex items-center gap-2 bg-[#3c3c3c]/30 border border-[#3c3c3c] rounded-lg px-4 py-2 focus-within:border-purple-500/50 transition-all bg-[#252526]">
                   {suggestions.length > 0 && (
                     <div className="absolute bottom-full left-0 w-full mb-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded-lg overflow-hidden shadow-2xl z-50">
                       {suggestions.map((s, i) => {
@@ -988,7 +986,7 @@ export default function Home() {
                   <button onClick={() => setActivityFilter("all")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "all" ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>All</button>
                   <button onClick={() => setActivityFilter("errors")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "errors" ? "bg-red-500/20 border-red-500/30 text-red-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Errors</button>
                   <button onClick={() => setActivityFilter("memory")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "memory" ? "bg-purple-500/20 border-purple-500/30 text-purple-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Memory</button>
-                  <button onClick={() => setActivityFilter("sessions")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "sessions" ? "bg-blue-500/20 border-blue-500/30 text-blue-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Sessions</button>
+                  <button onClick={() => setActivityFilter("sessions")} className={`text-[10px] px-2 py-1 rounded border ${activityFilter === "sessions" ? "bg-cyan-500/20 border-cyan-500/30 text-cyan-300" : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"}`}>Sessions</button>
                 </div>
                 <div className="flex-1 overflow-y-auto overflow-x-hidden divide-y divide-white/5">
                   {filteredActivities.map((activity, i) => {
@@ -1030,4 +1028,6 @@ export default function Home() {
     </div>
   );
 }
+
+
 

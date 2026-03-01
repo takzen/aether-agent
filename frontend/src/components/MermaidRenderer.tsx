@@ -36,7 +36,21 @@ const isLikelyCompleteMermaid = (source: string) => {
     return opens.round === 0 && opens.square === 0 && opens.curly === 0;
 };
 
-const MermaidRenderer = ({ chart }: { chart: string }) => {
+type MermaidControls = {
+    zoomIn: () => void;
+    zoomOut: () => void;
+    resetView: () => void;
+    scale: number;
+};
+
+type MermaidRendererProps = {
+    chart: string;
+    showToolbar?: boolean;
+    showFooterHint?: boolean;
+    onControlsReady?: (controls: MermaidControls) => void;
+};
+
+const MermaidRenderer = ({ chart, showToolbar = true, showFooterHint = true, onControlsReady }: MermaidRendererProps) => {
     const [svg, setSvg] = useState<string>("");
     const [isLoaded, setIsLoaded] = useState(false);
     const [renderError, setRenderError] = useState<string | null>(null);
@@ -203,33 +217,39 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
         return () => cancelAnimationFrame(id);
     }, [svg]);
 
+    useEffect(() => {
+        if (!onControlsReady) return;
+        onControlsReady({ zoomIn, zoomOut, resetView, scale });
+    }, [onControlsReady, scale]);
+
     return (
         <div className="w-full h-full relative flex flex-col bg-[#1e1e1e] overflow-hidden">
-            {/* Toolbar */}
-            <div className="absolute top-6 right-6 flex items-center gap-2 z-50">
-                <div className="bg-[#181818]/90 backdrop-blur-md border border-white/10 rounded-xl p-1 shadow-2xl flex items-center gap-1">
-                    <button
-                        onClick={zoomOut}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-all active:scale-95"
-                    >
-                        <span className="text-xl font-light">-</span>
-                    </button>
-                    <div className="w-px h-6 bg-white/10 mx-1" />
-                    <button
-                        onClick={resetView}
-                        className="px-6 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-[11px] font-mono text-purple-400 hover:text-purple-300 transition-all uppercase tracking-widest active:scale-95 font-bold"
-                    >
-                        FIT {Math.round(scale * 100)}%
-                    </button>
-                    <div className="w-px h-6 bg-white/10 mx-1" />
-                    <button
-                        onClick={zoomIn}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-all active:scale-95"
-                    >
-                        <span className="text-xl font-light">+</span>
-                    </button>
+            {showToolbar && (
+                <div className="absolute top-6 right-6 flex items-center gap-2 z-50">
+                    <div className="bg-[#181818]/90 backdrop-blur-md border border-white/10 rounded-xl p-1 shadow-2xl flex items-center gap-1">
+                        <button
+                            onClick={zoomOut}
+                            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-all active:scale-95"
+                        >
+                            <span className="text-xl font-light">-</span>
+                        </button>
+                        <div className="w-px h-6 bg-white/10 mx-1" />
+                        <button
+                            onClick={resetView}
+                            className="px-6 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-[11px] font-mono text-purple-400 hover:text-purple-300 transition-all uppercase tracking-widest active:scale-95 font-bold"
+                        >
+                            FIT {Math.round(scale * 100)}%
+                        </button>
+                        <div className="w-px h-6 bg-white/10 mx-1" />
+                        <button
+                            onClick={zoomIn}
+                            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 text-neutral-400 hover:text-white transition-all active:scale-95"
+                        >
+                            <span className="text-xl font-light">+</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Main Interactive Area */}
             <div
@@ -265,12 +285,13 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
                 </div>
             </div>
 
-            {/* Instruction Banner */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 text-[10px] text-neutral-400 font-mono whitespace-nowrap pointer-events-none flex items-center gap-3">
-                <span className="flex items-center gap-1.5 underline decoration-purple-500/50 underline-offset-4 font-bold text-white uppercase italic">Ultra-Wide Architecture Map</span>
-                <span className="text-neutral-700 select-none">|</span>
-                <span>Drag to pan, wheel to zoom</span>
-            </div>
+            {showFooterHint && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 text-[10px] text-neutral-400 font-mono whitespace-nowrap pointer-events-none flex items-center gap-3">
+                    <span className="flex items-center gap-1.5 underline decoration-purple-500/50 underline-offset-4 font-bold text-white uppercase italic">Ultra-Wide Architecture Map</span>
+                    <span className="text-neutral-700 select-none">|</span>
+                    <span>Drag to pan, wheel to zoom</span>
+                </div>
+            )}
         </div>
     );
 };

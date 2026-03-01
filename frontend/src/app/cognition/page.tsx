@@ -24,16 +24,16 @@ export default function CognitionPage() {
     };
 
     const autonomyOptions = [
-        { id: 1, label: "MANUAL_OVERRIDE", icon: Shield, desc: "Agent only acts on direct confirmation. High safety." },
-        { id: 2, label: "CO-PILOT_MODE", icon: Zap, desc: "Balanced. Agent handles safe reads and analysis independently." },
-        { id: 3, label: "FULL_AUTONOMY", icon: Sparkles, desc: "DANGER.ZONE_ACTIVE: Full cognitive freedom. Agent can modify any files without approval." }
+        { id: 1, label: "Manual Approval", icon: Shield, desc: "Agent only acts on direct confirmation. High safety." },
+        { id: 2, label: "Co-Pilot", icon: Zap, desc: "Balanced. Agent handles safe reads and analysis independently." },
+        { id: 3, label: "Full Autonomy", icon: Sparkles, desc: "Danger zone active. Full cognitive freedom, including file changes without approval." }
     ] as const;
 
     const autonomyClasses: Record<number, { active: string; icon: string; accent: string }> = {
         1: {
-            active: "bg-blue-500/5 border-blue-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100",
-            icon: "bg-blue-500/20 border-blue-500/30 text-blue-400",
-            accent: "text-blue-500"
+            active: "bg-cyan-500/5 border-cyan-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100",
+            icon: "bg-cyan-500/20 border-cyan-500/30 text-cyan-400",
+            accent: "text-cyan-400"
         },
         2: {
             active: "bg-purple-500/5 border-purple-500/30 shadow-[0_0_20px_rgba(0,0,0,0.2)] opacity-100",
@@ -114,12 +114,10 @@ export default function CognitionPage() {
                 {/* Header — VSCode Style Sync */}
                 <header className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-50">
                     <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-neutral-600 animate-pulse' : 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]'}`} />
+                        <Brain className="w-4 h-4 text-cyan-400" />
                         <div>
-                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Neural Cognition Center</h3>
-                            <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
-                                <span>{isLoading ? "CALIBRATING_SENSORS..." : "SYSTEM.SYNAPSE_READY"}</span>
-                            </div>
+                            <h3 className="text-sm font-bold tracking-wider text-white uppercase">Cognition</h3>
+                            <p className="text-[10px] text-neutral-500 font-mono">Tune persona, autonomy and cognitive behavior parameters</p>
                         </div>
                     </div>
 
@@ -127,13 +125,13 @@ export default function CognitionPage() {
                         <button
                             onClick={handleCommit}
                             disabled={isSaving || isLoading}
-                            className={`flex items-center gap-2 px-4 py-1.5 rounded text-[10px] transition-all uppercase tracking-widest font-bold active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${autonomy === 3
-                                ? 'bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500/30 shadow-[0_0_15px_rgba(244,63,94,0.2)] animate-pulse'
-                                : 'bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 text-purple-400'
+                            className={`text-[10px] font-mono px-2.5 py-1 rounded border transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed ${autonomy === 3
+                                ? 'border-rose-500/40 text-rose-300 hover:bg-rose-500/10'
+                                : 'border-purple-500/30 text-purple-300 hover:bg-purple-500/10'
                                 }`}
                         >
                             <RefreshCw className={`w-3.5 h-3.5 ${isSaving ? 'animate-spin' : ''}`} />
-                            {isSaving ? "Syncing..." : "Commit_Neural_Config"}
+                            {isSaving ? "Saving..." : "Save Cognition Settings"}
                         </button>
                     </div>
                 </header>
@@ -170,14 +168,17 @@ export default function CognitionPage() {
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span className="text-[10px] text-neutral-500 italic font-sans">Autonomous overnight thinking</span>
-                                            <button
-                                                onClick={() => setIsReflectionEnabled(!isReflectionEnabled)}
-                                                className={`w-12 h-6 rounded-full transition-all duration-500 relative shadow-inner overflow-hidden ${isReflectionEnabled ? 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-[#1a1a1b] border border-white/10'}`}
-                                            >
-                                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-lg transition-all duration-500 ease-out flex items-center justify-center ${isReflectionEnabled ? 'left-7' : 'left-1'}`}>
-                                                    {isReflectionEnabled && <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />}
-                                                </div>
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[9px] font-mono text-neutral-500">{isReflectionEnabled ? "On" : "Off"}</span>
+                                                <button
+                                                    onClick={() => setIsReflectionEnabled(!isReflectionEnabled)}
+                                                    className={`w-12 h-6 rounded-full transition-all duration-500 relative shadow-inner overflow-hidden ${isReflectionEnabled ? 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]' : 'bg-[#1a1a1b] border border-white/10'}`}
+                                                >
+                                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-lg transition-all duration-500 ease-out flex items-center justify-center ${isReflectionEnabled ? 'left-7' : 'left-1'}`}>
+                                                        {isReflectionEnabled && <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />}
+                                                    </div>
+                                                </button>
+                                            </div>
                                         </div>
                                     </motion.div>
 
@@ -185,17 +186,17 @@ export default function CognitionPage() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
-                                        className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-blue-500/30 transition-all group backdrop-blur-md"
+                                        className="p-6 rounded-2xl bg-[#252526] border border-[#303030] hover:border-cyan-500/30 transition-all group backdrop-blur-md"
                                     >
                                         <div className="flex items-center gap-4 mb-4">
-                                            <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
-                                                <Zap className="w-5 h-5 text-blue-400" />
+                                            <div className="p-2 bg-cyan-500/10 border border-cyan-500/20 rounded-lg shrink-0 group-hover:scale-105 transition-transform">
+                                                <Zap className="w-5 h-5 text-cyan-400" />
                                             </div>
                                             <h4 className="text-[11px] font-bold text-white uppercase tracking-wider">Neural Speed</h4>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <span className="text-[10px] text-neutral-500 italic font-sans">Flash model usage vs Pro</span>
-                                            <span className="text-[9px] font-bold text-blue-500 bg-blue-500/10 px-2 py-1 rounded tracking-tighter uppercase">Optimized</span>
+                                            <span className="text-[9px] font-bold text-cyan-500 bg-cyan-500/10 px-2 py-1 rounded tracking-tighter uppercase">Optimized</span>
                                         </div>
                                     </motion.div>
 
@@ -224,7 +225,7 @@ export default function CognitionPage() {
                                     {/* Persona Configuration */}
                                     <section className="space-y-6">
                                         <div className="flex items-center justify-between border-l-2 border-purple-500/30 pl-6 py-2 bg-[#252526]/50">
-                                            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Persona_Profiles</h2>
+                                            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Persona Profiles</h2>
                                         </div>
                                         <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-8 min-h-[420px] backdrop-blur-md shadow-xl">
                                             <div className="flex gap-2 p-1 bg-[#1a1a1b] rounded-xl border border-white/5">
@@ -260,17 +261,20 @@ export default function CognitionPage() {
                                                                     <Lock className={`w-4 h-4 transition-colors ${isCircadianLocked ? 'text-blue-400' : 'text-neutral-600'}`} />
                                                                     <span className="text-[10px] text-neutral-400 font-sans uppercase tracking-wider">Digital Circadian Rhythm</span>
                                                                 </div>
-                                                                <button
-                                                                    onClick={() => setIsCircadianLocked(!isCircadianLocked)}
-                                                                    className={`w-10 h-5 rounded-full transition-colors relative ${isCircadianLocked ? 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]' : 'bg-neutral-800'}`}
-                                                                >
-                                                                    <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isCircadianLocked ? 'left-6' : 'left-1'}`} />
-                                                                </button>
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-[9px] font-mono text-neutral-500">{isCircadianLocked ? "On" : "Off"}</span>
+                                                                    <button
+                                                                        onClick={() => setIsCircadianLocked(!isCircadianLocked)}
+                                                                        className={`w-10 h-5 rounded-full transition-colors relative ${isCircadianLocked ? 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]' : 'bg-neutral-800'}`}
+                                                                    >
+                                                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isCircadianLocked ? 'left-6' : 'left-1'}`} />
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                            <p className="text-[9px] text-neutral-500 font-sans leading-relaxed border-t border-white/5 pt-3">
-                                                                {isCircadianLocked
-                                                                    ? "CYCLE_LOCKED: Agent maintains a stable technical mode regardless of the time."
-                                                                    : "CYCLE_ACTIVE: Personality flows dynamically (Strategist AM, Executor Day, Philosopher PM)."}
+                                                                    <p className="text-[9px] text-neutral-500 font-sans leading-relaxed border-t border-white/5 pt-3">
+                                                                        {isCircadianLocked
+                                                                    ? "Cycle locked: Agent keeps a stable technical mode regardless of time."
+                                                                    : "Cycle active: Personality flows dynamically (Strategist AM, Executor day, Philosopher PM)."}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -281,7 +285,7 @@ export default function CognitionPage() {
                                             <section className="pt-4 space-y-4">
                                                 <div className="flex items-center gap-2">
                                                     <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                                                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Custom_Directives</h3>
+                                                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Custom Directives</h3>
                                                 </div>
                                                 <textarea
                                                     value={customDirectives}
@@ -295,15 +299,15 @@ export default function CognitionPage() {
 
                                     {/* Autonomy Engine */}
                                     <section className="space-y-6">
-                                        <div className="flex items-center justify-between border-l-2 border-blue-500/30 pl-6 py-2 bg-[#252526]/50">
-                                            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Autonomy_Engine</h2>
+                                        <div className="flex items-center justify-between border-l-2 border-cyan-500/30 pl-6 py-2 bg-[#252526]/50">
+                                            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-500">Autonomy Engine</h2>
                                         </div>
                                         <div className="bg-[#252526] border border-[#303030] p-8 rounded-2xl space-y-4 min-h-[420px] backdrop-blur-md shadow-xl">
                                             {autonomyOptions.map((opt) => (
                                                 <button
                                                     key={opt.id}
                                                     onClick={() => setAutonomy(opt.id)}
-                                                    className={`w-full p-4 rounded-xl border transition-all duration-300 text-left flex items-start gap-4 ${autonomy === opt.id
+                                                    className={`w-full min-h-[100px] p-4 rounded-xl border transition-all duration-300 text-left flex items-start gap-4 ${autonomy === opt.id
                                                         ? autonomyClasses[opt.id].active
                                                         : 'bg-[#1a1a1b] border-white/5 hover:border-white/10 opacity-60 hover:opacity-90'}`}
                                                 >
@@ -313,7 +317,7 @@ export default function CognitionPage() {
                                                         <opt.icon className="w-4 h-4" />
                                                     </div>
                                                     <div className="space-y-1">
-                                                        <h5 className={`text-[10px] font-black uppercase tracking-widest ${autonomy === opt.id ? 'text-white' : 'text-neutral-400'}`}>
+                                                        <h5 className={`text-[11px] font-bold tracking-wide ${autonomy === opt.id ? 'text-white' : 'text-neutral-300'}`}>
                                                             {opt.label} {autonomy === opt.id && <span className={`ml-1 ${autonomyClasses[opt.id].accent} font-black text-xs`}>!!!</span>}
                                                         </h5>
                                                         <p className="text-[9px] text-neutral-500 font-sans italic leading-tight">{opt.desc}</p>
@@ -325,14 +329,14 @@ export default function CognitionPage() {
                                                 ? 'bg-rose-500/10 border-rose-500/40 shadow-[0_0_20px_rgba(244,63,94,0.15)] animate-pulse'
                                                 : autonomy === 2
                                                     ? 'bg-purple-500/5 border-purple-500/10'
-                                                    : 'bg-blue-500/5 border-blue-500/10'
+                                                    : 'bg-cyan-500/5 border-cyan-500/10'
                                                 }`}>
                                                 <div className={`p-2 rounded-lg shrink-0 ${autonomy === 3 ? 'bg-rose-500 text-white' : 'bg-neutral-800 text-neutral-400'}`}>
                                                     <Shield className="w-3.5 h-3.5" />
                                                 </div>
                                                 <div className="space-y-1">
                                                     <h6 className={`text-[9px] font-black uppercase tracking-widest ${autonomy === 3 ? 'text-rose-400' : 'text-neutral-400'}`}>
-                                                        {autonomy === 3 ? "CRITICAL_SYSTEM_WARNING" : "Safety_Protocol_Insights"}
+                                                        {autonomy === 3 ? "Critical System Warning" : "Safety Protocol Insights"}
                                                     </h6>
                                                     <p className={`text-[10px] font-sans leading-relaxed ${autonomy === 3 ? 'text-rose-200/80 font-bold' : 'text-neutral-500'}`}>
                                                         {autonomy === 3
