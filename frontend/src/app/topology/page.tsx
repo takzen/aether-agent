@@ -31,15 +31,17 @@ flowchart LR
     subgraph PromptStream["System Prompt Lifecycle"]
         B_P["inject_base_prompt language control and CORE-X directives"]
         C_P["inject_cognition_prompt apply persona and autonomy levels"]
-        D_P["inject_dynamic_context aggregate RAG and runtime state"]
+        S_P["inject_skill_prompt runtime skill activation and triggers"]
+        D_P["inject_dynamic_context aggregate RAG and circadian state"]
     end
 
     PROMPT_ENGINE --> B_P
     B_P --> C_P
-    C_P --> D_P
+    C_P --> S_P
+    S_P --> D_P
 
     subgraph RAG_Engine["Hybrid Context Injection"]
-        D_P --> CIRC["Digital circadian rhythm strategist executor philosopher"]
+        D_P --> CIRC["Digital circadian rhythm cron based persona strategist executor philosopher"]
         D_P --> MEM_S["memory_manager.search semantic retrieval"]
         D_P --> DOC_S["db_service.search_documents library retrieval"]
     end
@@ -57,7 +59,7 @@ flowchart LR
         T_AUT["validate_path path safety validation"]
         T_WEB["web_search external Tavily uplink"]
         T_MEM["remember and recall semantic memory ops"]
-        T_KNG["connect_concepts and query_graph graph growth"]
+        T_KNG["connect_concepts and modify_concept graph growth"]
         T_SKB["search_knowledge_base deep RAG with search limit"]
     end
 
