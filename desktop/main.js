@@ -37,7 +37,39 @@ function createWindow() {
 
     tryLoad();
 
-    // Wymuś otwieranie linków zewnętrznych w domyślnej przeglądarce
+    // Enable Manual Zoom Controls (since menu is hidden)
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+        if (input.control && input.type === 'keyDown') {
+            if (input.code === 'Equal' || input.code === 'NumpadAdd') {
+                let currentZoom = mainWindow.webContents.getZoomFactor();
+                mainWindow.webContents.setZoomFactor(currentZoom + 0.1);
+                event.preventDefault();
+            }
+            if (input.code === 'Minus' || input.code === 'NumpadSubtract') {
+                let currentZoom = mainWindow.webContents.getZoomFactor();
+                mainWindow.webContents.setZoomFactor(Math.max(0.2, currentZoom - 0.1));
+                event.preventDefault();
+            }
+            if (input.code === 'Digit0' || input.code === 'Numpad0') {
+                mainWindow.webContents.setZoomFactor(1.0);
+                event.preventDefault();
+            }
+        }
+    });
+
+    // Enable Ctrl + MouseWheel Zoom
+    mainWindow.webContents.on('mouse-wheel', (event, deltaX, deltaY, deltaZ, ctrlKey) => {
+        if (ctrlKey) {
+            let currentZoom = mainWindow.webContents.getZoomFactor();
+            if (deltaY > 0) {
+                mainWindow.webContents.setZoomFactor(Math.max(0.2, currentZoom - 0.1));
+            } else {
+                mainWindow.webContents.setZoomFactor(currentZoom + 0.1);
+            }
+        }
+    });
+
+    // Force external links to open in default browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('http')) {
             shell.openExternal(url);
