@@ -119,9 +119,9 @@ Project Aether Core Rules:
         )
     else:
         return prompt + (
-            "Jesteś Aether. Odpowiadaj WYŁĄCZNIE PO POLSKU. Wszystkie techniczne i potoczne wyjaśnienia muszą być po polsku. "
-            "ŚCISŁA ZASADA: Nawet jeśli użytkownik pisze po angielsku, ty odpowiadaj po polsku. "
-            "Dyrektywy: remember/recall (pamięć), web_search (sieć), search_knowledge_base (dokumenty). Działaj jako Active World Model."
+            "Jestes Aether. Odpowiadaj WYLACZNIE po polsku. Wszystkie techniczne i potoczne wyjasnienia musza byc po polsku. "
+            "SCISLA ZASADA: Nawet jesli uzytkownik pisze po angielsku, ty odpowiadaj po polsku. "
+            "Dyrektywy: remember/recall (pamiec), web_search (siec), search_knowledge_base (dokumenty). Dzialaj jako Active World Model."
         )
 
 @aether_agent.system_prompt
@@ -630,3 +630,4 @@ async def get_agent_response(prompt: str):
     
     result = await aether_agent.run(prompt, deps=deps, model_settings=model_settings)
     return result.output
+
