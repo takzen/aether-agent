@@ -228,10 +228,11 @@ export default function Settings() {
                                             className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500/50 transition-colors uppercase cursor-pointer"
                                         >
                                             <optgroup label="Google Gemini (SOTA 2026)" className="bg-[#1e1e1e]">
-                                                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Latest Preview)</option>
-                                                <option value="gemini-3-pro">Gemini 3 Pro (Visionary)</option>
-                                                <option value="gemini-3-flash">Gemini 3 Flash (Fast & Lean)</option>
-                                                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Stable Legacy)</option>
+                                                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview (Recommended)</option>
+                                                <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+                                                <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+                                                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Stable)</option>
+                                                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                                             </optgroup>
                                             <optgroup label="Local Models (Private)" className="bg-[#1e1e1e]">
                                                 <option value="ollama:llama3.2">Ollama: Llama 3.2</option>

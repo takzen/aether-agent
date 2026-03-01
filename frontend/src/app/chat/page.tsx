@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import Sidebar from "@/components/Sidebar";
 import ThoughtStream, { ThoughtStep } from "@/components/ThoughtStream";
 import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2, LucideIcon } from "lucide-react";
@@ -263,7 +263,50 @@ const CodeBlock = ({ children, className }: { children: React.ReactNode; classNa
     );
 };
 
+const MarkdownMessage = memo(function MarkdownMessage({ content }: { content: string }) {
+    return (
+        <div className="text-sm text-neutral-300 leading-relaxed markdown-content">
+            <ReactMarkdown
+                components={{
+                    h1: ({ ...props }) => <h1 className="text-lg font-bold text-purple-400 mt-4 mb-2 uppercase tracking-wider border-b border-purple-500/20 pb-1" {...props} />,
+                    h2: ({ ...props }) => <h2 className="text-md font-bold text-purple-400 mt-4 mb-2 uppercase tracking-tight" {...props} />,
+                    h3: ({ ...props }) => <h3 className="text-sm font-bold text-white/90 mt-3 mb-1" {...props} />,
+                    p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,
+                    ul: ({ ...props }) => <ul className="list-none space-y-1.5 mb-3" {...props} />,
+                    li: ({ ...props }) => (
+                        <li className="flex items-start gap-3 group">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-500/40 mt-[0.55rem] shrink-0 transition-all group-hover:bg-purple-400 group-hover:shadow-[0_0_8px_rgba(168,85,247,0.4)]" />
+                            <span className="flex-1" {...props} />
+                        </li>
+                    ),
+                    strong: ({ ...props }) => <strong className="text-white font-bold" {...props} />,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    pre: ({ children }: any) => <>{children}</>,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    code: ({ inline, children, className, ...props }: any) => {
+                        const isMultiline = String(children).includes("\n");
+                        if (inline || !isMultiline) {
+                            return (
+                                <code className="bg-black/40 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5" {...props}>
+                                    {children}
+                                </code>
+                            );
+                        }
+                        if (className === "language-mermaid") {
+                            return <MermaidRenderer chart={String(children)} />;
+                        }
+                        return <CodeBlock className={className}>{children}</CodeBlock>;
+                    }
+                }}
+            >
+                {content}
+            </ReactMarkdown>
+        </div>
+    );
+});
+
 export default function ChatPage() {
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
     const searchParams = useSearchParams();
     const [mounted, setMounted] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
@@ -293,24 +336,34 @@ export default function ChatPage() {
     const abortControllerRef = useRef<AbortController | null>(null);
     const shouldAutoScrollRef = useRef(true);
 
-    const fetchSessions = async () => {
+    const fetchJson = async <T,>(url: string, init?: RequestInit): Promise<T | null> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
         try {
-            const res = await fetch("http://localhost:8000/sessions");
-            const data = await res.json();
-            if (data.status === "success") {
-                setSessions(data.sessions);
-            }
-        } catch (e) {
-            console.error("Failed to fetch sessions:", e);
+            const res = await fetch(url, { ...init, signal: controller.signal });
+            if (!res.ok) return null;
+            return await res.json() as T;
+        } catch {
+            return null;
+        } finally {
+            clearTimeout(timeoutId);
+        }
+    };
+
+    const fetchSessions = async () => {
+        const data = await fetchJson<{ status?: string; sessions?: { id: string, title: string, updated_at: string }[] }>(`${API_BASE}/sessions`);
+        if (data?.status === "success" && Array.isArray(data.sessions)) {
+            setSessions(data.sessions);
+        } else {
+            setSessions([]);
         }
     };
 
     const loadSession = async (sessionId: string) => {
         try {
-            const res = await fetch(`http://localhost:8000/sessions/${sessionId}/messages`);
-            const data = await res.json();
-            if (data.status === "success") {
-                const loadedMsgs = data.messages.map((m: { id: number; role: string; content: string; timestamp: string; metadata?: any }) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            const data = await fetchJson<{ status?: string; messages?: { id: number; role: string; content: string; timestamp: string; metadata?: any }[] }>(`${API_BASE}/sessions/${sessionId}/messages`); // eslint-disable-line @typescript-eslint/no-explicit-any
+            if (data?.status === "success") {
+                const loadedMsgs = (data.messages || []).map((m: { id: number; role: string; content: string; timestamp: string; metadata?: any }) => { // eslint-disable-line @typescript-eslint/no-explicit-any
                     let loadedTools: { name: string; detail: string; icon: LucideIcon; count: number; queries?: string[] }[] | undefined = undefined;
                     if (m.metadata?.used_tools && Array.isArray(m.metadata.used_tools)) {
                         const toolMap: { [key: string]: { name: string; detail: string; icon: LucideIcon; count: number; queries?: string[] } } = {};
@@ -347,6 +400,8 @@ export default function ChatPage() {
                 setMessages(loadedMsgs);
                 setCurrentSessionId(sessionId);
                 setAgentHistory([]); // Reset running local memory buffer
+            } else {
+                console.warn("Session load unavailable.");
             }
         } catch (e) {
             console.error("Failed to load session:", e);
@@ -368,7 +423,7 @@ export default function ChatPage() {
     const deleteSession = async (sessionId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         try {
-            await fetch(`http://localhost:8000/sessions/${sessionId}`, { method: "DELETE" });
+            await fetchJson(`${API_BASE}/sessions/${sessionId}`, { method: "DELETE" });
             if (sessionId === currentSessionId) {
                 startNewSession();
             }
@@ -738,43 +793,7 @@ export default function ChatPage() {
                                                 </div>
                                             )}
 
-                                            <div className="text-sm text-neutral-300 leading-relaxed markdown-content">
-                                                <ReactMarkdown
-                                                    components={{
-                                                        h1: ({ ...props }) => <h1 className="text-lg font-bold text-purple-400 mt-4 mb-2 uppercase tracking-wider border-b border-purple-500/20 pb-1" {...props} />,
-                                                        h2: ({ ...props }) => <h2 className="text-md font-bold text-purple-400 mt-4 mb-2 uppercase tracking-tight" {...props} />,
-                                                        h3: ({ ...props }) => <h3 className="text-sm font-bold text-white/90 mt-3 mb-1" {...props} />,
-                                                        p: ({ ...props }) => <p className="mb-3 last:mb-0" {...props} />,
-                                                        ul: ({ ...props }) => <ul className="list-none space-y-1.5 mb-3" {...props} />,
-                                                        li: ({ ...props }) => (
-                                                            <li className="flex items-start gap-3 group">
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500/40 mt-[0.55rem] shrink-0 transition-all group-hover:bg-purple-400 group-hover:shadow-[0_0_8px_rgba(168,85,247,0.4)]" />
-                                                                <span className="flex-1" {...props} />
-                                                            </li>
-                                                        ),
-                                                        strong: ({ ...props }) => <strong className="text-white font-bold" {...props} />,
-                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                        pre: ({ children }: any) => <>{children}</>,
-                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                        code: ({ inline, children, className, ...props }: any) => {
-                                                            const isMultiline = String(children).includes("\n");
-                                                            if (inline || !isMultiline) {
-                                                                return (
-                                                                    <code className="bg-black/40 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[11px] border border-white/5" {...props}>
-                                                                        {children}
-                                                                    </code>
-                                                                );
-                                                            }
-                                                            if (className === "language-mermaid") {
-                                                                return <MermaidRenderer chart={String(children)} />;
-                                                            }
-                                                            return <CodeBlock className={className}>{children}</CodeBlock>;
-                                                        }
-                                                    }}
-                                                >
-                                                    {msg.content}
-                                                </ReactMarkdown>
-                                            </div>
+                                            <MarkdownMessage content={msg.content} />
                                             <p className="text-[10px] text-neutral-600 font-mono mt-2 uppercase">
                                                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </p>

@@ -4,9 +4,42 @@ import React, { useEffect, useState, useRef } from "react";
 import mermaid from "mermaid";
 import { motion } from "framer-motion";
 
+const sanitizeMermaidChart = (input: string) => {
+    return input
+        .replace(/\r\n/g, "\n")
+        .replace(/^```mermaid\s*/i, "")
+        .replace(/\s*```$/, "")
+        // Wrap edge labels with quotes: |text (deps)| -> |"text (deps)"|
+        .replace(/\|([^|\n]+)\|/g, (_, label: string) => {
+            const safe = label.replace(/"/g, '\\"').trim();
+            return safe.startsWith('"') && safe.endsWith('"') ? `|${safe}|` : `|"${safe}"|`;
+        })
+        // Common LLM typo: extra closing parenthesis before arrow.
+        .replace(/\)\s*(-->|==>|-.->)/g, " $1");
+};
+
+const isLikelyCompleteMermaid = (source: string) => {
+    const s = source.trim();
+    if (!s) return false;
+    if (!/(^|\n)\s*(graph|flowchart)\s+/i.test(s)) return false;
+    if (/(\-\->|==>|-.->|\|)\s*$/.test(s)) return false;
+
+    const opens = { round: 0, square: 0, curly: 0 };
+    for (const ch of s) {
+        if (ch === "(") opens.round += 1;
+        if (ch === ")") opens.round -= 1;
+        if (ch === "[") opens.square += 1;
+        if (ch === "]") opens.square -= 1;
+        if (ch === "{") opens.curly += 1;
+        if (ch === "}") opens.curly -= 1;
+    }
+    return opens.round === 0 && opens.square === 0 && opens.curly === 0;
+};
+
 const MermaidRenderer = ({ chart }: { chart: string }) => {
     const [svg, setSvg] = useState<string>("");
     const [isLoaded, setIsLoaded] = useState(false);
+    const [renderError, setRenderError] = useState<string | null>(null);
     const [scale, setScale] = useState(1);
 
     // Panning state
@@ -16,6 +49,7 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
 
     const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
+    const lastGoodSvgRef = useRef<string>("");
 
     // Zoom Functions
     const zoomIn = () => setScale(prev => Math.min(prev + 0.2, 4));
@@ -97,21 +131,63 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
         const renderChart = async () => {
             if (!chart) return;
             setIsLoaded(false);
+            setRenderError(null);
 
             try {
-                const id = `mermaid-render-${Math.random().toString(36).substr(2, 9)}`;
-                const { svg: renderedSvg } = await mermaid.render(id, chart);
+                const normalized = chart.trim();
+                if (!isLikelyCompleteMermaid(normalized)) {
+                    // During stream we often get partial Mermaid; keep last good diagram.
+                    setIsLoaded(true);
+                    return;
+                }
+                const candidates = [normalized, sanitizeMermaidChart(normalized)];
+                let renderedSvg = "";
+                let rendered = false;
+
+                for (const source of candidates) {
+                    if (!source) continue;
+                    try {
+                        const id = `mermaid-render-${Math.random().toString(36).substr(2, 9)}`;
+                        const result = await mermaid.render(id, source);
+                        if (/Syntax error in text/i.test(result.svg)) {
+                            continue;
+                        }
+                        renderedSvg = result.svg;
+                        rendered = true;
+                        break;
+                    } catch {
+                        // try next candidate
+                    }
+                }
+
+                if (!rendered) {
+                    // Keep previously rendered chart if available.
+                    if (lastGoodSvgRef.current) {
+                        setSvg(lastGoodSvgRef.current);
+                    } else {
+                        setSvg("");
+                    }
+                    setIsLoaded(true);
+                    return;
+                }
 
                 // Keep Mermaid native dimensions; only disable max-width shrinking.
                 const cleanedSvg = renderedSvg
                     .replace(/max-width:\s*[^;"]+;?/g, "max-width: none;");
 
                 setSvg(cleanedSvg);
+                lastGoodSvgRef.current = cleanedSvg;
                 setIsLoaded(true);
                 setScale(1);
                 setPosition({ x: 0, y: 0 });
             } catch (err) {
-                console.error("Mermaid render error:", err);
+                const message = err instanceof Error ? err.message : "Invalid Mermaid diagram syntax.";
+                if (lastGoodSvgRef.current) {
+                    setSvg(lastGoodSvgRef.current);
+                } else {
+                    setSvg("");
+                    setRenderError(message);
+                }
                 setIsLoaded(true);
             }
         };
@@ -166,19 +242,26 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
                 onWheel={onWheel}
             >
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: isLoaded ? 1 : 0 }}
-                        ref={contentRef}
-                        style={{
-                            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                            transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
-                            transformOrigin: "center center",
-                            pointerEvents: "auto"
-                        }}
-                        className="flex items-center justify-center"
-                        dangerouslySetInnerHTML={{ __html: svg }}
-                    />
+                    {renderError ? (
+                        <div className="max-w-3xl mx-6 p-4 rounded-xl border border-red-500/30 bg-red-500/10 text-red-200 text-xs font-mono leading-relaxed pointer-events-auto">
+                            <div className="font-bold uppercase tracking-wider mb-2">Mermaid Parse Error</div>
+                            <div className="opacity-90 break-words">{renderError}</div>
+                        </div>
+                    ) : (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: isLoaded ? 1 : 0 }}
+                            ref={contentRef}
+                            style={{
+                                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                                transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                                transformOrigin: "center center",
+                                pointerEvents: "auto"
+                            }}
+                            className="flex items-center justify-center"
+                            dangerouslySetInnerHTML={{ __html: svg }}
+                        />
+                    )}
                 </div>
             </div>
 
