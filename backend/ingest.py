@@ -27,7 +27,7 @@ def split_text(text: str, chunk_size=1000, overlap=100) -> list[str]:
         
     return chunks
 
-async def process_content(content: str, filename: str, db: DatabaseService):
+async def process_content(content: str, filename: str, db: DatabaseService, file_size: str = "Unknown"):
     """
     Chunks content, embeds it, and saves to DB.
     """
@@ -46,6 +46,7 @@ async def process_content(content: str, filename: str, db: DatabaseService):
             # Save to DB (Documents Collection)
             metadata = {
                 "source": filename,
+                "size": file_size,
                 "chunk_index": i,
                 "total_chunks": len(chunks)
             }
@@ -75,7 +76,10 @@ async def process_file(file_path: str, db: DatabaseService):
             content = f.read()
             
         filename = os.path.basename(file_path)
-        await process_content(content, filename, db)
+        stats = os.stat(file_path)
+        file_size = f"{round(stats.st_size / 1024, 1)} KB"
+        
+        await process_content(content, filename, db, file_size)
         
     except Exception as e:
         print(f"Error reading file {file_path}: {e}")

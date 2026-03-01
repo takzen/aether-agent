@@ -53,7 +53,7 @@ export default function KnowledgeBase() {
                     type: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? 'code' : 'doc',
                     title: doc.filename,
                     added: doc.status === 'indexed' ? 'INDEXED' : 'ON_DISK',
-                    Size: doc.size || "Unknown",
+                    size: doc.size || "Unknown",
                     icon: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? Code : FileText,
                     lines: doc.metadata?.total_chunks || 0
                 }));
@@ -280,11 +280,11 @@ export default function KnowledgeBase() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {isLoading ? (
                             <div className="col-span-full py-20 text-center text-neutral-500 font-mono text-xs animate-pulse">
-                                SYNCHRONizing_KNOWLEDGE_CORE...
+                                SYNCHRONIZING KNOWLEDGE CORE...
                             </div>
                         ) : filteredItems.length === 0 ? (
                             <div className="col-span-full py-20 text-center text-neutral-500 font-mono text-xs">
-                                {searchQuery ? "NO_MATCHES_FOUND" : "KNOWLEDGE_CORE_EMPTY"}
+                                {searchQuery ? "NO MATCHES FOUND" : "KNOWLEDGE CORE EMPTY"}
                             </div>
                         ) : filteredItems.map((item, i) => (
                             <motion.div
@@ -386,7 +386,7 @@ export default function KnowledgeBase() {
                 isOpen={deleteModal.isOpen}
                 onClose={() => setDeleteModal(prev => ({ ...prev, isOpen: false }))}
                 onConfirm={confirmDelete}
-                title="DELETE_SOURCE_CONFIRMATION"
+                title="DELETE SOURCE CONFIRMATION"
                 message={`Are you sure you want to permanently delete "${deleteModal.filename}"? This action cannot be undone and will remove all associated vector embeddings.`}
                 confirmText="DELETE PERMANENTLY"
                 isDestructive={true}
@@ -435,7 +435,7 @@ export default function KnowledgeBase() {
                                 {previewModal.isLoading ? (
                                     <div className="flex flex-col items-center justify-center h-full text-neutral-500 space-y-4">
                                         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
-                                        <span className="font-mono text-xs">DECRYPTING_DATA...</span>
+                                        <span className="font-mono text-xs">DECRYPTING DATA...</span>
                                     </div>
                                 ) : (
                                     <pre className="text-xs font-mono text-neutral-300 whitespace-pre-wrap leading-relaxed">

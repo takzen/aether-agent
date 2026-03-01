@@ -290,10 +290,13 @@ async def index_existing_file(filename: str):
         if not os.path.exists(file_path):
             return {"status": "error", "message": f"File '{filename}' not found on disk."}
             
+        stats = os.stat(file_path)
+        file_size = f"{round(stats.st_size / 1024, 1)} KB"
+        
         with open(file_path, "r", encoding="utf-8") as f:
             text_content = f.read()
             
-        success = await process_content(text_content, filename, db_service)
+        success = await process_content(text_content, filename, db_service, file_size)
         
         if success:
             await sqlite_service.add_log("success", "KNOWLEDGE", f"Manually indexed existing source: {filename}")
