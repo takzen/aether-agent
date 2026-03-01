@@ -2,6 +2,14 @@
 
 All notable changes to the Aether Agent project will be documented in this file.
 
+## [1.4.1] - 2026-03-01
+### Added
+- **Intelligent Responsive Layout**: Major update to Dashboard, Sidebar, and Memories for small screens (Tablets/Mini).
+  - **Dynamic Sidebar**: Automatically collapses to a minimalist icon-only mode (w-20) with perfectly centered icons on screens below 1280px.
+  - **Compact Header Stats**: Dashboard statistics now use an icons-only display on m-resolutions to prevent text overflow and layout breakages.
+  - **Neural Canvas Optimization**: Memories page now hides search/filter bars on tablet views to maximize the neural graph workspace.
+- **Improved Alignment**: Perfectly right-aligned statistics on Desktop and centered icons in the collapsed Sidebar.
+
 ## [1.3.0] - 2026-02-28
 ### Added
 - **Neuromorphic Cognition Engine**: Official release of the `/cognition` center.
