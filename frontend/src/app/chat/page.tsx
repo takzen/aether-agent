@@ -548,11 +548,12 @@ export default function ChatPage() {
                     return;
                 }
 
-                if (evt.type === "status" && evt.message) {
+                if (evt.type === "status" && typeof evt.message === "string") {
+                    const statusMessage = evt.message;
                     setThoughtSteps(prev => [...prev, {
                         id: `${Date.now()}-${Math.random()}`,
                         type: "thought",
-                        message: evt.message,
+                        message: statusMessage,
                         icon: Terminal,
                         time: "just now"
                     }]);
@@ -647,23 +648,25 @@ export default function ChatPage() {
                 {/* Chat Column */}
                 <div className="flex-1 flex flex-col relative overflow-hidden">
                     {/* Chat Header â€” Standardized Style */}
-                    <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0">
-                        <div className="flex items-center gap-3">
+                    <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
+                        <div className="flex items-center gap-3 min-w-0">
                             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
                             <div>
                                 <h3 className="text-sm font-bold tracking-wider text-white uppercase">Aether Agent</h3>
-                                <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono">
+                                <div className="flex items-center gap-2 text-[10px] text-neutral-500 font-mono whitespace-nowrap">
                                     <span>SYSTEM.NEURAL_CORE</span>
                                     <span className="text-neutral-700">|</span>
                                     <span>ACTIVE_SESSION</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 text-[10px] text-neutral-500 font-mono uppercase tracking-widest overflow-hidden">
+                        <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap shrink-0">
                             {/* New Chat Button */}
                             <button
                                 onClick={startNewSession}
-                                className="flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"
+                                title="Start a new chat session"
+                                aria-label="Start new chat session"
+                                className="flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors"
                             >
                                 <Plus className="w-3.5 h-3.5" />
                                 <span className="hidden sm:inline">New Chat</span>
@@ -671,12 +674,14 @@ export default function ChatPage() {
                             {/* History Toggle */}
                             <button
                                 onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                                className={`flex items-center gap-1.5 px-3 h-7 rounded-sm border border-white/5 transition-all
-                                        ${isHistoryOpen ? "bg-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-purple-400 font-bold border-purple-500/30" : "bg-black/40 text-neutral-400 hover:text-white hover:bg-white/10"}
+                                title={isHistoryOpen ? "Hide chat history panel" : "Show chat history panel"}
+                                aria-label={isHistoryOpen ? "Hide chat history panel" : "Show chat history panel"}
+                                className={`flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded border transition-colors
+                                        ${isHistoryOpen ? "bg-purple-500/15 border-purple-400/40 text-purple-300" : "border-white/10 text-neutral-300 hover:text-white hover:bg-white/5"}
                                     `}
                             >
                                 <History className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">HISTORY Logs</span>
+                                <span className="hidden sm:inline">History</span>
                             </button>
                         </div>
                     </div>
@@ -929,7 +934,7 @@ export default function ChatPage() {
                                 exit={{ width: 0, opacity: 0 }}
                                 className="bg-[#181818] border-l border-[#303030] flex flex-col shrink-0 overflow-hidden font-mono z-20 h-full"
                             >
-                                <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0 bg-[#1e1e1e]">
+                                <div className="px-6 py-4 h-[68px] border-b border-[#303030] flex items-center justify-between shrink-0 bg-[#1e1e1e]">
                                     <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
                                         <MessageSquare className="w-4 h-4 text-cyan-500" />
                                         Chronicles

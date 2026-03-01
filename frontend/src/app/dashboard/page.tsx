@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useCommand, DashboardMessage } from "@/context/CommandContext";
 import ReactMarkdown from "react-markdown";
-import { createHighlighter } from "shiki";
+import { createHighlighter, type BundledLanguage, type SpecialLanguage } from "shiki";
 
 let shikiHighlighterPromise: ReturnType<typeof createHighlighter> | null = null;
 const getShikiHighlighter = () => {
@@ -66,7 +66,7 @@ const DashboardCodeBlock = ({ children, className }: { children: React.ReactNode
     const render = async () => {
       try {
         const highlighter = await getShikiHighlighter();
-        let lang = normalizedLanguage;
+        let lang = normalizedLanguage as BundledLanguage | SpecialLanguage;
         if (!highlighter.getLoadedLanguages().includes(lang)) {
           lang = "txt";
         }
