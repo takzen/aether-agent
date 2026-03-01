@@ -139,10 +139,6 @@ export default function CognitionPage() {
                 {/* Main Content Area — Settings Style Sync */}
                 <div className="flex-1 relative flex flex-col overflow-hidden bg-[#1e1e1e]">
 
-                    {/* Background Visual Enhancements */}
-                    <div className="absolute inset-0 pointer-events-none opacity-20">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/5 blur-[120px] rounded-full" />
-                    </div>
 
                     <div className="flex-1 overflow-y-auto p-10 space-y-12 relative z-10 scrollbar-none max-w-5xl mx-auto w-full font-sans">
 
@@ -271,8 +267,8 @@ export default function CognitionPage() {
                                                                     </button>
                                                                 </div>
                                                             </div>
-                                                                    <p className="text-[9px] text-neutral-500 font-sans leading-relaxed border-t border-white/5 pt-3">
-                                                                        {isCircadianLocked
+                                                            <p className="text-[9px] text-neutral-500 font-sans leading-relaxed border-t border-white/5 pt-3">
+                                                                {isCircadianLocked
                                                                     ? "Cycle locked: Agent keeps a stable technical mode regardless of time."
                                                                     : "Cycle active: Personality flows dynamically (Strategist AM, Executor day, Philosopher PM)."}
                                                             </p>
