@@ -160,16 +160,44 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const COMMANDS = [
-    { cmd: "/logs", desc: "PodglÄ…d logĂłw systemowych" },
-    { cmd: "/clear", desc: "WyczyĹ›Ä‡ okno terminala" },
-    { cmd: "/logclear", desc: "WyczyĹ›Ä‡ bazÄ™ logĂłw systemowych" },
-    { cmd: "/simulate", desc: "Uruchom symulacjÄ™ modelu Ĺ›wiata" }
+    { cmd: "/logs", desc: "View system logs" },
+    { cmd: "/clear", desc: "Clear terminal window" },
+    { cmd: "/logclear", desc: "Clear system logs database" },
+    { cmd: "/simulate", desc: "Run world model simulation" }
   ];
+  const LOG_LIMIT_SUGGESTIONS = ["10", "50", "100"];
 
   const [stats, setStats] = useState({ memories: 0, documents: 0, reliability: 100, sessions: 0 });
   const [activities, setActivities] = useState<{ text: string; time: string; color: string; icon?: string }[]>([]);
   const [modelName, setModelName] = useState("Loading...");
   const [config, setConfig] = useState<{ [key: string]: string }>({ SYSTEM_LANGUAGE: 'pl' });
+
+  const updateSuggestions = (val: string) => {
+    // Dynamic argument hints for /logs [limit]
+    // Trigger for: "/logs", "/logs ", "/logs 1", etc.
+    const logsArgMatch = val.match(/^\/logs(?:\s+(\d*))?$/i);
+    if (logsArgMatch) {
+      const typedLimit = logsArgMatch[1] || "";
+      const filteredLimits = LOG_LIMIT_SUGGESTIONS
+        .filter((limit) => limit.startsWith(typedLimit))
+        .map((limit) => `/logs ${limit}`);
+      setSuggestions(filteredLimits);
+      setActiveSuggestionIndex(0);
+      return;
+    }
+
+    // Command name autocomplete
+    if (val.startsWith("/") && !val.includes(" ")) {
+      const filtered = COMMANDS
+        .map(c => c.cmd)
+        .filter(c => c.toLowerCase().startsWith(val.toLowerCase()));
+      setSuggestions(filtered);
+      setActiveSuggestionIndex(0);
+      return;
+    }
+
+    setSuggestions([]);
+  };
 
   const getSeverity = (message: DashboardMessage) => {
     if (message.isLogEntry) {
@@ -249,7 +277,7 @@ export default function Home() {
               setMessages([{
                 id: "init-welcome",
                 role: "assistant",
-                content: currentLang === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "RdzeĹ„ Aether zainicjowany. Wszystkie systemy sprawne. W czym mogÄ™ Ci dzisiaj pomĂłc?",
+                content: currentLang === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "Rdzeń Aether zainicjowany. Wszystkie systemy sprawne. W czym mogę Ci dzisiaj pomóc?",
                 isInitial: true
               }]);
             }
@@ -288,7 +316,7 @@ export default function Home() {
             setMessages([{
               id: "startup-" + Date.now(),
               role: "assistant",
-              content: config.SYSTEM_LANGUAGE === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "RdzeĹ„ Aether zainicjowany. Wszystkie systemy sprawne. W czym mogÄ™ Ci dzisiaj pomĂłc?",
+              content: config.SYSTEM_LANGUAGE === 'en' ? "Aether Core initialized. All systems nominal. How can I assist you today?" : "Rdzeń Aether zainicjowany. Wszystkie systemy sprawne. W czym mogę Ci dzisiaj pomóc?",
               isInitial: true
             }]);
           }
@@ -345,7 +373,7 @@ export default function Home() {
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "RdzeĹ„ Aether zainicjowany. Terminal wyczyszczony.",
+          content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
           isInitial: true
         }]);
       }
@@ -426,7 +454,7 @@ export default function Home() {
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === 'en' ? "Aether Core initialized. Terminal cleared." : "RdzeĹ„ Aether zainicjowany. Terminal wyczyszczony.",
+          content: lang === 'en' ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
           isInitial: true
         }]);
         return;
@@ -612,17 +640,7 @@ export default function Home() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInput(val);
-
-    // Only show suggestions if we are at the very beginning of a command and haven't typed a space yet
-    if (val.startsWith("/") && !val.includes(" ")) {
-      const filtered = COMMANDS
-        .map(c => c.cmd)
-        .filter(c => c.toLowerCase().startsWith(val.toLowerCase()));
-      setSuggestions(filtered);
-      setActiveSuggestionIndex(0);
-    } else {
-      setSuggestions([]);
-    }
+    updateSuggestions(val);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -633,7 +651,7 @@ export default function Home() {
       setMessages([{
         id: "welcome-" + Date.now(),
         role: "assistant",
-        content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "RdzeĹ„ Aether zainicjowany. Terminal wyczyszczony.",
+        content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
         isInitial: true
       }]);
       return;
@@ -648,8 +666,9 @@ export default function Home() {
     if (e.key === "Enter") {
       // If suggestions are visible, autocomplete the command
       if (suggestions.length > 0) {
-        setInput(suggestions[activeSuggestionIndex] + " ");
-        setSuggestions([]);
+        const nextInput = suggestions[activeSuggestionIndex] + " ";
+        setInput(nextInput);
+        updateSuggestions(nextInput);
       } else {
         handleSend();
       }
@@ -724,9 +743,11 @@ export default function Home() {
             </div>
             <button
               onClick={() => setShowActivity(prev => !prev)}
+              title="Toggle right panel with recent system activity"
+              aria-label="Toggle recent activity panel"
               className="text-[10px] font-mono px-2.5 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors"
             >
-              {showActivity ? "Hide Activity" : "Show Activity"}
+              {showActivity ? "Hide Activity Panel" : "Show Activity Panel"}
             </button>
           </div>
         </div>
@@ -903,18 +924,23 @@ export default function Home() {
                   {suggestions.length > 0 && (
                     <div className="absolute bottom-full left-0 w-full mb-2 bg-[#1e1e1e] border border-[#3c3c3c] rounded-lg overflow-hidden shadow-2xl z-50">
                       {suggestions.map((s, i) => {
-                        const cmdInfo = COMMANDS.find(c => c.cmd === s);
+                        const baseCommand = s.split(" ")[0];
+                        const cmdInfo = COMMANDS.find(c => c.cmd === baseCommand);
+                        const isLogsLimitSuggestion = s.startsWith("/logs ");
+                        const suggestionLabel = isLogsLimitSuggestion ? s.replace("/logs ", "") : s;
+                        const suggestionDesc = isLogsLimitSuggestion ? "Format: /logs [limit]" : cmdInfo?.desc;
                         return (
                           <div
                             key={s}
                             onClick={() => {
-                              setInput(s + " ");
-                              setSuggestions([]);
+                              const nextInput = s + " ";
+                              setInput(nextInput);
+                              updateSuggestions(nextInput);
                             }}
                             className={`px-4 py-2 cursor-pointer flex justify-between items-center ${i === activeSuggestionIndex ? "bg-purple-500/20 text-purple-400" : "text-[#858585] hover:bg-white/5"}`}
                           >
-                            <span className="font-mono text-sm">{s}</span>
-                            <span className="text-[10px] opacity-60 italic">{cmdInfo?.desc}</span>
+                            <span className="font-mono text-sm">{suggestionLabel}</span>
+                            <span className="text-[10px] opacity-60 italic">{suggestionDesc}</span>
                           </div>
                         );
                       })}
@@ -928,7 +954,7 @@ export default function Home() {
                     onChange={handleInputChange}
                     placeholder={config.SYSTEM_LANGUAGE === 'en'
                       ? "Execute system command or run task..."
-                      : "Wydaj komendÄ™ systemowÄ… lub zleÄ‡ zadanie..."
+                      : "Wydaj komendę systemową lub zleć zadanie..."
                     }
                     className="flex-1 bg-transparent text-[#cccccc] text-sm placeholder:text-[#858585] focus:outline-none"
                     onKeyDown={handleKeyDown}
