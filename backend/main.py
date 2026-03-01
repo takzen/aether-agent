@@ -12,6 +12,7 @@ import json
 from ingest import process_content
 from local_db import sqlite_service
 from world_model import run_active_world_model_simulation
+from cron_scheduler import cron_service
 
 async def reflection_loop():
     """Autonomous background task for periodic self-reflection (AWM)."""
@@ -49,10 +50,14 @@ async def lifespan(app: FastAPI):
 
     # Start Autonomous Reflection Loop (Phase 7: Cognition)
     asyncio.create_task(reflection_loop())
+
+    # Start CRON scheduler
+    await cron_service.start()
     
     yield
     
     # Shutdown logic
+    await cron_service.stop()
     from telegram_bridge import stop_telegram_bot
     await stop_telegram_bot()
     print("[CORE] Aether Kernel shut down.")
@@ -70,6 +75,22 @@ class ChatRequest(BaseModel):
 class ActionApproval(BaseModel):
     action_id: str
     approved: bool
+
+
+class CronJobUpsert(BaseModel):
+    id: Optional[str] = None
+    name: str
+    trigger_type: Optional[str] = "cron"
+    schedule: str
+    run_at: Optional[str] = None
+    timezone: str = "UTC"
+    task: str
+    payload: Optional[dict] = None
+    enabled: bool = True
+
+
+class CronToggle(BaseModel):
+    enabled: bool
 
 # Configure CORS
 app.add_middleware(
@@ -657,6 +678,66 @@ async def force_awm_simulation():
         from world_model import run_active_world_model_simulation
         result = await run_active_world_model_simulation()
         return {"status": "success", "insight": result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/cron/tasks")
+async def list_cron_tasks():
+    try:
+        tasks = await cron_service.list_tasks()
+        return {"status": "success", "tasks": tasks}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.get("/cron/jobs")
+async def list_cron_jobs():
+    try:
+        jobs = await cron_service.list_jobs()
+        return {"status": "success", "jobs": jobs}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/cron/jobs")
+async def upsert_cron_job(request: CronJobUpsert):
+    try:
+        job = await cron_service.upsert_job(request.model_dump())
+        return {"status": "success", "job": job}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/cron/jobs/{job_id}/toggle")
+async def toggle_cron_job(job_id: str, request: CronToggle):
+    try:
+        job = await cron_service.toggle_job(job_id, request.enabled)
+        if not job:
+            return {"status": "error", "message": "Cron job not found."}
+        return {"status": "success", "job": job}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.post("/cron/jobs/{job_id}/run")
+async def run_cron_job_now(job_id: str):
+    try:
+        job = await cron_service.run_now(job_id)
+        if not job:
+            return {"status": "error", "message": "Cron job not found."}
+        return {"status": "success", "job": job}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+@app.delete("/cron/jobs/{job_id}")
+async def delete_cron_job(job_id: str):
+    try:
+        removed = await cron_service.delete_job(job_id)
+        if not removed:
+            return {"status": "error", "message": "Cron job not found."}
+        return {"status": "success", "message": "Cron job deleted."}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

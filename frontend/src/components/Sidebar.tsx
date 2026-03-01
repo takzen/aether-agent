@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Brain, Database, Settings, Activity, MessageSquare, Network, BookOpen, Sparkles } from "lucide-react";
+import { Home, Brain, Database, Settings, Activity, MessageSquare, Network, BookOpen, Sparkles, Clock3 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ const menuItems = [
     { icon: Brain, label: "Memories", href: "/memories" },
     { icon: Network, label: "Neural Topology", href: "/topology" },
     { icon: Activity, label: "Agent Logs", href: "/logs" },
+    { icon: Clock3, label: "Cron", href: "/cron" },
     { icon: Settings, label: "Settings", href: "/settings" },
     { icon: Sparkles, label: "Cognition", href: "/cognition" },
 ];
