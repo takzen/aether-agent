@@ -37,8 +37,16 @@ function createWindow() {
 
     tryLoad();
 
-    // Enable Manual Zoom Controls (since menu is hidden)
+    // State tracking for modifiers
+    let isCtrlPressed = false;
+
+    // Enable Manual Zoom Controls & Modifier Tracking
     mainWindow.webContents.on('before-input-event', (event, input) => {
+        // Track Ctrl state
+        if (input.key === 'Control') {
+            isCtrlPressed = input.type === 'keyDown';
+        }
+
         if (input.control && input.type === 'keyDown') {
             if (input.code === 'Equal' || input.code === 'NumpadAdd') {
                 let currentZoom = mainWindow.webContents.getZoomFactor();
@@ -57,14 +65,16 @@ function createWindow() {
         }
     });
 
-    // Enable Ctrl + MouseWheel Zoom
-    mainWindow.webContents.on('mouse-wheel', (event, deltaX, deltaY, deltaZ, ctrlKey) => {
-        if (ctrlKey) {
+    // Enable Ctrl + MouseWheel Zoom via tracked state
+    mainWindow.webContents.on('mouse-wheel', (event, deltaX, deltaY) => {
+        if (isCtrlPressed) {
             let currentZoom = mainWindow.webContents.getZoomFactor();
-            if (deltaY > 0) {
-                mainWindow.webContents.setZoomFactor(Math.max(0.2, currentZoom - 0.1));
-            } else {
+            // deltaY < 0 means scroll up (Zoom In)
+            // deltaY > 0 means scroll down (Zoom Out)
+            if (deltaY < 0) {
                 mainWindow.webContents.setZoomFactor(currentZoom + 0.1);
+            } else {
+                mainWindow.webContents.setZoomFactor(Math.max(0.2, currentZoom - 0.1));
             }
         }
     });
