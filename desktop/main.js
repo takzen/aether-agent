@@ -16,8 +16,20 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            zoomFactor: 1.0
+            zoomFactor: 1.0,
+            preload: path.join(__dirname, 'preload.js')
         }
+    });
+
+    // Handle Manual Zoom Signals from Preload
+    const { ipcMain } = require('electron');
+    ipcMain.on('zoom-in', () => {
+        let currentZoom = mainWindow.webContents.getZoomFactor();
+        mainWindow.webContents.setZoomFactor(currentZoom + 0.1);
+    });
+    ipcMain.on('zoom-out', () => {
+        let currentZoom = mainWindow.webContents.getZoomFactor();
+        mainWindow.webContents.setZoomFactor(Math.max(0.2, currentZoom - 0.1));
     });
 
     // Make it feel faster
@@ -37,16 +49,8 @@ function createWindow() {
 
     tryLoad();
 
-    // State tracking for modifiers
-    let isCtrlPressed = false;
-
-    // Enable Manual Zoom Controls & Modifier Tracking
+    // Enable Manual Zoom Controls (Keyboard)
     mainWindow.webContents.on('before-input-event', (event, input) => {
-        // Track Ctrl state
-        if (input.key === 'Control') {
-            isCtrlPressed = input.type === 'keyDown';
-        }
-
         if (input.control && input.type === 'keyDown') {
             if (input.code === 'Equal' || input.code === 'NumpadAdd') {
                 let currentZoom = mainWindow.webContents.getZoomFactor();
@@ -61,20 +65,6 @@ function createWindow() {
             if (input.code === 'Digit0' || input.code === 'Numpad0') {
                 mainWindow.webContents.setZoomFactor(1.0);
                 event.preventDefault();
-            }
-        }
-    });
-
-    // Enable Ctrl + MouseWheel Zoom via tracked state
-    mainWindow.webContents.on('mouse-wheel', (event, deltaX, deltaY) => {
-        if (isCtrlPressed) {
-            let currentZoom = mainWindow.webContents.getZoomFactor();
-            // deltaY < 0 means scroll up (Zoom In)
-            // deltaY > 0 means scroll down (Zoom Out)
-            if (deltaY < 0) {
-                mainWindow.webContents.setZoomFactor(currentZoom + 0.1);
-            } else {
-                mainWindow.webContents.setZoomFactor(Math.max(0.2, currentZoom - 0.1));
             }
         }
     });
