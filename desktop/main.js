@@ -7,13 +7,22 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
+        minWidth: 800,
+        minHeight: 600,
         title: 'Aether Core',
         autoHideMenuBar: true,
         backgroundColor: '#020202',
+        show: false, // Don't show until ready
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: true
+            contextIsolation: true,
+            zoomFactor: 1.0
         }
+    });
+
+    // Make it feel faster
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
     });
 
     const url = 'http://localhost:3000';
