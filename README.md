@@ -1,83 +1,214 @@
-# Aether Agent
+<div align="center">
+  <img src="assets/aether_logo.svg" width="160" alt="Aether Logo">
 
-Aether Agent is a local-first AI workspace built with FastAPI (backend) and Next.js (frontend).
-It combines chat, memory, knowledge indexing, cognition tuning, cron automation, and reusable skills.
+  <h1>A E T H E R</h1>
 
-## Current Product Surface
+**The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
-- Command Center (`/dashboard`)
-- Chat (`/chat`)
-- Knowledge Base (`/knowledge`)
-- Memories (`/memories`)
-- Neural Topology (`/topology`)
-- Agent Logs (`/logs`)
-- Cron Scheduler (`/cron`)
-- Agent Skills (`/skills`)
-- Cognition (`/cognition`)
-- Settings (`/settings`)
-- Documentation (`/docs`)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
+[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Vector_Memory-3ECF8E?style=flat-square&logo=qdrant&logoColor=white)](https://qdrant.tech)
+[![MCP](https://img.shields.io/badge/MCP-Server-4A154B?style=flat-square)](https://modelcontextprotocol.io/)
+[![Electron](https://img.shields.io/badge/Electron-Desktop-47848F?style=flat-square&logo=electron&logoColor=white)](https://www.electronjs.org/)
 
-## Tech Stack
+---
 
-- Backend: Python 3.12+, FastAPI, PydanticAI, SQLite
-- Frontend: Next.js 16, React, Tailwind CSS, Framer Motion
-- Memory: Qdrant + SQLite graph/session store
-- Integrations: Gemini, Ollama, Tavily, Telegram, MCP
+_Aether doesn't wait for commands — it lives, reflects, and anticipates where you do._
 
-## Quick Start
+</div>
 
-### 1) Prerequisites
+---
 
-- Python 3.12+
-- Node.js 20+
-- `pnpm`
-- API keys as needed (`GEMINI_API_KEY`, `TAVILY_API_KEY`)
+## 🌌 What is Aether?
 
-### 2) Backend
+Aether is a **massive paradigm shift** in personal AI computing. It bridges the gap between passive RAG chatbots and truly autonomous, self-reflecting agents. Built upon the principles of an _Active World Model_, Aether is an entirely private, Local-First engine that actively monitors your workflow, connects concepts overnight, and alters its own persona based on the rhythm of your day.
 
-```bash
-cd backend
-python -m venv .venv
-.venv\\Scripts\\activate
-pip install -r requirements.txt
-python main.py
+Where traditional AI tools simply react to text, **Aether simulates and anticipates**. Where others suffer from context amnesia, **Aether builds Concept Constellations in Qdrant**. Where others hallucinate, **Aether grounds itself in type-safe Pydantic logic.**
+
+> 📜 **Read the [Aether Manifesto](./MANIFESTO.md)** to understand the core philosophy and technical vision behind the project.
+
+---
+
+## ✨ State-of-the-Art Features
+
+| System / Feature | Description |
+| ---------------- | ----------- |
+| 🧠 **Active World Model** | Aether runs silent background simulations (`world_model.py`) to reflect on your daily actions, generating overarching insights and proactive architectural suggestions. |
+| 🌙 **Sleep Cycle** | When you log off, the *NightCycleProcessor* consolidates your daily files and logs, reducing noise and preparing a **Morning Brief** for your Dashboard Command Center. |
+| 🛠️ **Agent Skills** | New in v1.4! Create, toggle, and manage specialized agent skills that dynamically inject instructions and triggers into the brain. |
+| ⏱️ **Digital Circadian Rhythm** | Aether dynamically alters its persona based on local system time. *Strategist* in the morning, *Executor* at noon, *Philosopher* in the evening. |
+| 🕸️ **Concept Constellations** | Moving beyond standard RAG vectors. Aether links memories and facts into a dense relational graph within its core SQLite + Qdrant architecture. |
+| 🔌 **MCP Server (Model Context Protocol)** | Aether exposes its SQLite Brain via `FastMCP`. Connect your VS Code, Cursor, or Claude Desktop directly to Aether to share its long-term memory. |
+| 💻 **Electron Desktop App** | A fully native desktop shell wraps the Next.js Dashboard and Python Kernel into a standalone executable environment. |
+
+---
+
+## 🏗️ Architecture Stack
+
+Aether operates as a massive distributed monolith on your local machine, driven by modern package managers (`uv` and `pnpm`).
+
+```mermaid
+graph TD
+    User["👤 User / Telegram"] <--> HTTP["⚡ FastAPI Kernel"]
+    HTTP <--> Agent["🧠 PydanticAI Agent"]
+    
+    Agent <--> LLM["🤖 Gemini 2.0 / Local Ollama"]
+    Agent <--> Qdrant[("🌌 Qdrant Vector Space")]
+    Agent <--> SQLite[("🧠 SQLite Brain (Logs/Sessions)")]
+    
+    SubAgent1["🌙 Sleep Cycle Processor"] --> SQLite
+    SubAgent2["🌍 Active World Model"] --> SQLite
+    
+    Dashboard["🖥️ Next.js / Electron UI"] <--> HTTP
+    MCP_IDE["🔌 Claude/Cursor (via MCP)"] <--> SQLite
+
+    style User fill:#1a1a2e,stroke:#a855f7,color:#fff
+    style HTTP fill:#16213e,stroke:#3b82f6,color:#fff
+    style Agent fill:#0f3460,stroke:#a855f7,color:#fff
+    style LLM fill:#533483,stroke:#ec4899,color:#fff
+    style Qdrant fill:#16213e,stroke:#3ecf8e,color:#fff
+    style SQLite fill:#16213e,stroke:#e2b96f,color:#fff
+    style Dashboard fill:#1a1a2e,stroke:#a855f7,color:#fff
+    style MCP_IDE fill:#4a154b,stroke:#ec4899,color:#fff
 ```
 
-### 3) Frontend
+---
+
+## 🛠️ Technology Core
+
+<table>
+<tr>
+<td><strong>Layer</strong></td>
+<td><strong>Technology</strong></td>
+</tr>
+<tr>
+<td>🐍 <strong>Backend Kernel</strong></td>
+<td>Python 3.12+, FastAPI, Uvicorn, SQLite3, <strong>uv</strong> managed</td>
+</tr>
+<tr>
+<td>🤖 <strong>Cognition Frame</strong></td>
+<td>PydanticAI (Type-safe and dependency-injected)</td>
+</tr>
+<tr>
+<td>🖥️ <strong>Command Center</strong></td>
+<td>Next.js 16 (App Router), Tailwind CSS 4, Framer Motion</td>
+</tr>
+<tr>
+<td>💻 <strong>Desktop Shell</strong></td>
+<td>Electron, electron-builder</td>
+</tr>
+<tr>
+<td>🗄️ <strong>Vector Memory</strong></td>
+<td>Qdrant (Local Docker or Cloud Hybrid)</td>
+</tr>
+<tr>
+<td>🔌 <strong>APIs & Protocol</strong></td>
+<td>FastMCP (Anthropic Protocol), python-telegram-bot, Tavily Search</td>
+</tr>
+</table>
+
+---
+
+## 🚀 One-Click Setup
+
+We have eliminated Docker-hell and requirement-txt conflicts. Aether uses `uv` for lightning-fast Python dependency syncing and `pnpm` for Node.
+
+### Prerequisites
+
+- `curl -LsSf https://astral.sh/uv/install.sh | sh` (UV Python Manager)
+- `Node.js 20+` & `npm install -g pnpm`
+- A [Qdrant Cloud](https://cloud.qdrant.io/) Cluster (or local instance)
+- API Keys for Google Gemini / Tavily / Telegram.
+
+### 1-Click Launch Windows / MacOS
+
+Simply clone the repository and run the installation script. It will setup both backend, frontend, build dependencies, and launch the Electron App:
 
 ```bash
-cd frontend
-pnpm install
-pnpm dev
+# Windows
+.\start_desktop.bat
+
+# Linux / Mac 
+./setup.sh
 ```
 
-Frontend runs on `http://localhost:3000`, backend on `http://localhost:8000`.
-
-## Environment
-
-Create `backend/.env`:
-
+### Manual Configuration `.env`
+Place inside `/backend/.env`:
 ```env
-GEMINI_API_KEY=your_key
-TAVILY_API_KEY=your_key
-QDRANT_URL=
-QDRANT_API_KEY=
-MODEL_OVERRIDE=gemini-2.5-pro
-SYSTEM_LANGUAGE=en
+# AI Models
+GEMINI_API_KEY=your_gemini_key
+MODEL_OVERRIDE=gemini-2.0-pro-exp-02-05
+
+# Vector Storage
+QDRANT_API_KEY=your_qdrant_api_key
+QDRANT_URL=https://your-cluster.qdrant.io
+
+# Tools & Bridges
+TAVILY_API_KEY=your_tavily_api_key
+TELEGRAM_BOT_TOKEN=12345:ABCDEF
+TELEGRAM_USER_ID=your_id
 ```
 
-## Documentation
+---
 
-See the `docs/` folder:
+## 🔌 Using MCP (Model Context Protocol)
 
-- `docs/README.md` - documentation index
-- `docs/API.md` - API reference
-- `docs/ARCHITECTURE.md` - architecture map
-- `docs/COGNITION.md` - cognition model
-- `docs/COMMANDS.md` - command usage
-- `docs/FEATURES.md` - feature overview
-- `docs/CHANGELOG.md` - project changelog
+Aether exposes its internal SQLite Brain and Morning Briefs directly to your IDE. This allows you to reference Aether's long-term memory while working in other codebases.
 
-## License
+### Global Configuration
 
-Apache-2.0
+Add the following to your `claude_desktop_config.json` or Cursor settings. 
+
+> [!IMPORTANT]
+> Replace `/PATH/TO/` with the actual absolute path to your Aether installation to ensure connectivity from any folder on your machine.
+
+```json
+"mcpServers": {
+  "aether-core": {
+    "command": "uv",
+    "args": [
+      "--project", "/PATH/TO/aether-agent/backend",
+      "run",
+      "python", "/PATH/TO/aether-agent/backend/mcp_server.py"
+    ]
+  }
+}
+```
+
+---
+
+## 🐳 Docker Compose (Self-Hosting)
+
+For NAS or VPS enthusiasts, Aether ships with an incredibly lightweight, production-ready `docker-compose.yml`.
+The frontend compiles to a Standalone Node instance, and the backend runs on Alpine Slim. Volume mounts persist your digital memories forever.
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
+## 📝 Roadmap & Philosophy
+
+> _"Aether aims to be more than just a software tool — it's an intelligent entity aware of its existence in time and space."_
+
+Aether is fully feature-complete based on our original 6-Phase Master Plan for the Open Source release (37/37 Tasks Done). Now in v1.4, we are focusing on **Autonomous Skill Execution** and **Cognitive Persona Calibration**.
+
+---
+
+## 📝 License
+
+**Apache-2.0** © [Krzysztof Pika](https://github.com/takzen/aether-agent)
+
+> [!IMPORTANT]
+> **Trademarks & Logo:** The names "Aether", "Aether Agent", "Project Nebula", and all associated logos are trademarks of Krzysztof Pika. These are **not covered** by the Apache 2.0 License. Any use of these trademarks, beyond reasonable and customary description of the software's origin, requires explicit written permission.
+
+<div align="center">
+<br>
+
+_"This is my small contribution to the development of local AI. It is a humble beginning of a concept that will soon evolve into something much greater. If you want to witness the transformation, follow my next steps."_
+
+</div>
