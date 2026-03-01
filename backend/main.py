@@ -92,6 +92,16 @@ class CronJobUpsert(BaseModel):
 class CronToggle(BaseModel):
     enabled: bool
 
+class SkillCreate(BaseModel):
+    name: str
+    purpose: Optional[str] = ""
+    triggers: Optional[str] = ""
+    instructions: str
+    enabled: bool = True
+
+class SkillToggle(BaseModel):
+    enabled: bool
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -687,6 +697,58 @@ async def list_cron_tasks():
     try:
         tasks = await cron_service.list_tasks()
         return {"status": "success", "tasks": tasks}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/skills")
+async def list_agent_skills():
+    """Returns all saved agent skills."""
+    try:
+        skills = await sqlite_service.list_agent_skills()
+        return {"status": "success", "skills": skills}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/skills")
+async def create_agent_skill(request: SkillCreate):
+    """Creates a new agent skill."""
+    try:
+        if not request.name.strip():
+            return {"status": "error", "message": "Skill name is required."}
+        if not request.instructions.strip():
+            return {"status": "error", "message": "Skill instructions are required."}
+
+        skill = await sqlite_service.create_agent_skill(
+            name=request.name.strip(),
+            purpose=(request.purpose or "").strip(),
+            triggers=(request.triggers or "").strip(),
+            instructions=request.instructions.strip(),
+            enabled=request.enabled
+        )
+        await sqlite_service.add_log("info", "CORE", f"Created agent skill: {skill['name']}")
+        return {"status": "success", "skill": skill}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/skills/{skill_id}/toggle")
+async def toggle_agent_skill(skill_id: str, request: SkillToggle):
+    """Enables/disables an existing skill."""
+    try:
+        skill = await sqlite_service.toggle_agent_skill(skill_id, request.enabled)
+        if not skill:
+            return {"status": "error", "message": "Skill not found."}
+        return {"status": "success", "skill": skill}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.delete("/skills/{skill_id}")
+async def delete_agent_skill(skill_id: str):
+    """Deletes a skill by id."""
+    try:
+        removed = await sqlite_service.delete_agent_skill(skill_id)
+        if not removed:
+            return {"status": "error", "message": "Skill not found."}
+        return {"status": "success", "deleted": skill_id}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

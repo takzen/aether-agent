@@ -135,6 +135,73 @@ class SQLiteService:
                 (key, str(value))
             )
             await db.commit()
+
+    # --- AGENT SKILLS ---
+
+    async def list_agent_skills(self) -> List[Dict[str, Any]]:
+        """Retrieves all agent skills ordered by latest updated."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM agent_skills ORDER BY updated_at DESC, created_at DESC") as cursor:
+                rows = await cursor.fetchall()
+                result = []
+                for row in rows:
+                    item = dict(row)
+                    item["enabled"] = bool(item.get("enabled", 0))
+                    result.append(item)
+                return result
+
+    async def create_agent_skill(
+        self,
+        name: str,
+        purpose: str,
+        triggers: str,
+        instructions: str,
+        enabled: bool = True
+    ) -> Dict[str, Any]:
+        """Creates an agent skill and returns created row."""
+        skill_id = str(uuid.uuid4())
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                """INSERT INTO agent_skills (id, name, purpose, triggers, instructions, enabled)
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                (skill_id, name, purpose, triggers, instructions, 1 if enabled else 0)
+            )
+            await db.commit()
+
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM agent_skills WHERE id = ?", (skill_id,)) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    raise RuntimeError("Failed to create skill.")
+                item = dict(row)
+                item["enabled"] = bool(item.get("enabled", 0))
+                return item
+
+    async def toggle_agent_skill(self, skill_id: str, enabled: bool) -> Optional[Dict[str, Any]]:
+        """Toggles skill enabled state and returns updated row."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                "UPDATE agent_skills SET enabled = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (1 if enabled else 0, skill_id)
+            )
+            await db.commit()
+
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM agent_skills WHERE id = ?", (skill_id,)) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    return None
+                item = dict(row)
+                item["enabled"] = bool(item.get("enabled", 0))
+                return item
+
+    async def delete_agent_skill(self, skill_id: str) -> bool:
+        """Deletes skill by id."""
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute("DELETE FROM agent_skills WHERE id = ?", (skill_id,))
+            await db.commit()
+            return cursor.rowcount > 0
             
     async def get_checkpoint(self, module_key: str) -> int:
         """Gets the last processed log ID for a module."""

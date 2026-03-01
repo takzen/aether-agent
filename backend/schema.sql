@@ -60,3 +60,15 @@ CREATE TABLE IF NOT EXISTS settings (
     value TEXT NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Agent Skills
+CREATE TABLE IF NOT EXISTS agent_skills (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    purpose TEXT DEFAULT '',
+    triggers TEXT DEFAULT '',
+    instructions TEXT NOT NULL,
+    enabled INTEGER DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
