@@ -158,6 +158,20 @@ export default function Home() {
   const [showActivity, setShowActivity] = useState(true);
   const [activityFilter, setActivityFilter] = useState<"all" | "errors" | "memory" | "sessions">("all");
   const inputRef = useRef<HTMLInputElement>(null);
+  const terminalScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (terminalScrollRef.current) {
+      terminalScrollRef.current.scrollTop = terminalScrollRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+    // Second try after a short delay for heavy renders
+    const timer = setTimeout(scrollToBottom, 50);
+    return () => clearTimeout(timer);
+  }, [messages, isProcessing]);
 
   const COMMANDS = [
     { cmd: "/logs", desc: "View system logs" },
@@ -718,8 +732,8 @@ export default function Home() {
             </div>
           </div>
 
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 text-[10px] font-mono whitespace-nowrap">
               <span className="flex items-center gap-1.5 text-cyan-400/80">
                 <Database className="w-3 h-3" /> Documents: {stats.documents}
               </span>
@@ -806,7 +820,10 @@ export default function Home() {
               </div>
 
               {/* Terminal Content */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-6 font-mono text-[13px] leading-7 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
+              <div
+                ref={terminalScrollRef}
+                className="flex-1 overflow-y-auto p-5 space-y-6 font-mono text-[13px] leading-7 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent"
+              >
                 {isLoaded && messages.map((msg) => (
                   <div key={msg.id} className="space-y-4">
                     {msg.role === "user" ? (
@@ -844,7 +861,7 @@ export default function Home() {
                           </div>
                         ) : (
                           /* Main Response (Clean & Minimal) */
-                          <div className={`space-y-2 border-l-2 pl-3 py-2 ${severityStyles[getSeverity(msg)]}`}>
+                          <div className={`space-y-2 p-2 ${severityStyles[getSeverity(msg)]}`}>
                             {/* Small simple badge for only major stuff */}
                             {(msg.isInitial || (msg.sources && (msg.sources.includes("aether.sleep_cycle") || msg.sources.includes("world_model.simulation")))) && (
                               <div className="flex items-center gap-2 mb-1 opacity-50">
@@ -968,7 +985,7 @@ export default function Home() {
               </div>
             </motion.div>
 
-                        {/* Right: Recent Activity */}
+            {/* Right: Recent Activity */}
             {showActivity && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
