@@ -62,7 +62,7 @@ async def lifespan(app: FastAPI):
     await stop_telegram_bot()
     print("[CORE] Aether Kernel shut down.")
 
-app = FastAPI(title="Aether API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Aether API", version="1.4.0", lifespan=lifespan)
 
 from typing import Optional, List, Any
 
@@ -117,7 +117,7 @@ app.add_middleware(
 
 @app.get("/ping")
 async def ping():
-    return {"status": "success", "message": "pong", "version": "1.0.0"}
+    return {"status": "success", "message": "pong", "version": "1.4.0"}
 
 @app.get("/stats")
 async def get_stats():

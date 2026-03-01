@@ -1,20 +1,26 @@
-# Aether Agent — System Documentation
+# Aether Docs Index
 
-Witamy w centrum dokumentacji Aether Agent. Ten folder zawiera szczegółowe opisy architektury, funkcji oraz wytycznych projektowych naszego inteligentnego agenta.
+This folder contains technical documentation for Aether Agent.
 
-## Spis treści
+## Core Documents
 
-1.  **[Architektura Systemu](ARCHITECTURE.md)** — Podział na Backend (FastAPI), Frontend (Next.js) i Mechanizmy Pamięci (Qdrant/SQLite).
-2.  **[Funkcje Premium](FEATURES.md)** — Opis unikalnych zdolności: Active World Model, Sleep Cycle i Concept Constellation.
-3.  **[Neuromorphic Cognition](COGNITION.md)** — Personalizacja profilu agenta: Persony, Cykl Dobowy i Poziomy Autonomii.
-4.  **[Przewodnik Terminala](COMMANDS.md)** — Lista i opis komend (Slash Commands) dostępnych w Dashboardzie.
-5.  **[API Reference](API.md)** — Dokumentacja techniczna endpointów FastAPI.
-6.  **[Archiwum Roadmap](archive/roadmaps/)** — Historia testów i kierunków rozwoju.
+1. `ARCHITECTURE.md` - backend/frontend/data architecture
+2. `FEATURES.md` - major product capabilities
+3. `COGNITION.md` - persona, autonomy, and cognition behavior
+4. `COMMANDS.md` - slash commands and terminal behavior
+5. `API.md` - REST API reference
+6. `WORKFLOW_CORE_X.md` - operational workflow notes
+7. `PROJECT_CORE_X.md` - project-level system notes
+8. `CHANGELOG.md` - release history
 
-## Status Projektu
-- **Wersja:** 1.3.0
-- **Status:** Active Development (Neuromorphic Cognition Update)
-- **Ostatnia aktualizacja:** 2026-02-28
+## Current Version
 
----
-*Dokumentacja generowana dynamicznie przez Aether Core.*
+- Version: 1.4.0
+- Status: Active development
+- Last update: 2026-03-01
+
+## Notes
+
+- Prefer UTF-8 encoding for all docs.
+- Keep endpoint docs synchronized with `backend/main.py`.
+- Keep UI route docs synchronized with `frontend/src/app`.
