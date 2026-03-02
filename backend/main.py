@@ -18,17 +18,22 @@ from cron_scheduler import cron_service
 
 async def reflection_loop():
     """Autonomous background task for periodic self-reflection (AWM)."""
+    loop = asyncio.get_running_loop()
+    next_run_at = loop.time() + 3600.0
     while True:
         try:
-            # Wait 60 minutes between reflection cycles
-            await asyncio.sleep(3600)
-            
-            # Check if self-reflection is enabled in neural settings
+            # Check toggle frequently so ON/OFF reacts quickly, but execute at 60m cadence.
+            await asyncio.sleep(30)
+
+            if loop.time() < next_run_at:
+                continue
+
             settings = await sqlite_service.get_settings()
             if settings.get("COGNITION_REFLECTION", "true").lower() == "true":
                 print("[CORE] Initiating autonomous Self-Reflection (AWM)...")
                 await run_active_world_model_simulation()
                 await sqlite_service.add_log("info", "CORE", "Autonomous Self-Reflection cycle completed.")
+            next_run_at = loop.time() + 3600.0
         except asyncio.CancelledError:
             break
         except Exception as e:
@@ -48,10 +53,11 @@ async def lifespan(app: FastAPI):
     
     # Start Telegram Bridge in background
     from telegram_bridge import run_telegram_bot
-    asyncio.create_task(run_telegram_bot())
+    telegram_task = asyncio.create_task(run_telegram_bot())
 
     # Start Autonomous Reflection Loop (Phase 7: Cognition)
-    asyncio.create_task(reflection_loop())
+    reflection_task = asyncio.create_task(reflection_loop())
+    app.state.background_tasks = [telegram_task, reflection_task]
 
     # Start CRON scheduler
     await cron_service.start()
@@ -59,6 +65,11 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown logic
+    for task in getattr(app.state, "background_tasks", []):
+        task.cancel()
+    if getattr(app.state, "background_tasks", None):
+        await asyncio.gather(*app.state.background_tasks, return_exceptions=True)
+
     await cron_service.stop()
     from telegram_bridge import stop_telegram_bot
     await stop_telegram_bot()
@@ -1133,6 +1144,7 @@ async def list_tweet_drafts(limit: int = 10):
 @app.post("/chat/stream")
 async def chat_stream(request: ChatRequest):
     from pydantic_ai.messages import ModelMessagesTypeAdapter
+    from pydantic_ai import ModelSettings
     from agent import create_model_instance, get_current_model_name
 
     async def stream():
@@ -1145,12 +1157,28 @@ async def chat_stream(request: ChatRequest):
             if request.message_history:
                 history = ModelMessagesTypeAdapter.validate_python(request.message_history)
 
+            # Load cognition settings for runtime behavior.
+            settings = await sqlite_service.get_settings()
+            persona = settings.get("COGNITION_PERSONA", "Balanced")
+            autonomy = int(settings.get("COGNITION_AUTONOMY", 2))
+            creativity = int(settings.get("COGNITION_CREATIVITY", 60))
+            reflection = str(settings.get("COGNITION_REFLECTION", "true")).lower() == "true"
+            circadian_lock = str(settings.get("COGNITION_CIRCADIAN_LOCK", "false")).lower() == "true"
+            custom_directives = settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
+            temp = max(0.0, min(1.0, creativity / 100.0))
+
             run_kwargs = {
                 "user_prompt": request.message,
                 "deps": {
                     "user_message": request.message,
-                    "search_count": 0
+                    "search_count": 0,
+                    "persona": persona,
+                    "autonomy": autonomy,
+                    "reflection": reflection,
+                    "circadian_lock": circadian_lock,
+                    "custom_directives": custom_directives,
                 },
+                "model_settings": ModelSettings(temperature=temp),
             }
             if history:
                 run_kwargs["message_history"] = history
@@ -1382,18 +1410,35 @@ async def chat_stream(request: ChatRequest):
 async def chat(request: ChatRequest):
     try:
         from pydantic_ai.messages import ModelMessagesTypeAdapter
+        from pydantic_ai import ModelSettings
         from agent import create_model_instance, get_current_model_name, is_ollama_model
         
         history = None
         if request.message_history:
             history = ModelMessagesTypeAdapter.validate_python(request.message_history)
+
+        # Load cognition settings for runtime behavior.
+        settings = await sqlite_service.get_settings()
+        persona = settings.get("COGNITION_PERSONA", "Balanced")
+        autonomy = int(settings.get("COGNITION_AUTONOMY", 2))
+        creativity = int(settings.get("COGNITION_CREATIVITY", 60))
+        reflection = str(settings.get("COGNITION_REFLECTION", "true")).lower() == "true"
+        circadian_lock = str(settings.get("COGNITION_CIRCADIAN_LOCK", "false")).lower() == "true"
+        custom_directives = settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
+        temp = max(0.0, min(1.0, creativity / 100.0))
             
         run_kwargs = {
             "user_prompt": request.message,
             "deps": {
                 "user_message": request.message,
-                "search_count": 0
+                "search_count": 0,
+                "persona": persona,
+                "autonomy": autonomy,
+                "reflection": reflection,
+                "circadian_lock": circadian_lock,
+                "custom_directives": custom_directives,
             },
+            "model_settings": ModelSettings(temperature=temp),
         }
         if history:
             run_kwargs["message_history"] = history

@@ -68,3 +68,29 @@ Ręczne nadpisywanie zachowania. Możesz wstrzyknąć specyficzne instrukcje sty
 
 ## 5. Self-Reflection (Active World Model)
 Włącz tę opcję, aby aktywować wewnętrzne pętle symulacyjne Aethera. Gdy ta funkcja jest aktywna, Agent okresowo analizuje logi i stan projektu, generując wglądy meta-kognitywne i wykrywając problemy zanim o nie zapytasz.
+
+---
+
+## 6. Self-Reflection Runtime Notes
+
+Poniżej techniczne doprecyzowanie dzialania petli self-reflection (AWM):
+
+- Reflection loop uruchamia sie jako task w tle podczas startu backendu.
+- Ustawienie `COGNITION_REFLECTION` jest sprawdzane co ~30 sekund.
+- Sama symulacja AWM uruchamia sie cyklicznie co ~60 minut (gdy reflection jest wlaczone).
+- Przelaczenie Reflection ON/OFF w `/cognition` reaguje szybko (bez czekania pelnej godziny).
+- Przy shutdown/reload task jest jawnie anulowany (`cancel`) i domykany przez `asyncio.gather(...)`.
+
+To oznacza: lepsza kontrola operacyjna, brak duplikowania petli po reloadach oraz stabilniejsza autonomia systemu.
+
+---
+
+## 7. Persona Profiles Runtime Notes
+
+Poniezej techniczne doprecyzowanie jak dziala funkcja Persona Profiles:
+
+- Aktualny profil persony jest zapisywany w `COGNITION_PERSONA`.
+- Przy kazdym wywolaniu `POST /chat` i `POST /chat/stream` backend pobiera ustawienia cognition z bazy.
+- Persona jest przekazywana do `deps` i wstrzykiwana do promptu systemowego przez `inject_cognition_prompt`.
+- Ustawienie `COGNITION_CREATIVITY` mapuje sie na `ModelSettings.temperature` i bezposrednio wplywa na styl odpowiedzi.
+- Zmiany sa natychmiastowe dla nowych wiadomosci (bez restartu backendu).
