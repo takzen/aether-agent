@@ -2,7 +2,7 @@
 
 import Sidebar from "@/components/Sidebar";
 import MermaidRenderer from "@/components/MermaidRenderer";
-import { Network } from "lucide-react";
+import { Network, BookOpen, X } from "lucide-react";
 import { useState } from "react";
 
 type MermaidControls = {
@@ -14,6 +14,8 @@ type MermaidControls = {
 
 export default function NeuralTopologyPage() {
     const [controls, setControls] = useState<MermaidControls | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     // Mermaid-safe technical map in English/ASCII for stable parsing.
     const mermaidChart = `
 flowchart LR
@@ -22,25 +24,21 @@ flowchart LR
     subgraph Configuration["1 Configuration Layer"]
         GAP --> SETS["sqlite_service.get_settings<br/>load cognition config"]
         SETS --> DEPS["Init deps<br/>persona autonomy<br/>reflection circadian lock"]
-        DEPS --> TEMP["Creativity to temperature<br/>mapping 0.1 to 1.0"]
+        DEPS --> TEMP["Creativity to temperature<br/>mapping 0.0 to 1.0"]
         TEMP --> MODEL["create_model_instance<br/>choose Gemini or Ollama"]
     end
 
     MODEL --> PROMPT_ENGINE["2 Dynamic System Prompt Builder"]
 
     subgraph PromptStream["System Prompt Lifecycle"]
-        B_P["inject_base_prompt<br/>language control and<br/>CORE-X directives"]
-        C_P["inject_cognition_prompt<br/>apply persona and<br/>autonomy levels"]
-        S_P["inject_skill_prompt<br/>runtime skill activation<br/>and triggers"]
-        D_P["inject_dynamic_context<br/>aggregate RAG and<br/>circadian state"]
+        B_P["inject_base_prompt<br/>language control and<br/>CORE-X directives"] --> C_P["inject_cognition_prompt<br/>apply persona and<br/>autonomy levels"]
+        C_P --> S_P["inject_skill_prompt<br/>runtime skill activation<br/>and triggers"]
+        S_P --> D_P["inject_dynamic_context<br/>aggregate RAG and<br/>circadian state"]
     end
 
     PROMPT_ENGINE --> B_P
-    B_P --> C_P
-    C_P --> S_P
-    S_P --> D_P
 
-    subgraph RAG_Engine["Hybrid Context Injection"]
+    subgraph RAG_Engine["3 Hybrid Context Injection"]
         D_P --> CIRC["Digital circadian rhythm<br/>cron based persona:<br/>strategist executor philosopher"]
         D_P --> MEM_S["memory_manager.search<br/>semantic retrieval"]
         D_P --> DOC_S["db_service.search_documents<br/>library retrieval"]
@@ -53,7 +51,7 @@ flowchart LR
     LLM_INPUT --> AGENT_RUN["aether_agent.run<br/>execution loop"]
     AGENT_RUN --> TOOL_LOOP{"Tool call<br/>required"}
 
-    subgraph ToolRegistry["3 Runtime Tool Modules"]
+    subgraph ToolRegistry["4 Runtime Tool Modules"]
         T_FS["list_directory<br/>read_file<br/>project analysis"]
         T_WRITE["prepare_write_file<br/>human in the loop<br/>approval"]
         T_AUT["validate_path<br/>path safety validation"]
@@ -83,11 +81,11 @@ flowchart LR
 
     TOOL_RES --> AGENT_RUN
 
-    TOOL_LOOP -->|Final answer ready| CORE_X["4 CORE-X<br/>response shaping"]
+    TOOL_LOOP -->|Final answer ready| CORE_X["5 CORE-X<br/>response shaping"]
 
     subgraph OutputSchema["AetherResponse model"]
         R_TXT["response:<br/>Markdown message"]
-        R_CONF["confidence_score:<br/>reliability 0.1 to 1.0"]
+        R_CONF["confidence_score:<br/>reliability 0.0 to 1.0"]
         R_TYPE["reasoning_type:<br/>DOCS / MEMORY /<br/>WEB / HYPOTHESIS"]
     end
 
@@ -109,11 +107,73 @@ flowchart LR
     style HITL fill:#ef4444,stroke:#fff,color:#fff
     `;
 
+    const guideBlocks = [
+        {
+            num: 1,
+            title: "Warstwa Konfiguracji (Init)",
+            color: "cyan",
+            text: `Punkt wejścia API — funkcja get_agent_response(). Backend FastAPI odczytuje z bazy SQLite (sqlite_service.get_settings) cały zrzut stanu kognitywnego: aktywną Personę (Analytical / Balanced / Creative), poziom Autonomii (1-3), flagę Self-Reflection, blokadę zegara dobowego oraz Custom Directives. Wartość kreatywności (0-100) jest dzielona przez 100 i przekazywana jako parametr temperature do ModelSettings. Na tej podstawie tworzona jest instancja modelu (Gemini Flash/Pro lub lokalna Ollama) z odpowiednimi hiperparametrami.`,
+        },
+        {
+            num: 2,
+            title: "Cykl Życia Promptu Systemowego",
+            color: "purple",
+            text: `Sekwencyjny potok czterech dekoratorów @system_prompt w PydanticAI. Pierwszym jest inject_base_prompt — odpowiada za wymuszenie języka odpowiedzi (PL/EN) i wstrzyknięcie reguł CORE-X (mechanizm Confidence, zasady markdown, dostęp do narzędzi). Drugim jest inject_cognition_prompt — nakłada profil Persony (concise/creative/balanced), kalibruje zachowanie wg poziomu Autonomii i aktywuje Active World Model jeśli Self-Reflection jest włączony. Trzecim jest inject_skill_prompt — dynamicznie ładuje z bazy SQLite skille użytkownika, filtruje je przez triggers i wstrzykuje jako dodatkowe instrukcje formatowania. Ostatni, inject_dynamic_context, łączy całość z kontekstem RAG.`,
+        },
+        {
+            num: 3,
+            title: "Silnik RAG i Kontekst Dobowy",
+            color: "blue",
+            text: `Wewnątrz inject_dynamic_context działają równolegle trzy mechanizmy. Digital Circadian Rhythm sprawdza bieżącą godzinę i wstrzykuje profil: Strateg (5-12), Wykonawca (12-18), Filozof (18-23) lub Maintainer (noc). Jeśli circadian_lock=true, tryb jest zamrożony na Neutral-Technical. Następnie memory_manager.search_relevant_memories wykonuje wyszukiwanie semantyczne w Qdrant z progiem similarity 0.55 (pamięć długoterminowa z przeszłych konwersacji). Równolegle db_service.search_documents odpytuje indeksowaną bazę dokumentów Markdown z progiem 0.5. Wyniki obu źródeł trafiają do promptu z tagami [TRUST: HIGH/MEDIUM/LOW].`,
+        },
+        {
+            num: 4,
+            title: "Rejestr Narzędzi (PydanticAI Loop)",
+            color: "emerald",
+            text: `Silnik PydanticAI uruchamia pętlę iteracyjną aether_agent.run(). Model sam decyduje, jakich narzędzi użyć: list_directory / read_file (analiza projektu), web_search (Tavily API), remember / recall (operacje na pamięci semantycznej), connect_concepts / modify_concept (graf wiedzy), search_knowledge_base (głęboki RAG z limitem). Kluczowe: jeśli agent wywołuje prepare_write_file przy Autonomii < 3, akcja jest blokowana statusem PENDING_ACTION (Human-in-the-Loop) i czeka na zatwierdzenie z UI. Przy Autonomii = 3 zapis wykonuje się natychmiast. Każdy wynik narzędzia wraca do pętli agenta jako kontekst do dalszych decyzji.`,
+        },
+        {
+            num: 5,
+            title: "Walidacja Odpowiedzi (CORE-X Output)",
+            color: "amber",
+            text: `Po zakończeniu pętli narzędziowej model generuje finalną odpowiedź w strukturze AetherResponse (Pydantic model). Zawiera ona: response (treść markdown), confidence_score (0.0-1.0 — ocena pewności oparta na źródle: DOCS=0.9+, MEMORY=0.7+, HYPOTHESIS=0.5+) oraz reasoning_type (DOCS/MEMORY/WEB/HYPOTHESIS). Mechanizm Confidence chroni użytkownika przed halucynacjami — agent raportuje na jakiej podstawie zbudował odpowiedź. Na końcu asynchronicznie uruchamiany jest post-processing: zapis do logów, aktualizacja historii konwersacji, a odpowiedź trafia przez WebSocket do terminala w UI.`,
+        },
+    ];
+
+    const colorMap: Record<string, { badge: string; title: string; border: string }> = {
+        cyan: {
+            badge: "bg-cyan-500/15 border-cyan-500/30 text-cyan-400",
+            title: "text-cyan-400",
+            border: "border-l-cyan-500/40",
+        },
+        purple: {
+            badge: "bg-purple-500/15 border-purple-500/30 text-purple-400",
+            title: "text-purple-400",
+            border: "border-l-purple-500/40",
+        },
+        blue: {
+            badge: "bg-blue-500/15 border-blue-500/30 text-blue-400",
+            title: "text-blue-400",
+            border: "border-l-blue-500/40",
+        },
+        emerald: {
+            badge: "bg-emerald-500/15 border-emerald-500/30 text-emerald-400",
+            title: "text-emerald-400",
+            border: "border-l-emerald-500/40",
+        },
+        amber: {
+            badge: "bg-amber-500/15 border-amber-500/30 text-amber-400",
+            title: "text-amber-400",
+            border: "border-l-amber-500/40",
+        },
+    };
+
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
             <Sidebar />
 
             <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden z-10 select-none">
+                {/* Header — consistent with Cognition/Settings */}
                 <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#181818] shrink-0 z-20">
                     <div className="flex items-center gap-3">
                         <Network className="w-4 h-4 text-cyan-400" />
@@ -148,6 +208,18 @@ flowchart LR
                                 +
                             </button>
                         </div>
+                        <div className="w-[1px] h-4 bg-[#303030]" />
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors flex items-center gap-1.5 ${isSidebarOpen
+                                    ? "text-white bg-white/5"
+                                    : "text-neutral-500 hover:text-white hover:bg-white/5"
+                                }`}
+                            title="Toggle algorithm guide"
+                        >
+                            <BookOpen className="w-3 h-3" />
+                            Guide
+                        </button>
                         <div className="text-[10px] text-neutral-600 border-l border-white/10 pl-3 font-mono hidden lg:block">
                             Source: backend runtime pipeline
                         </div>
@@ -159,41 +231,53 @@ flowchart LR
                         <MermaidRenderer chart={mermaidChart} showToolbar={false} showFooterHint={false} onControlsReady={setControls} />
                     </div>
 
-                    {/* Polski Panel Opisowy Algorytmu */}
-                    <div className="w-80 border-l border-[#303030] bg-[#141414] overflow-y-auto shrink-0 flex flex-col">
-                        <div className="p-4 border-b border-[#303030] bg-[#181818]">
-                            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Przewodnik po Algorytmie</h4>
-                            <p className="text-[10px] text-neutral-500 mt-1 leading-relaxed">Poniżej znajduje się szczegółowe wyjaśnienie poszczególnych bloków logicznych z diagramu obok.</p>
+                    {/* Algorithm Guide Sidebar */}
+                    <div
+                        className={`shrink-0 flex flex-col border-l border-[#303030] bg-[#181818] overflow-hidden transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-[420px]" : "w-0 border-l-0"
+                            }`}
+                    >
+                        <div className="p-5 border-b border-[#303030] bg-[#181818] shrink-0 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-1.5 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                                    <BookOpen className="w-3.5 h-3.5 text-purple-400" />
+                                </div>
+                                <div>
+                                    <h4 className="text-[11px] font-bold text-white uppercase tracking-widest">Architektura Kognitywna</h4>
+                                    <p className="text-[9px] text-neutral-500 mt-0.5">5 warstw potoku algorytmicznego</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsSidebarOpen(false)}
+                                className="p-1 rounded hover:bg-white/5 transition-colors text-neutral-600 hover:text-neutral-400"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
                         </div>
 
-                        <div className="p-4 flex flex-col gap-6">
-                            <div className="flex flex-col gap-2">
-                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">1. Warstwa Konfiguracji</div>
-                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
-                                    Backend (FastAPI) ładuje z bazy SQLite bieżące ustawienia Cognition. Na ich podstawie inicjowana jest <b>Persona</b> (Styl), <b>Autonomia</b> oraz dopasowywana jest kreatywność modelu (ustawiana jako temperatura od 0.1 do 1.0).
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <div className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">2. Konstruktor Promptu</div>
-                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
-                                    Najbardziej dynamiczna część - tzw. "Dusza Agenta". System wstrzykuje odpowiednie ograniczenia bazowe sprzężone z wybraną Personą oraz dobiera instrukcje oparte o aktualną porę dnia (<b>Digital Circadian Rhythm</b>). Pobierana jest też semantycznie dopasowana wiedza z wektorowego silnika RAG (Qdrant).
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">3. Rejestr Narzędzi (Tool Registry)</div>
-                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
-                                    Tutaj dzieje się główna pętla myślowa (<i>PydanticAI</i>). LLM analizuje zadanie i wywołuje konkretne akcje – od przeszukiwania plików projektu, po używanie wyszukiwarki Tavily. Jeśli narzędzie modyfikujące (np. zapis pliku) zostanie wywołane przy poziomie Autonomii niższym niż 3, zostanie ujęte w <b>HITL</b> i wstrzymane do Twojej autoryzacji z poziomu UI.
-                                </p>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <div className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">4. Kształtowanie Odpowiedzi (CORE-X)</div>
-                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
-                                    Wynik procesu zostaje poddany walidacji schematu. Odpowiedź tekstowa dołączona jest razem z metadanymi: poziomem <b>Confidence (pewności)</b> oraz powodem (Reasoning Type: WEB/DOCS/MEMORY itp.). Następnie proces loguje historię i zwraca gotową paczkę do terminala.
-                                </p>
-                            </div>
+                        <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-none">
+                            {guideBlocks.map((block) => {
+                                const colors = colorMap[block.color];
+                                return (
+                                    <div
+                                        key={block.num}
+                                        className={`border-l-2 ${colors.border} pl-4 space-y-2`}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <span
+                                                className={`w-5 h-5 rounded-md text-[10px] font-black flex items-center justify-center border ${colors.badge}`}
+                                            >
+                                                {block.num}
+                                            </span>
+                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${colors.title}`}>
+                                                {block.title}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] text-neutral-400 leading-[1.7] font-sans">
+                                            {block.text}
+                                        </p>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
