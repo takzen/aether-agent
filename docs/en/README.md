@@ -4,14 +4,15 @@ This folder contains technical documentation for Aether Agent.
 
 ## Core Documents
 
-1. `ARCHITECTURE.md` - backend/frontend/data architecture
-2. `FEATURES.md` - major product capabilities
-3. `COGNITION.md` - persona, autonomy, and cognition behavior
-4. `COMMANDS.md` - slash commands and terminal behavior
-5. `API.md` - REST API reference
-6. `WORKFLOW_CORE_X.md` - operational workflow notes
+1. `API.md` - REST API reference
+2. `ARCHITECTURE.md` - backend/frontend/data architecture
+3. `CHANGELOG.md` - release history
+4. `COGNITION.md` - persona, autonomy, and cognition behavior
+5. `COMMANDS.md` - slash commands and terminal behavior
+6. `FEATURES.md` - major product capabilities
 7. `PROJECT_CORE_X.md` - project-level system notes
-8. `CHANGELOG.md` - release history
+8. `TESTING_EVALUATION.md` - backend evaluation tests instruction
+9. `WORKFLOW_CORE_X.md` - operational workflow notes
 
 ## Current Version
 
