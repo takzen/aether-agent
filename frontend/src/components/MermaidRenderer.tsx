@@ -121,7 +121,11 @@ const MermaidRenderer = ({ chart, showToolbar = true, showFooterHint = true, onC
             theme: "dark",
             securityLevel: "loose",
             fontFamily: "Inter, system-ui, sans-serif",
-            flowchart: { useMaxWidth: false, htmlLabels: true },
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
             themeVariables: {
                 primaryColor: "#9333ea",
                 primaryTextColor: "#fff",

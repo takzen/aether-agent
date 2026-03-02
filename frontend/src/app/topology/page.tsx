@@ -17,22 +17,22 @@ export default function NeuralTopologyPage() {
     // Mermaid-safe technical map in English/ASCII for stable parsing.
     const mermaidChart = `
 flowchart LR
-    START["USER_MESSAGE"] --> GAP["get_agent_response main API entry"]
+    START["USER_MESSAGE"] --> GAP["get_agent_response<br/>main API entry"]
 
     subgraph Configuration["1 Configuration Layer"]
-        GAP --> SETS["sqlite_service.get_settings load cognition config"]
-        SETS --> DEPS["Init deps persona autonomy reflection circadian lock"]
-        DEPS --> TEMP["Creativity to temperature mapping 0.1 to 1.0"]
-        TEMP --> MODEL["create_model_instance choose Gemini or Ollama"]
+        GAP --> SETS["sqlite_service.get_settings<br/>load cognition config"]
+        SETS --> DEPS["Init deps<br/>persona autonomy<br/>reflection circadian lock"]
+        DEPS --> TEMP["Creativity to temperature<br/>mapping 0.1 to 1.0"]
+        TEMP --> MODEL["create_model_instance<br/>choose Gemini or Ollama"]
     end
 
     MODEL --> PROMPT_ENGINE["2 Dynamic System Prompt Builder"]
 
     subgraph PromptStream["System Prompt Lifecycle"]
-        B_P["inject_base_prompt language control and CORE-X directives"]
-        C_P["inject_cognition_prompt apply persona and autonomy levels"]
-        S_P["inject_skill_prompt runtime skill activation and triggers"]
-        D_P["inject_dynamic_context aggregate RAG and circadian state"]
+        B_P["inject_base_prompt<br/>language control and<br/>CORE-X directives"]
+        C_P["inject_cognition_prompt<br/>apply persona and<br/>autonomy levels"]
+        S_P["inject_skill_prompt<br/>runtime skill activation<br/>and triggers"]
+        D_P["inject_dynamic_context<br/>aggregate RAG and<br/>circadian state"]
     end
 
     PROMPT_ENGINE --> B_P
@@ -41,26 +41,26 @@ flowchart LR
     S_P --> D_P
 
     subgraph RAG_Engine["Hybrid Context Injection"]
-        D_P --> CIRC["Digital circadian rhythm cron based persona strategist executor philosopher"]
-        D_P --> MEM_S["memory_manager.search semantic retrieval"]
-        D_P --> DOC_S["db_service.search_documents library retrieval"]
+        D_P --> CIRC["Digital circadian rhythm<br/>cron based persona:<br/>strategist executor philosopher"]
+        D_P --> MEM_S["memory_manager.search<br/>semantic retrieval"]
+        D_P --> DOC_S["db_service.search_documents<br/>library retrieval"]
     end
 
-    CIRC --> LLM_INPUT["Final prompt instructions plus context plus user message"]
+    CIRC --> LLM_INPUT["Final prompt<br/>instructions + context<br/>+ user message"]
     MEM_S --> LLM_INPUT
     DOC_S --> LLM_INPUT
 
-    LLM_INPUT --> AGENT_RUN["aether_agent.run execution loop"]
-    AGENT_RUN --> TOOL_LOOP{"Tool call required"}
+    LLM_INPUT --> AGENT_RUN["aether_agent.run<br/>execution loop"]
+    AGENT_RUN --> TOOL_LOOP{"Tool call<br/>required"}
 
     subgraph ToolRegistry["3 Runtime Tool Modules"]
-        T_FS["list_directory and read_file project analysis"]
-        T_WRITE["prepare_write_file human in the loop approval"]
-        T_AUT["validate_path path safety validation"]
-        T_WEB["web_search external Tavily uplink"]
-        T_MEM["remember and recall semantic memory ops"]
-        T_KNG["connect_concepts and modify_concept graph growth"]
-        T_SKB["search_knowledge_base deep RAG with search limit"]
+        T_FS["list_directory<br/>read_file<br/>project analysis"]
+        T_WRITE["prepare_write_file<br/>human in the loop<br/>approval"]
+        T_AUT["validate_path<br/>path safety validation"]
+        T_WEB["web_search<br/>external Tavily uplink"]
+        T_MEM["remember and recall<br/>semantic memory ops"]
+        T_KNG["connect_concepts<br/>modify_concept<br/>graph growth"]
+        T_SKB["search_knowledge_base<br/>deep RAG with search limit"]
     end
 
     TOOL_LOOP --> T_FS
@@ -70,10 +70,10 @@ flowchart LR
     TOOL_LOOP --> T_SKB
     TOOL_LOOP --> T_WRITE
 
-    T_WRITE -- Autonomy below 3 --> HITL["PENDING_ACTION waiting for approval"]
-    T_WRITE -- Autonomy equals 3 --> AUTO_W["FILE_WRITTEN direct write"]
+    T_WRITE -- Autonomy below 3 --> HITL["PENDING_ACTION<br/>waiting for approval"]
+    T_WRITE -- Autonomy equals 3 --> AUTO_W["FILE_WRITTEN<br/>direct write"]
 
-    T_FS --> TOOL_RES["Tool result returned to agent reasoning"]
+    T_FS --> TOOL_RES["Tool result returned<br/>to agent reasoning"]
     T_WEB --> TOOL_RES
     T_MEM --> TOOL_RES
     T_KNG --> TOOL_RES
@@ -83,19 +83,19 @@ flowchart LR
 
     TOOL_RES --> AGENT_RUN
 
-    TOOL_LOOP -->|Final answer ready| CORE_X["4 CORE-X response shaping"]
+    TOOL_LOOP -->|Final answer ready| CORE_X["4 CORE-X<br/>response shaping"]
 
     subgraph OutputSchema["AetherResponse model"]
-        R_TXT["response: Markdown message"]
-        R_CONF["confidence_score reliability 0.1 to 1.0"]
-        R_TYPE["reasoning_type: DOCS / MEMORY / WEB / HYPOTHESIS"]
+        R_TXT["response:<br/>Markdown message"]
+        R_CONF["confidence_score:<br/>reliability 0.1 to 1.0"]
+        R_TYPE["reasoning_type:<br/>DOCS / MEMORY /<br/>WEB / HYPOTHESIS"]
     end
 
     CORE_X --> R_TXT
     CORE_X --> R_CONF
     CORE_X --> R_TYPE
 
-    R_TXT --> POST_PROC["Async post processing add_log and history save"]
+    R_TXT --> POST_PROC["Async post processing<br/>add_log and history save"]
     R_CONF --> POST_PROC
     R_TYPE --> POST_PROC
 
