@@ -154,8 +154,48 @@ flowchart LR
                     </div>
                 </div>
 
-                <div className="flex-1 relative bg-[#1e1e1e] overflow-hidden">
-                    <MermaidRenderer chart={mermaidChart} showToolbar={false} showFooterHint={false} onControlsReady={setControls} />
+                <div className="flex-1 flex flex-row relative bg-[#1e1e1e] overflow-hidden">
+                    <div className="flex-1 relative">
+                        <MermaidRenderer chart={mermaidChart} showToolbar={false} showFooterHint={false} onControlsReady={setControls} />
+                    </div>
+
+                    {/* Polski Panel Opisowy Algorytmu */}
+                    <div className="w-80 border-l border-[#303030] bg-[#141414] overflow-y-auto shrink-0 flex flex-col">
+                        <div className="p-4 border-b border-[#303030] bg-[#181818]">
+                            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Przewodnik po Algorytmie</h4>
+                            <p className="text-[10px] text-neutral-500 mt-1 leading-relaxed">Poniżej znajduje się szczegółowe wyjaśnienie poszczególnych bloków logicznych z diagramu obok.</p>
+                        </div>
+
+                        <div className="p-4 flex flex-col gap-6">
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">1. Warstwa Konfiguracji</div>
+                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
+                                    Backend (FastAPI) ładuje z bazy SQLite bieżące ustawienia Cognition. Na ich podstawie inicjowana jest <b>Persona</b> (Styl), <b>Autonomia</b> oraz dopasowywana jest kreatywność modelu (ustawiana jako temperatura od 0.1 do 1.0).
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">2. Konstruktor Promptu</div>
+                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
+                                    Najbardziej dynamiczna część - tzw. "Dusza Agenta". System wstrzykuje odpowiednie ograniczenia bazowe sprzężone z wybraną Personą oraz dobiera instrukcje oparte o aktualną porę dnia (<b>Digital Circadian Rhythm</b>). Pobierana jest też semantycznie dopasowana wiedza z wektorowego silnika RAG (Qdrant).
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">3. Rejestr Narzędzi (Tool Registry)</div>
+                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
+                                    Tutaj dzieje się główna pętla myślowa (<i>PydanticAI</i>). LLM analizuje zadanie i wywołuje konkretne akcje – od przeszukiwania plików projektu, po używanie wyszukiwarki Tavily. Jeśli narzędzie modyfikujące (np. zapis pliku) zostanie wywołane przy poziomie Autonomii niższym niż 3, zostanie ujęte w <b>HITL</b> i wstrzymane do Twojej autoryzacji z poziomu UI.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">4. Kształtowanie Odpowiedzi (CORE-X)</div>
+                                <p className="text-[11px] text-neutral-400 leading-relaxed font-mono">
+                                    Wynik procesu zostaje poddany walidacji schematu. Odpowiedź tekstowa dołączona jest razem z metadanymi: poziomem <b>Confidence (pewności)</b> oraz powodem (Reasoning Type: WEB/DOCS/MEMORY itp.). Następnie proces loguje historię i zwraca gotową paczkę do terminala.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
