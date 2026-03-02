@@ -75,7 +75,6 @@ export default function SkillsPage() {
           purpose,
           triggers,
           instructions,
-          enabled: true,
         }),
       });
       const data = await res.json();
@@ -124,7 +123,6 @@ export default function SkillsPage() {
           purpose,
           triggers,
           instructions,
-          enabled: true,
         }),
       });
       const data = await res.json();

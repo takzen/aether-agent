@@ -50,7 +50,7 @@ class VectaraHHEMJudge:
             score = self.model.predict([(context, output)])[0]
             return float(score.item() if hasattr(score, "item") else score)
 
-        tokenizer = getattr(self.model, "tokenzier", None) or getattr(self.model, "tokenizer", None)
+        tokenizer = getattr(self.model, "tokenizer", None)
         if tokenizer is None:
             raise RuntimeError("Vectara model does not expose tokenizer or predict().")
 

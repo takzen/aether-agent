@@ -99,17 +99,12 @@ class SkillCreate(BaseModel):
     purpose: Optional[str] = ""
     triggers: Optional[str] = ""
     instructions: str
-    enabled: bool = True
-
-class SkillToggle(BaseModel):
-    enabled: bool
 
 class SkillUpdate(BaseModel):
     name: str
     purpose: Optional[str] = ""
     triggers: Optional[str] = ""
     instructions: str
-    enabled: bool = True
 
 class SkillRuntimeUpdate(BaseModel):
     agent_enabled: bool = True
@@ -728,6 +723,7 @@ async def list_agent_skills():
         enriched = []
         for skill in skills:
             item = dict(skill)
+            item.pop("enabled", None)
             runtime = runtime_modes.get(str(item.get("id", "")), {})
             item["agent_enabled"] = bool(runtime.get("agent_enabled", True))
             item["cron_enabled"] = bool(runtime.get("cron_enabled", True))
@@ -751,23 +747,11 @@ async def create_agent_skill(request: SkillCreate):
             purpose=(request.purpose or "").strip(),
             triggers=(request.triggers or "").strip(),
             instructions=request.instructions.strip(),
-            enabled=request.enabled
+            enabled=True
         )
         await _set_skill_runtime_mode(str(skill.get("id", "")), agent_enabled=True, cron_enabled=True)
         skill["markdown_path"] = _upsert_skill_markdown_file(skill)
         await sqlite_service.add_log("info", "CORE", f"Created agent skill: {skill['name']}")
-        return {"status": "success", "skill": skill}
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
-@app.post("/skills/{skill_id}/toggle")
-async def toggle_agent_skill(skill_id: str, request: SkillToggle):
-    """Enables/disables an existing skill."""
-    try:
-        skill = await sqlite_service.toggle_agent_skill(skill_id, request.enabled)
-        if not skill:
-            return {"status": "error", "message": "Skill not found."}
-        skill["markdown_path"] = _upsert_skill_markdown_file(skill)
         return {"status": "success", "skill": skill}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -787,7 +771,7 @@ async def update_agent_skill(skill_id: str, request: SkillUpdate):
             purpose=(request.purpose or "").strip(),
             triggers=(request.triggers or "").strip(),
             instructions=request.instructions.strip(),
-            enabled=request.enabled,
+            enabled=True,
         )
         if not skill:
             return {"status": "error", "message": "Skill not found."}
@@ -897,7 +881,6 @@ def _render_skill_markdown(skill: dict) -> str:
         "---\n"
         f"id: {str(skill.get('id', ''))}\n"
         f"name: {str(skill.get('name', ''))}\n"
-        f"enabled: {str(bool(skill.get('enabled', False))).lower()}\n"
         f"purpose: {str(skill.get('purpose', '')).replace(chr(10), ' ').strip()}\n"
         f"triggers: {str(skill.get('triggers', ''))}\n"
         "---\n\n"

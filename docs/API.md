@@ -196,16 +196,12 @@ Body:
   "name": "Short answer mode",
   "purpose": "Keep responses concise",
   "triggers": "brief,short,quick",
-  "instructions": "Respond in under 5 lines unless user asks for details.",
-  "enabled": true
+  "instructions": "Respond in under 5 lines unless user asks for details."
 }
 ```
 
-### `POST /skills/{skill_id}/toggle`
-Enables/disables a skill.
-
 ### `PUT /skills/{skill_id}`
-Updates a skill (`name`, `purpose`, `triggers`, `instructions`, `enabled`).
+Updates a skill (`name`, `purpose`, `triggers`, `instructions`).
 
 ### `POST /skills/{skill_id}/runtime`
 Updates where a skill can run:

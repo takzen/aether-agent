@@ -1,0 +1,303 @@
+{
+  "generated_at_utc": "2026-03-02T08:51:00.235025+00:00",
+  "run_audit": true,
+  "exitstatus": 1,
+  "summary": {
+    "total": 20,
+    "passed": 8,
+    "failed": 12,
+    "skipped": 0
+  },
+  "cases": [
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[rag-001]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "rag-001:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions found. Everything is looking great!"
+        },
+        {
+          "name": "rag-001:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because the output directly and accurately answers the question about the fungus with the most complex signaling syntax and its vocabulary size, without any irrelevant information."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-001]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "bio-001:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions found. It looks like the actual output is perfectly aligned with the retrieval context, which is fantastic!"
+        },
+        {
+          "name": "bio-001:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because the output directly and accurately answers the question asked in the input, with no irrelevant information present. Excellent work!"
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-002]",
+      "outcome": "failed",
+      "metrics": [
+        {
+          "name": "bio-002:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions, which is fantastic! It means the actual output perfectly aligns with the retrieval context. Great job!"
+        },
+        {
+          "name": "bio-002:answer_relevancy",
+          "score": 0.5,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The score is 0.50 because while the output identifies that patterns were found, it doesn't directly answer the question about the maximum number of patterns. The comparison to words is a descriptive element but doesn't address the core numerical query, preventing a higher score."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-003]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "bio-003:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there were no contradictions found, meaning the actual output perfectly aligned with the retrieval context! Way to go!"
+        },
+        {
+          "name": "bio-003:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "1.00 because the output fully addresses the user's question without any irrelevant information."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-004]",
+      "outcome": "failed",
+      "metrics": [
+        {
+          "name": "bio-004:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions found, meaning the actual output perfectly aligns with the retrieval context. It's fantastic when everything matches up so well!"
+        },
+        {
+          "name": "bio-004:answer_relevancy",
+          "score": 0.5,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The score is 0.50 because while the answer addresses signaling complexity, it includes irrelevant points about sentence richness and syntactic complexity, which are not directly related to the biological signaling complexity in fungi as requested by the input."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-005]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "bio-005:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions to report, indicating the actual output is perfectly aligned with the retrieval context!"
+        },
+        {
+          "name": "bio-005:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because the output perfectly addresses the input by only including information directly relevant to the question. There were no irrelevant statements identified."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-006]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "bio-006:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions found. The actual output is completely faithful to the retrieval context!"
+        },
+        {
+          "name": "bio-006:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because the output is perfectly relevant to the input and addresses the question directly and accurately. There were no irrelevant statements."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-007]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "bio-007:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions to report! All the information presented in the retrieval context seems to be perfectly reflected in the actual output, which is fantastic!"
+        },
+        {
+          "name": "bio-007:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because the output perfectly addresses the input and contains no irrelevant statements. Great job!"
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-017]",
+      "outcome": "failed",
+      "metrics": [
+        {
+          "name": "bio-017:faithfulness",
+          "score": 1.0,
+          "threshold": 0.7,
+          "passed": true,
+          "reason": "The score is 1.00 because there were no contradictions found. Fantastic work!"
+        },
+        {
+          "name": "bio-017:answer_relevancy",
+          "score": 0.5,
+          "threshold": 0.7,
+          "passed": false,
+          "reason": "The score is 0.50 because while the output correctly identified the publication year and discussed its relevance, it also included details about the journal and the study's relevance to modern computational mycology, which were not directly requested by the input question and detracted from a more focused answer."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_deepeval_rag.py::test_rag_faithfulness_and_relevancy[bio-019]",
+      "outcome": "passed",
+      "metrics": [
+        {
+          "name": "bio-019:faithfulness",
+          "score": 1.0,
+          "threshold": 0.75,
+          "passed": true,
+          "reason": "The score is 1.00 because there are no contradictions. Everything is looking great!"
+        },
+        {
+          "name": "bio-019:answer_relevancy",
+          "score": 1.0,
+          "threshold": 0.75,
+          "passed": true,
+          "reason": "The score is 1.00 because the answer is perfectly relevant to the input. There were no irrelevant statements."
+        }
+      ],
+      "metadata": {
+        "deepeval_model": "gemini-2.5-flash-lite"
+      }
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[rag-001]",
+      "outcome": "passed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-001]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-002]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-003]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-004]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-005]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-006]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-007]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-017]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    },
+    {
+      "nodeid": "evaluation/test_vectara_hhem.py::test_vectara_hhem_consistency[bio-019]",
+      "outcome": "failed",
+      "metrics": [],
+      "metadata": {}
+    }
+  ]
+}
