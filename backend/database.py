@@ -209,14 +209,47 @@ class DatabaseService:
             if not points:
                 return []
             
-            sources = {}
+            sources: Dict[str, Dict[str, Any]] = {}
             for point in points:
-                src = point.payload.get("source")
+                payload = point.payload or {}
+                src = payload.get("source")
                 if src:
-                    # Store latest metadata for each source
-                    sources[src] = point.payload
-            
-            return [{"filename": src, "metadata": meta} for src, meta in sources.items()]
+                    entry = sources.get(src)
+                    if not entry:
+                        entry = {
+                            "metadata": {},
+                            "max_total_chunks": 0,
+                            "vision_indexed": False,
+                            "vision_model": None,
+                        }
+                        sources[src] = entry
+
+                    # Keep useful metadata while aggregating across all chunks for this source.
+                    meta = entry["metadata"]
+                    for k, v in payload.items():
+                        if k not in {"content"}:
+                            meta[k] = v
+
+                    total_chunks = payload.get("total_chunks")
+                    if isinstance(total_chunks, int):
+                        entry["max_total_chunks"] = max(entry["max_total_chunks"], total_chunks)
+
+                    if payload.get("layer") == "vision":
+                        entry["vision_indexed"] = True
+                        if payload.get("vision_model"):
+                            entry["vision_model"] = payload.get("vision_model")
+
+            results = []
+            for src, entry in sources.items():
+                metadata = dict(entry["metadata"])
+                if entry["max_total_chunks"] > 0:
+                    metadata["total_chunks"] = entry["max_total_chunks"]
+                metadata["vision_indexed"] = bool(entry["vision_indexed"])
+                if entry["vision_model"]:
+                    metadata["vision_model"] = entry["vision_model"]
+                results.append({"filename": src, "metadata": metadata})
+
+            return results
         except Exception as e:
             print(f"[Database] Error listing documents from Qdrant: {e}")
             return []

@@ -94,12 +94,16 @@ Indexes an existing source file.
 ### `POST /knowledge/vision-index/{filename}`
 Runs multimodal vision indexing for a PDF:
 - renders PDF pages to images
-- analyzes pages with local vision model (default: `ollama:qwen3-vl:4b`)
+- analyzes pages with selected vision model (default: `ollama:qwen3-vl:4b`)
 - stores extracted page knowledge in vector index as `vision` layer
+- after successful run, knowledge metadata includes:
+  - `vision_indexed: true`
+  - `vision_model: <used model>`
+- repeating this endpoint updates/refreshes the vision layer (`Re-index Vision`)
 
 Query params:
 - `max_pages` (optional, default `4`)
-- `model` (optional, must be `ollama:*`)
+- `model` (optional, `ollama:*` or `gemini:*`, e.g. `gemini:gemini-2.5-flash`)
 
 ### `GET /knowledge/content/{filename}`
 Reads raw source file content.

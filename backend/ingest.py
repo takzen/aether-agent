@@ -9,7 +9,7 @@ from memory import memory_manager
 from database import DatabaseService
 
 # Configuration
-SOURCE_DIR = "./knowledge_source"
+SOURCE_DIR = str((Path(__file__).resolve().parent / "knowledge_source").resolve())
 CHUNK_SIZE = 1000  # Characters for now, rough approximation
 CHUNK_OVERLAP = 200
 

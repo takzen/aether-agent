@@ -14,6 +14,7 @@ export default function KnowledgeBase() {
     const [isUploading, setIsUploading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [visionIndexingFile, setVisionIndexingFile] = useState<string | null>(null);
+    const [visionModel, setVisionModel] = useState("ollama:qwen3-vl:4b");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Modal States
@@ -56,7 +57,9 @@ export default function KnowledgeBase() {
                     added: doc.status === 'indexed' ? 'INDEXED' : 'ON_DISK',
                     size: doc.size || "Unknown",
                     icon: doc.filename.endsWith('.py') || doc.filename.endsWith('.js') || doc.filename.endsWith('.ts') ? Code : FileText,
-                    lines: doc.metadata?.total_chunks || 0
+                    lines: doc.metadata?.total_chunks || 0,
+                    visionIndexed: Boolean(doc.metadata?.vision_indexed),
+                    visionModel: doc.metadata?.vision_model || ""
                 }));
 
                 setItems(dbItems);
@@ -217,7 +220,8 @@ export default function KnowledgeBase() {
         setVisionIndexingFile(filename);
         try {
             const encoded = encodeURIComponent(filename);
-            const res = await fetch(`http://localhost:8000/knowledge/vision-index/${encoded}?max_pages=4`, {
+            const modelParam = encodeURIComponent(visionModel);
+            const res = await fetch(`http://localhost:8000/knowledge/vision-index/${encoded}?max_pages=4&model=${modelParam}`, {
                 method: "POST",
             });
             const data = await res.json();
@@ -228,7 +232,7 @@ export default function KnowledgeBase() {
                 setNotification({
                     isOpen: true,
                     title: "VISION_INDEX_COMPLETE",
-                    message: `"${filename}" analyzed with vision (${processed}/${total} pages).`,
+                    message: `"${filename}" analyzed with vision model ${visionModel} (${processed}/${total} pages).`,
                     type: "success"
                 });
             } else {
@@ -276,6 +280,17 @@ export default function KnowledgeBase() {
                             <span className="text-[10px] text-neutral-500 font-mono uppercase tracking-widest hidden sm:block">Supported formats</span>
                             <span className="text-[10px] text-emerald-500/80 font-mono font-bold uppercase tracking-widest hidden sm:block">.TXT, .MD, .PDF</span>
                         </div>
+                        <select
+                            value={visionModel}
+                            onChange={(e) => setVisionModel(e.target.value)}
+                            className="text-[10px] font-mono px-2 py-1 rounded border border-cyan-500/30 bg-[#1e1e1e] text-cyan-200 hover:border-cyan-400/40 focus:outline-none focus:border-cyan-400/60"
+                            title="Vision model for PDF vision indexing"
+                        >
+                            <option value="ollama:qwen3-vl:4b">Vision: Qwen3-VL 4B (Local)</option>
+                            <option value="gemini:gemini-3-flash-preview">Vision: Gemini 3 Flash Preview (Cloud)</option>
+                            <option value="gemini:gemini-2.5-flash">Vision: Gemini 2.5 Flash (Cloud)</option>
+                            <option value="gemini:gemini-2.5-pro">Vision: Gemini 2.5 Pro (Cloud)</option>
+                        </select>
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -367,6 +382,17 @@ export default function KnowledgeBase() {
                                             >
                                                 {item.added === "INDEXED" ? "Indexed" : "On disk"}
                                             </span>
+                                            {item.visionIndexed && (
+                                                <>
+                                                    <span className="text-neutral-700">|</span>
+                                                    <span
+                                                        className="inline-flex items-center text-[10px] font-mono text-cyan-300/90"
+                                                        title={item.visionModel ? `Vision model: ${item.visionModel}` : "Vision layer indexed"}
+                                                    >
+                                                        Vision Indexed
+                                                    </span>
+                                                </>
+                                            )}
                                             <span className="text-neutral-700">|</span>
                                             <span>{item.type === "code" ? "Code" : "Document"}</span>
                                         </div>
@@ -393,7 +419,7 @@ export default function KnowledgeBase() {
                                                 className="text-[10px] font-mono text-cyan-300 hover:text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/15 px-3 py-1 rounded border border-cyan-500/30 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 {visionIndexingFile === item.title ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
-                                                Vision Index
+                                                {item.visionIndexed ? "Re-index Vision" : "Vision Index"}
                                             </button>
                                         )}
                                         {item.added === 'ON_DISK' && (
