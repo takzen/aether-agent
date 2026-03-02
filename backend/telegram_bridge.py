@@ -46,6 +46,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 data = response.json()
                 if data.get("status") == "success":
                     answer = data.get("response", "No response body.")
+                    
+                    if isinstance(answer, dict):
+                        # Extract just the response field, ignore confidence_score and other JSON keys
+                        answer = answer.get("response", str(answer))
+                    elif not isinstance(answer, str):
+                        answer = str(answer)
+                        
                     # Telegram limit per message is 4096 chars formatting
                     if len(answer) > 4000:
                         for x in range(0, len(answer), 4000):
