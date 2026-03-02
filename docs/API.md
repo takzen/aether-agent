@@ -91,6 +91,16 @@ Uploads a source file to knowledge storage.
 ### `POST /knowledge/index/{filename}`
 Indexes an existing source file.
 
+### `POST /knowledge/vision-index/{filename}`
+Runs multimodal vision indexing for a PDF:
+- renders PDF pages to images
+- analyzes pages with local vision model (default: `ollama:qwen3-vl:4b`)
+- stores extracted page knowledge in vector index as `vision` layer
+
+Query params:
+- `max_pages` (optional, default `4`)
+- `model` (optional, must be `ollama:*`)
+
 ### `GET /knowledge/content/{filename}`
 Reads raw source file content.
 

@@ -2,6 +2,8 @@
 import os
 import asyncio
 import glob
+import io
+import base64
 from pathlib import Path
 from memory import memory_manager
 from database import DatabaseService
@@ -29,7 +31,13 @@ def split_text(text: str, chunk_size=1000, overlap=100) -> list[str]:
         
     return chunks
 
-async def process_content(content: str, filename: str, db: DatabaseService, file_size: str = "Unknown"):
+async def process_content(
+    content: str,
+    filename: str,
+    db: DatabaseService,
+    file_size: str = "Unknown",
+    extra_metadata: dict | None = None,
+):
     """
     Chunks content, embeds it, and saves to DB.
     """
@@ -52,6 +60,8 @@ async def process_content(content: str, filename: str, db: DatabaseService, file
                 "chunk_index": i,
                 "total_chunks": len(chunks)
             }
+            if extra_metadata:
+                metadata.update(extra_metadata)
             
             db.add_document_chunk(
                 content=chunk,
@@ -98,6 +108,47 @@ def extract_text_from_file(file_path: str) -> str:
         return path.read_text(encoding="utf-8", errors="ignore")
 
     raise ValueError(f"Unsupported file type for indexing: '{suffix}'")
+
+def render_pdf_pages_to_base64(file_path: str, max_pages: int = 4, scale: float = 2.0) -> tuple[list[dict], int]:
+    """
+    Render PDF pages as PNG base64 images for multimodal vision models.
+    Returns: (pages, total_pages)
+    where pages = [{"page": 1, "image_b64": "..."}]
+    """
+    path = Path(file_path)
+    if path.suffix.lower() != ".pdf":
+        raise ValueError("Vision indexing currently supports PDF files only.")
+
+    try:
+        import pypdfium2 as pdfium
+    except Exception as e:
+        raise ValueError(
+            "Vision PDF rendering requires 'pypdfium2' (and Pillow). Install dependencies with `uv sync`."
+        ) from e
+
+    try:
+        pdf = pdfium.PdfDocument(str(path))
+        total_pages = len(pdf)
+        if total_pages == 0:
+            raise ValueError("PDF has no pages.")
+
+        safe_max_pages = max(1, min(int(max_pages), total_pages))
+        rendered_pages = []
+        for idx in range(safe_max_pages):
+            page = pdf[idx]
+            pil_img = page.render(scale=scale).to_pil()
+            buffer = io.BytesIO()
+            pil_img.save(buffer, format="PNG")
+            rendered_pages.append({
+                "page": idx + 1,
+                "image_b64": base64.b64encode(buffer.getvalue()).decode("utf-8")
+            })
+            page.close()
+
+        pdf.close()
+        return rendered_pages, total_pages
+    except Exception as e:
+        raise ValueError(f"Failed to render PDF pages: {e}") from e
 
 async def process_file(file_path: str, db: DatabaseService):
     """
