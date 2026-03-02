@@ -392,8 +392,11 @@ class CronSchedulerService:
             "Use only facts visible in telemetry. If data is sparse, say it explicitly.\n\n"
             "TELEMETRY:\n"
             + "\n".join(telemetry_lines)
+            + "\n\nCRITICAL DIRECTIVE: You MUST populate the 'response' field in your structured output with the final generated text. Do not leave it empty."
         )
 
+        sys_settings = await sqlite_service.get_settings()
+        
         result = await aether_agent.run(
             user_prompt=composed_prompt,
             deps={
@@ -401,12 +404,23 @@ class CronSchedulerService:
                 "search_count": 0,
                 "execution_mode": "cron",
                 "force_skill_ids": [skill_id],
+                "persona": sys_settings.get("COGNITION_PERSONA", "Balanced"),
+                "autonomy": int(sys_settings.get("COGNITION_AUTONOMY", 2)),
+                "reflection": sys_settings.get("COGNITION_REFLECTION", "true").lower() == "true",
+                "circadian_lock": sys_settings.get("COGNITION_CIRCADIAN_LOCK", "false").lower() == "true",
+                "custom_directives": sys_settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
             },
         )
 
-        text = str(getattr(result.output, "response", "") or "").strip()
+        if hasattr(result.output, "response"):
+            text = str(result.output.response or "").strip()
+        elif isinstance(result.output, str):
+            text = result.output.strip()
+        else:
+            text = str(result.output).strip()
+
         if not text:
-            raise ValueError("Skill Task returned empty response.")
+            raise ValueError(f"Skill Task returned empty response. Raw output: {repr(result.output)}")
 
         if bool(payload.get("store_as_tweet", False)):
             await store_tweet_from_external_text(
