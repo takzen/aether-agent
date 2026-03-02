@@ -337,7 +337,6 @@ export default function ChatPage() {
     const [thoughtSteps, setThoughtSteps] = useState<ThoughtStep[]>([
         { id: 1, type: "thought", message: "Neural core active and waiting for instructions.", icon: Terminal, time: "just now" }
     ]);
-    const [selectedModel] = useState<"gemini" | "ollama">("gemini");
     const [agentHistory, setAgentHistory] = useState<{ role: string; content: string; parts?: AgentMessagePart[] }[]>([]);
     const [chatError, setChatError] = useState<string | null>(null);
     const [lastRequestInput, setLastRequestInput] = useState("");
@@ -557,7 +556,6 @@ export default function ChatPage() {
                 signal: abortController.signal,
                 body: JSON.stringify({
                     message: nextInput,
-                    model: selectedModel,
                     session_id: currentSessionId,
                     message_history: agentHistory.length > 0 ? agentHistory : undefined
                 }),

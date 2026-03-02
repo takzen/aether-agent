@@ -85,7 +85,7 @@ aether_agent = Agent(
     system_prompt="Identity: Aether Core", # Placeholder, replaced by dynamic injectors
     retries=3,
     deps_type=dict,
-    output_type=AetherResponse
+    output_type=AetherResponse | str
 )
 
 @aether_agent.system_prompt
