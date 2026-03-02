@@ -43,6 +43,14 @@ Aether Agent posiada modułową architekturę umiejętności, która pozwala na 
 -   **Wstrzykiwanie Kontekstu:** Kiedy umiejętność zostaje aktywowana, jej specyficzne instrukcje (formatowanie, narzędzia) i wyzwalacze (triggers) są bezpośrednio integrowane w system prompt agenta, dostosowując jego wektor działania.
 -   **Zarządzanie:** Rejestr umiejętności może być na bieżąco przeglądany oraz włączany/wyłączany z poziomu panelu Dashboard w zakładce "Skills".
 
+### Architektura i Baza Danych (Zamiast plików `SKILL.md`)
+
+W przeciwieństwie do konwencjonalnych frameworków agentowych, które opierają się na statycznych plikach tekstowych `.md` leżących w folderach, Aether celowo przechowuje umiejętności w wewnętrznej bazie danych (SQLite). Przynosi to trzy główne korzyści architektoniczne:
+
+1.  **Oszczędność Okna Kontekstowego (Token Optimization):** Agent, bazując na Twojej bieżącej wiadomości oraz przypisanych wyzwalaczach (Triggers), potrafi *dynamicznie* odfiltrować i załadować z bazy jedynie te zestawy instrukcji, które są obecnie w danym etapie rozmowy istotne. To chroni pamięć modelu i zwiększa prędkość odpowiedzi.
+2.  **Integracja UI w Czasie Rzeczywistym:** Parametry umiejętności można błyskawicznie edytować poprzez panel Dashboard na froncie (Next.js) z dedykowanym API REST, unikając zaburzeń wynikających z pisania/odczytu tych samych plików tekstowych.
+3.  **Współpraca z Interfejsem Cron:** Przechowywanie id skilli w tabelach pozwala na bezpośrednie linkowanie i wywoływanie konkretnych kompetencji agenta "bez udziału użytkownika" jako autonomiczne zadania w tle.
+
 ## System Harmonogramów (Cron Tasks)
 
 Silnik czasu rzeczywistego wbudowany w backend z obsługą zadań w tle opartych na interfejsie Cron.

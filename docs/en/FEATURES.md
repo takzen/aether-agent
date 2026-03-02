@@ -43,6 +43,14 @@ Aether Agent features a modular skills architecture that extends its capabilitie
 -   **Context Injection:** When a skill is activated, its specific instructions (formatting, tools) and triggers are directly integrated into the agent's system prompt, giving it new expertise or particular operational vectors.
 -   **Management:** The registry of skills can be viewed, toggled on, and off safely from the Dashboard's "Skills" tab.
 
+### Architecture and Database (Instead of `SKILL.md` Files)
+
+Unlike conventional agentic frameworks that rely on static `.md` text files scattered in folders, Aether intentionally stores its skills in an internal database (SQLite). This brings three major architectural advantages:
+
+1. **Token Optimization (Context Saving):** Based on your current message and assigned Triggers, the Agent can *dynamically* filter and fetch from the database only the instruction sets that are strictly relevant to the current stage of the conversation. This saves the Model's context memory and increases response speed.
+2. **Real-Time UI Integration:** The skill parameters can be instantly edited, toggled, and viewed through the frontend Dashboard (Next.js) using a dedicated REST API, avoiding write-conflict bottlenecks common when dealing with overlapping text files.
+3. **Cron Interface Synergy:** Storing skill IDs in tables allows the backend to easily link specific Agent competencies and deploy them "userless-ly" as autonomous background Cron Tasks.
+
 ## Scheduled Operations (Cron Tasks)
 
 A background task engine built into the backend system based on a Cron interface.
