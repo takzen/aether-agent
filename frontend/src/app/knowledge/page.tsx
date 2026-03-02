@@ -13,6 +13,7 @@ export default function KnowledgeBase() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isUploading, setIsUploading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [visionIndexingFile, setVisionIndexingFile] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Modal States
@@ -211,6 +212,46 @@ export default function KnowledgeBase() {
         }
     };
 
+    const handleVisionIndex = async (e: React.MouseEvent, filename: string) => {
+        e.stopPropagation();
+        setVisionIndexingFile(filename);
+        try {
+            const encoded = encodeURIComponent(filename);
+            const res = await fetch(`http://localhost:8000/knowledge/vision-index/${encoded}?max_pages=4`, {
+                method: "POST",
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                await fetchDocuments();
+                const processed = typeof data.processed_pages === "number" ? data.processed_pages : "?";
+                const total = typeof data.total_pages === "number" ? data.total_pages : "?";
+                setNotification({
+                    isOpen: true,
+                    title: "VISION_INDEX_COMPLETE",
+                    message: `"${filename}" analyzed with vision (${processed}/${total} pages).`,
+                    type: "success"
+                });
+            } else {
+                setNotification({
+                    isOpen: true,
+                    title: "VISION_INDEX_FAILED",
+                    message: data.message || "Vision indexing failed.",
+                    type: "error"
+                });
+            }
+        } catch (err) {
+            console.error("Vision indexing error:", err);
+            setNotification({
+                isOpen: true,
+                title: "CONNECTION ERROR",
+                message: "Could not connect to the backend server.",
+                type: "error"
+            });
+        } finally {
+            setVisionIndexingFile(null);
+        }
+    };
+
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
@@ -332,7 +373,7 @@ export default function KnowledgeBase() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between mt-1.5">
+                                <div className="flex items-center justify-between mt-1.5 gap-2">
                                     {item.type === 'doc' && (
                                         <div className="text-[10px] text-neutral-500 font-mono bg-white/5 px-2 py-1 rounded inline-block">
                                             Size: {item.size}
@@ -344,14 +385,26 @@ export default function KnowledgeBase() {
                                         </div>
                                     )}
 
-                                    {item.added === 'ON_DISK' && (
-                                        <button
-                                            onClick={(e) => handleIndex(e, item.title)}
-                                            className="text-[10px] font-mono text-purple-300 hover:text-purple-200 bg-purple-500/10 hover:bg-purple-500/15 px-3 py-1 rounded border border-purple-500/30 transition-colors flex items-center gap-2"
-                                        >
-                                            <Zap className="w-3 h-3" /> Index Now
-                                        </button>
-                                    )}
+                                    <div className="flex items-center gap-2 ml-auto">
+                                        {item.title.toLowerCase().endsWith(".pdf") && (
+                                            <button
+                                                onClick={(e) => handleVisionIndex(e, item.title)}
+                                                disabled={visionIndexingFile === item.title}
+                                                className="text-[10px] font-mono text-cyan-300 hover:text-cyan-200 bg-cyan-500/10 hover:bg-cyan-500/15 px-3 py-1 rounded border border-cyan-500/30 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {visionIndexingFile === item.title ? <Loader2 className="w-3 h-3 animate-spin" /> : <Database className="w-3 h-3" />}
+                                                Vision Index
+                                            </button>
+                                        )}
+                                        {item.added === 'ON_DISK' && (
+                                            <button
+                                                onClick={(e) => handleIndex(e, item.title)}
+                                                className="text-[10px] font-mono text-purple-300 hover:text-purple-200 bg-purple-500/10 hover:bg-purple-500/15 px-3 py-1 rounded border border-purple-500/30 transition-colors flex items-center gap-2"
+                                            >
+                                                <Zap className="w-3 h-3" /> Index Now
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Card Status Strip */}
