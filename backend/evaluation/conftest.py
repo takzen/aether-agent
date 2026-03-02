@@ -31,6 +31,10 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "audit: external audit tests (disabled unless --run-audit).")
     config.addinivalue_line("markers", "slow: heavyweight tests.")
     config.addinivalue_line("markers", "integration: tests requiring external services/models.")
+    config.addinivalue_line("filterwarnings", "ignore:There is no current event loop:DeprecationWarning")
+    config.addinivalue_line("filterwarnings", "ignore:builtin type SwigPyPacked has no __module__ attribute:DeprecationWarning")
+    config.addinivalue_line("filterwarnings", "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning")
+    config.addinivalue_line("filterwarnings", "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning")
     config._audit_case_results = {}
 
 
@@ -57,6 +61,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
             "nodeid": item.nodeid,
             "outcome": "unknown",
             "metrics": [],
+            "metadata": {},
         },
     )
 
@@ -72,6 +77,12 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     metric_payloads = [value for key, value in report.user_properties if key == "audit_metric"]
     if metric_payloads:
         case["metrics"] = metric_payloads
+    meta_payloads = [value for key, value in report.user_properties if key == "audit_meta"]
+    if meta_payloads:
+        merged = case.setdefault("metadata", {})
+        for payload in meta_payloads:
+            if isinstance(payload, dict):
+                merged.update(payload)
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
@@ -120,6 +131,14 @@ def audit_record(request: pytest.FixtureRequest):
         )
 
     return _record
+
+
+@pytest.fixture
+def audit_meta(request: pytest.FixtureRequest):
+    def _record_meta(**kwargs) -> None:
+        request.node.user_properties.append(("audit_meta", kwargs))
+
+    return _record_meta
 
 
 @pytest.fixture(scope="session")

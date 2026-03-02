@@ -22,6 +22,11 @@ To sa testy **audit/integration**, a nie testy jednostkowe. Moga wymagac sieci, 
 - `backend/evaluation/test_vectara_hhem.py`
   - metryka spojnosci Vectara HHEM
   - model: `vectara/hallucination_evaluation_model`
+- `backend/evaluation/test_dataset_schema.py`
+  - walidacja schemy datasetu (id, pola wymagane, typy, progi 0..1)
+- `backend/evaluation/dataset.py`
+  - loader przypadkow z plikow `.json` i `.jsonl`
+  - filtr przypadkow "ready" (bez `TODO`, z niepustym `gold_contexts`)
 - `backend/evaluation/judges.py`
   - pomocnicze klasy/fabryki sedziow
   - cache instancji modelu Vectara na czas runa
@@ -29,6 +34,9 @@ To sa testy **audit/integration**, a nie testy jednostkowe. Moga wymagac sieci, 
   - opcje CLI (`--run-audit`, `--audit-report-json`)
   - markery i domyslne `skip`
   - generowanie raportu JSON
+- `backend/evaluation/example_rag_case.json` oraz `backend/evaluation/biology_mykology_backlog_30.jsonl`
+  - dataset przypadkow RAG do audytu
+  - rekordy z `expected_answer = "TODO"` lub pustym `gold_contexts` sa pomijane
 - `backend/evaluation/run_audit.bat`
   - jednokomendowe uruchomienie audytu na Windows
 
@@ -59,12 +67,14 @@ W praktyce potrzebne sa:
 ## Zmienne srodowiskowe
 
 - `GOOGLE_API_KEY` jest wymagany dla testu DeepEval/Gemini
+- opcjonalnie `DEEPEVAL_GEMINI_MODEL` aby nadpisac model (domyslnie `gemini-2.5-flash-lite`)
 - jezeli brak klucza, test DeepEval zostanie poprawnie oznaczony jako `skipped`
 
 Przyklad (PowerShell):
 
 ```powershell
 $env:GOOGLE_API_KEY = "twoj_klucz_api"
+$env:DEEPEVAL_GEMINI_MODEL = "gemini-2.5-flash-lite"
 ```
 
 ## Komendy uruchomienia
@@ -79,6 +89,12 @@ Szybkie sprawdzenie (bez uruchamiania audytu):
 
 ```powershell
 pytest -q evaluation
+```
+
+Walidacja datasetu (bez API i bez modeli zewnetrznych):
+
+```powershell
+pytest -q evaluation/test_dataset_schema.py
 ```
 
 Pelny audyt:
@@ -124,6 +140,7 @@ Opcja `--audit-report-json <sciezka>` zapisuje raport zawierajacy:
 - metadane runa (`generated_at_utc`, `exitstatus`, `run_audit`)
 - podsumowanie (`total`, `passed`, `failed`, `skipped`)
 - przypadki testowe (`nodeid`, `outcome`, opcjonalnie `reason`)
+- metadane przypadku (`metadata`), np. `deepeval_model`
 - metryki (`name`, `score`, `threshold`, `passed`, `reason`) jesli test je dostarcza
 
 Przykladowy plik:
@@ -137,14 +154,20 @@ Przykladowy plik:
 - metryki:
   - `faithfulness`
   - `answer_relevancy`
-- prog dla obu: `0.7`
+- progi sa czytane per-case z `generation_thresholds`
+- fallback: `0.7` jesli brak klucza w rekordzie
 - test nie przechodzi, gdy ktorykolwiek wynik spadnie ponizej progu
 
 `test_vectara_hhem.py`:
 
 - metryka: `consistency_score`
-- prog: `0.8`
+- prog jest czytany per-case z `generation_thresholds.hhem_consistency`
+- fallback: `0.8` jesli brak klucza w rekordzie
 - test nie przechodzi, gdy wynik spadnie ponizej progu
+
+Uwaga:
+
+- przypadki datasetu z `expected_answer = "TODO"` lub pustym `gold_contexts` sa pomijane przez testy auditowe
 
 ## Interpretacja wynikow
 

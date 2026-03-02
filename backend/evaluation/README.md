@@ -6,6 +6,8 @@ Application tests (including backend integration tests) stay in `backend/tests`.
 ## Test types
 - `test_deepeval_rag.py`: DeepEval metrics (`Faithfulness`, `AnswerRelevancy`) using Gemini as judge.
 - `test_vectara_hhem.py`: Vectara HHEM hallucination consistency scoring.
+- Both tests are dataset-driven: they load cases from `example_rag_case.json` and `biology_mykology_backlog_30.jsonl`.
+- Cases with missing `gold_contexts` or `expected_answer = "TODO"` are skipped automatically.
 
 ## Safety defaults
 - All tests here are marked `audit`.

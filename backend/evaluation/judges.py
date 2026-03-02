@@ -2,7 +2,7 @@ import os
 from functools import lru_cache
 from typing import Optional
 
-DEFAULT_GEMINI_MODEL = "gemini-3-flash-preview"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite"
 VECTARA_HHEM_MODEL = "vectara/hallucination_evaluation_model"
 
 
@@ -12,7 +12,7 @@ def build_gemini_judge(model_name: str = DEFAULT_GEMINI_MODEL, api_key: Optional
 
     class GeminiJudge(DeepEvalBaseLLM):
         def __init__(self, model_name: str = DEFAULT_GEMINI_MODEL, api_key: Optional[str] = None):
-            self.model_name = model_name
+            self.model_name = os.getenv("DEEPEVAL_GEMINI_MODEL", model_name)
             key = api_key or os.getenv("GOOGLE_API_KEY")
             self.client = genai.Client(api_key=key) if key else None
 

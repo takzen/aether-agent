@@ -1,0 +1,36 @@
+{
+  "id": "rag-001",
+  "category": "factual",
+  "question": "Which fungus has the most complex signaling syntax, and what is the reported vocabulary size?",
+  "expected_answer": "Schizophyllum commune has the most complex syntax among tested species, and up to 50 electrical spike patterns were identified.",
+  "gold_contexts": [
+    "Adamatzky (2022) identified 50 electrical spike patterns in fungi.",
+    "Schizophyllum commune shows the richest sentence-like signaling and the most complex syntax among tested species."
+  ],
+  "source_docs": [
+    {
+      "doc_id": "fungi-signals-2022",
+      "title": "Language-like electrical signaling in fungi",
+      "chunk_ids": [
+        "fungi-signals-2022#12",
+        "fungi-signals-2022#13"
+      ]
+    }
+  ],
+  "retrieval_expectations": {
+    "min_hit_at_k": {
+      "k": 5,
+      "value": 1.0
+    }
+  },
+  "generation_thresholds": {
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.7,
+    "hhem_consistency": 0.6
+  },
+  "metadata": {
+    "language": "pl",
+    "difficulty": "easy",
+    "version": "1.0.0"
+  }
+}
