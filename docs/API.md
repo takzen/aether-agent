@@ -33,6 +33,7 @@ Updates cognition settings.
 ### `POST /chat/stream`
 Primary streaming chat endpoint (NDJSON stream).
 Uses live cognition settings (`persona`, `autonomy`, `reflection`, `circadian_lock`, `custom_directives`) and applies model temperature from `creativity`.
+Optional request field: `source` (`dashboard` or `telegram`) used for runtime autonomy policy.
 
 Response stream event types include:
 - `status`
@@ -52,6 +53,7 @@ Final payload includes:
 ### `POST /chat`
 Non-streaming chat endpoint.
 Uses live cognition settings (`persona`, `autonomy`, `reflection`, `circadian_lock`, `custom_directives`) and applies model temperature from `creativity`.
+Optional request field: `source` (`dashboard` or `telegram`) used for runtime autonomy policy.
 
 ### `POST /actions/approve`
 Approves/rejects HITL actions (for guarded file writes).

@@ -41,7 +41,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "http://localhost:8000/chat",
                 json={
                     "message": user_text,
-                    "session_id": "telegram_mobile_link"
+                    "session_id": "telegram_mobile_link",
+                    "source": "telegram"
                 }
             )
             

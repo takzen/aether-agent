@@ -142,9 +142,9 @@ async def inject_cognition_prompt(ctx: RunContext[dict]) -> str:
     else:
         prompt += "Directive: Maintain a balanced, helpful, and technically grounded tone.\n"
         
-    prompt += f"AUTONOMY_LEVEL: {autonomy} (1:Manual, 2:Co-Pilot, 3:Full)\n"
+    prompt += f"AUTONOMY_LEVEL: {autonomy} (1:Manual, 2:Co-Pilot, 3:Extended Scope)\n"
     if autonomy == 3:
-        prompt += "NOTICE: You have FULL_AUTONOMY. You can execute file writes directly if the task requires it. You do not need to wait for explicit approval for every small change, but explain what you are doing.\n"
+        prompt += "NOTICE: Level 3 grants extended filesystem scope (outside project), but file writes still require explicit approval (HITL).\n"
         
     if reflection:
         prompt += "SELF-REFLECTION: ACTIVE. Your 'Active World Model' is enabled. Feel free to provide long-term architectural insights and meta-cognitive reasoning if you detect patterns in the current session.\n"
@@ -389,19 +389,26 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent.resolve()
 
-def validate_path(path: str) -> Path:
-    """Validates that the path is within the allowed project directory for security."""
+def validate_path(ctx: RunContext[dict], path: str) -> Path:
+    """
+    Validates path access according to autonomy level.
+    Level 1/2: project scope only.
+    Level 3: full local filesystem scope allowed.
+    """
     try:
-        # Resolve path handling both relative and absolute inputs from LLM
+        deps = ctx.deps or {}
+        autonomy = int(deps.get("autonomy", 2))
+
+        # Resolve path handling both relative and absolute inputs from LLM.
         target_path = Path(path)
         if not target_path.is_absolute():
             full_path = (BASE_DIR / target_path).resolve()
         else:
             full_path = target_path.resolve()
-            
-        if not full_path.is_relative_to(BASE_DIR):
-            raise ValueError(f"Access denied: Path '{path}' is outside the project directory.")
-            
+
+        if autonomy < 3 and not full_path.is_relative_to(BASE_DIR):
+            raise ValueError(f"Access denied: Path '{path}' is outside the project directory for this autonomy level.")
+
         return full_path
     except Exception as e:
         raise ValueError(f"Invalid path: {str(e)}")
@@ -419,7 +426,7 @@ async def list_directory(ctx: RunContext[dict], path: str = ".") -> str:
     try:
         print(f"[Agent] Listing directory: '{path}'")
         await sqlite_service.add_log("info", "CORE", f"Exploring directory structure: {path}")
-        target_path = validate_path(path)
+        target_path = validate_path(ctx, path)
         
         if not target_path.exists():
             return f"Error: Directory '{path}' does not exist."
@@ -455,7 +462,7 @@ async def read_file(ctx: RunContext[dict], path: str) -> str:
     try:
         print(f"[Agent] Reading file: '{path}'")
         await sqlite_service.add_log("info", "CORE", f"Reading project file: {path}")
-        target_path = validate_path(path)
+        target_path = validate_path(ctx, path)
         
         if not target_path.exists():
             return f"Error: File '{path}' does not exist."
@@ -489,17 +496,26 @@ async def prepare_write_file(ctx: RunContext[dict], path: str, content: str) -> 
     try:
         print(f"[Agent] Preparing to write file: '{path}' (Requires Approval)")
         await sqlite_service.add_log("warning", "CORE", f"Action proposed: Write to {path} (Awaiting HITL Approval)")
-        target_path = validate_path(path)
+        target_path = validate_path(ctx, path)
         
-        # Check for Full Autonomy (Phase 7 upgrade)
-        autonomy = ctx.deps.get("autonomy", 2)
-        if autonomy == 3:
-            print(f"[Agent] FULL_AUTONOMY Active: Writing file '{path}' directly.")
-            await sqlite_service.add_log("success", "CORE", f"Autonomous action: Writing to {path}")
+        # Check autonomous write policy.
+        deps = ctx.deps or {}
+        autonomy = int(deps.get("autonomy", 2))
+        source = str(deps.get("source", "dashboard") or "dashboard").lower().strip()
+        can_auto_write_project = (
+            autonomy == 2
+            and source == "telegram"
+            and target_path.is_relative_to(BASE_DIR)
+        )
+
+        if can_auto_write_project:
+            mode_label = "TELEGRAM_PROJECT_AUTOWRITE"
+            print(f"[Agent] {mode_label} Active: Writing file '{path}' directly.")
+            await sqlite_service.add_log("success", "CORE", f"Autonomous action ({mode_label}): Writing to {path}")
             target_path.parent.mkdir(parents=True, exist_ok=True)
             with open(target_path, "w", encoding="utf-8") as f:
                 f.write(content)
-            return f"FILE_WRITTEN: Due to my FULL_AUTONOMY level, I have directly written the content to '{path}'."
+            return f"FILE_WRITTEN: Telegram project auto-write enabled. Content written directly to '{path}'."
 
         action_id = str(uuid.uuid4())
         _prune_pending_actions()

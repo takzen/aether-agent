@@ -94,3 +94,19 @@ Poniezej techniczne doprecyzowanie jak dziala funkcja Persona Profiles:
 - Persona jest przekazywana do `deps` i wstrzykiwana do promptu systemowego przez `inject_cognition_prompt`.
 - Ustawienie `COGNITION_CREATIVITY` mapuje sie na `ModelSettings.temperature` i bezposrednio wplywa na styl odpowiedzi.
 - Zmiany sa natychmiastowe dla nowych wiadomosci (bez restartu backendu).
+
+---
+
+## 8. Autonomy Runtime Policy (Current)
+
+Aktualna egzekucja poziomow autonomii w runtime:
+
+- Level 1 (Manual): Wszystkie zapisy plikow wymagaja HITL (Dashboard approve). Brak wyjatkow dla Telegrama.
+- Level 2 (Co-Pilot):
+  - Dashboard: zapis zawsze przez HITL.
+  - Telegram: auto-zapis dozwolony tylko wewnatrz folderu projektu Aether (`BASE_DIR`).
+- Level 3 (Extended Scope):
+  - Dostep do calego filesystemu lokalnego (nie tylko projekt) dla odczytu/listowania.
+  - Zapis plikow nadal zawsze wymaga HITL (potwierdzenia).
+
+To jest celowa polityka bezpieczenstwa: rozszerzony zasieg nie oznacza automatycznego zapisu.

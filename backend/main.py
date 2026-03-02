@@ -84,6 +84,7 @@ class ChatRequest(BaseModel):
     model: Optional[str] = "gemini"
     session_id: Optional[str] = None
     message_history: Optional[List[dict]] = None
+    source: Optional[str] = "dashboard"
 
 class ActionApproval(BaseModel):
     action_id: str
@@ -1167,6 +1168,7 @@ async def chat_stream(request: ChatRequest):
             custom_directives = settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
             temp = max(0.0, min(1.0, creativity / 100.0))
 
+            request_source = (request.source or "dashboard").strip().lower()
             run_kwargs = {
                 "user_prompt": request.message,
                 "deps": {
@@ -1177,6 +1179,7 @@ async def chat_stream(request: ChatRequest):
                     "reflection": reflection,
                     "circadian_lock": circadian_lock,
                     "custom_directives": custom_directives,
+                    "source": request_source,
                 },
                 "model_settings": ModelSettings(temperature=temp),
             }
@@ -1427,6 +1430,7 @@ async def chat(request: ChatRequest):
         custom_directives = settings.get("COGNITION_CUSTOM_DIRECTIVES", "")
         temp = max(0.0, min(1.0, creativity / 100.0))
             
+        request_source = (request.source or "dashboard").strip().lower()
         run_kwargs = {
             "user_prompt": request.message,
             "deps": {
@@ -1437,6 +1441,7 @@ async def chat(request: ChatRequest):
                 "reflection": reflection,
                 "circadian_lock": circadian_lock,
                 "custom_directives": custom_directives,
+                "source": request_source,
             },
             "model_settings": ModelSettings(temperature=temp),
         }
