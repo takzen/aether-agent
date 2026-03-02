@@ -387,7 +387,7 @@ export default function Home() {
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+          content: lang === "en" ? "Cleared. Ready for the next task." : "Wyczyszczone. Gotowy na kolejny krok.",
           isInitial: true
         }]);
       }
@@ -468,7 +468,7 @@ export default function Home() {
         setMessages([{
           id: "welcome-" + Date.now(),
           role: "assistant",
-          content: lang === 'en' ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+          content: lang === 'en' ? "Cleared. Ready for the next task." : "Wyczyszczone. Gotowy na kolejny krok.",
           isInitial: true
         }]);
         return;
@@ -665,7 +665,7 @@ export default function Home() {
       setMessages([{
         id: "welcome-" + Date.now(),
         role: "assistant",
-        content: lang === "en" ? "Aether Core initialized. Terminal cleared." : "Rdzeń Aether zainicjowany. Terminal wyczyszczony.",
+        content: lang === "en" ? "Cleared. Ready for the next task." : "Wyczyszczone. Gotowy na kolejny krok.",
         isInitial: true
       }]);
       return;
