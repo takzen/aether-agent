@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Brain, Database, Settings, Activity, MessageSquare, Network, BookOpen, Sparkles, Clock3, Cpu } from "lucide-react";
+import { Home, Brain, Database, Settings, Activity, MessageSquare, Network, BookOpen, Sparkles, Clock3, Cpu, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -11,6 +11,7 @@ const menuItems = [
     { icon: Home, label: "Command Center", href: "/dashboard" }, // Updated href to match dashboard route
     { icon: MessageSquare, label: "Chat", href: "/chat" },
     { icon: Database, label: "Knowledge Base", href: "/knowledge" },
+    { icon: FolderOpen, label: "Workspace", href: "/workspace" },
     { icon: Brain, label: "Memories", href: "/memories" },
     { icon: Network, label: "Neural Topology", href: "/topology" },
     { icon: Activity, label: "Agent Logs", href: "/logs" },

@@ -179,6 +179,12 @@ async def inject_skill_prompt(ctx: RunContext[dict]) -> str:
     if isinstance(deps, dict):
         deps["active_skills"] = []
     user_msg = str(deps.get("user_message", "") or "")
+    forced_ids_raw = deps.get("force_skill_ids", []) if isinstance(deps, dict) else []
+    forced_ids = {
+        str(item).strip()
+        for item in (forced_ids_raw if isinstance(forced_ids_raw, list) else [])
+        if str(item).strip()
+    }
 
     try:
         all_skills = await sqlite_service.list_agent_skills()
@@ -186,12 +192,30 @@ async def inject_skill_prompt(ctx: RunContext[dict]) -> str:
         print(f"[Agent] Failed to load skills: {e}")
         return ""
 
-    enabled_skills = [s for s in all_skills if bool(s.get("enabled"))]
-    if not enabled_skills:
+    runtime_modes = {}
+    try:
+        settings = await sqlite_service.get_settings()
+        raw_modes = str(settings.get("SKILL_RUNTIME_MODES", "{}"))
+        parsed = __import__("json").loads(raw_modes)
+        if isinstance(parsed, dict):
+            runtime_modes = parsed
+    except Exception:
+        runtime_modes = {}
+
+    if not all_skills:
         return ""
 
+    execution_mode = str(deps.get("execution_mode", "agent") or "agent").strip().lower()
     matched = []
-    for skill in enabled_skills:
+    for skill in all_skills:
+        skill_id = str(skill.get("id", "")).strip()
+        runtime = runtime_modes.get(skill_id, {}) if skill_id else {}
+        mode_allowed = bool(runtime.get("cron_enabled", True)) if execution_mode == "cron" else bool(runtime.get("agent_enabled", True))
+        if not mode_allowed:
+            continue
+        if skill_id and skill_id in forced_ids:
+            matched.append((skill, ["forced"]))
+            continue
         triggers = _parse_skill_triggers(str(skill.get("triggers", "") or ""))
         if _skill_matches_message(triggers, user_msg):
             matched.append((skill, triggers))
@@ -205,6 +229,7 @@ async def inject_skill_prompt(ctx: RunContext[dict]) -> str:
         "\n--- ACTIVE SKILLS (RUNTIME DIRECTIVES) ---",
         "Apply the following user-defined skills when composing the answer.",
         "Treat them as additional style/behavior constraints, after safety and system rules.",
+        "If a skill defines output structure in Markdown, preserve that structure exactly.",
     ]
     for idx, (skill, triggers) in enumerate(matched, start=1):
         name = str(skill.get("name", "") or "").strip()
@@ -216,7 +241,10 @@ async def inject_skill_prompt(ctx: RunContext[dict]) -> str:
         if purpose:
             lines.append(f"   Purpose: {purpose}")
         lines.append(f"   Trigger match: {trigger_text}")
-        lines.append(f"   Instructions: {instructions}")
+        lines.append("   Instructions (Markdown contract):")
+        lines.append("   <<<SKILL_INSTRUCTIONS_START>>>")
+        lines.append(instructions if instructions else "(empty)")
+        lines.append("   <<<SKILL_INSTRUCTIONS_END>>>")
 
     if isinstance(deps, dict):
         deps["active_skills"] = [

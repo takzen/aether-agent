@@ -9,6 +9,8 @@ import asyncio
 import os
 import re
 import json
+from datetime import datetime, timezone
+from pathlib import Path
 from ingest import process_content
 from local_db import sqlite_service
 from world_model import run_active_world_model_simulation
@@ -101,6 +103,20 @@ class SkillCreate(BaseModel):
 
 class SkillToggle(BaseModel):
     enabled: bool
+
+class SkillUpdate(BaseModel):
+    name: str
+    purpose: Optional[str] = ""
+    triggers: Optional[str] = ""
+    instructions: str
+    enabled: bool = True
+
+class SkillRuntimeUpdate(BaseModel):
+    agent_enabled: bool = True
+    cron_enabled: bool = True
+
+class SkillTemplateApplyRequest(BaseModel):
+    filename: str
 
 # Configure CORS
 app.add_middleware(
@@ -707,8 +723,17 @@ async def list_cron_tasks():
 async def list_agent_skills():
     """Returns all saved agent skills."""
     try:
+        runtime_modes = await _get_skill_runtime_modes()
         skills = await sqlite_service.list_agent_skills()
-        return {"status": "success", "skills": skills}
+        enriched = []
+        for skill in skills:
+            item = dict(skill)
+            runtime = runtime_modes.get(str(item.get("id", "")), {})
+            item["agent_enabled"] = bool(runtime.get("agent_enabled", True))
+            item["cron_enabled"] = bool(runtime.get("cron_enabled", True))
+            item["markdown_path"] = _upsert_skill_markdown_file(item)
+            enriched.append(item)
+        return {"status": "success", "skills": enriched}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -728,6 +753,8 @@ async def create_agent_skill(request: SkillCreate):
             instructions=request.instructions.strip(),
             enabled=request.enabled
         )
+        await _set_skill_runtime_mode(str(skill.get("id", "")), agent_enabled=True, cron_enabled=True)
+        skill["markdown_path"] = _upsert_skill_markdown_file(skill)
         await sqlite_service.add_log("info", "CORE", f"Created agent skill: {skill['name']}")
         return {"status": "success", "skill": skill}
     except Exception as e:
@@ -740,7 +767,56 @@ async def toggle_agent_skill(skill_id: str, request: SkillToggle):
         skill = await sqlite_service.toggle_agent_skill(skill_id, request.enabled)
         if not skill:
             return {"status": "error", "message": "Skill not found."}
+        skill["markdown_path"] = _upsert_skill_markdown_file(skill)
         return {"status": "success", "skill": skill}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.put("/skills/{skill_id}")
+async def update_agent_skill(skill_id: str, request: SkillUpdate):
+    """Updates an existing skill."""
+    try:
+        if not request.name.strip():
+            return {"status": "error", "message": "Skill name is required."}
+        if not request.instructions.strip():
+            return {"status": "error", "message": "Skill instructions are required."}
+
+        skill = await sqlite_service.update_agent_skill(
+            skill_id=skill_id,
+            name=request.name.strip(),
+            purpose=(request.purpose or "").strip(),
+            triggers=(request.triggers or "").strip(),
+            instructions=request.instructions.strip(),
+            enabled=request.enabled,
+        )
+        if not skill:
+            return {"status": "error", "message": "Skill not found."}
+        skill["markdown_path"] = _upsert_skill_markdown_file(skill)
+        await sqlite_service.add_log("info", "CORE", f"Updated agent skill: {skill['name']}")
+        return {"status": "success", "skill": skill}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/skills/{skill_id}/runtime")
+async def update_agent_skill_runtime(skill_id: str, request: SkillRuntimeUpdate):
+    """Updates runtime usage flags for an existing skill."""
+    try:
+        skill = await sqlite_service.get_agent_skill(skill_id)
+        if not skill:
+            return {"status": "error", "message": "Skill not found."}
+        await _set_skill_runtime_mode(
+            skill_id=skill_id,
+            agent_enabled=bool(request.agent_enabled),
+            cron_enabled=bool(request.cron_enabled),
+        )
+        return {
+            "status": "success",
+            "runtime": {
+                "skill_id": skill_id,
+                "agent_enabled": bool(request.agent_enabled),
+                "cron_enabled": bool(request.cron_enabled),
+            },
+        }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -748,10 +824,172 @@ async def toggle_agent_skill(skill_id: str, request: SkillToggle):
 async def delete_agent_skill(skill_id: str):
     """Deletes a skill by id."""
     try:
+        root = _skills_library_root()
+        root.mkdir(parents=True, exist_ok=True)
+        for stale in root.glob(f"{skill_id}_*.md"):
+            try:
+                stale.unlink()
+            except Exception:
+                pass
+        await _delete_skill_runtime_mode(skill_id)
         removed = await sqlite_service.delete_agent_skill(skill_id)
         if not removed:
             return {"status": "error", "message": "Skill not found."}
         return {"status": "success", "deleted": skill_id}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/skills/{skill_id}/markdown")
+async def get_skill_markdown(skill_id: str):
+    """Returns markdown content for a specific skill file."""
+    try:
+        skill = await sqlite_service.get_agent_skill(skill_id)
+        if not skill:
+            return {"status": "error", "message": "Skill not found."}
+
+        rel_path = _upsert_skill_markdown_file(skill)
+        full_path = (Path(__file__).resolve().parent.parent / rel_path).resolve()
+        content = full_path.read_text(encoding="utf-8")
+        return {"status": "success", "path": rel_path, "content": content}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+def _skills_templates_root() -> Path:
+    return Path(__file__).resolve().parent.parent / "workspace" / "skills" / "templates"
+
+async def _get_skill_runtime_modes() -> dict:
+    settings = await sqlite_service.get_settings()
+    raw = str(settings.get("SKILL_RUNTIME_MODES", "{}"))
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, dict) else {}
+    except Exception:
+        return {}
+
+async def _set_skill_runtime_mode(skill_id: str, agent_enabled: bool, cron_enabled: bool) -> None:
+    if not skill_id:
+        return
+    current = await _get_skill_runtime_modes()
+    current[str(skill_id)] = {
+        "agent_enabled": bool(agent_enabled),
+        "cron_enabled": bool(cron_enabled),
+    }
+    await sqlite_service.set_setting("SKILL_RUNTIME_MODES", json.dumps(current, ensure_ascii=False))
+
+async def _delete_skill_runtime_mode(skill_id: str) -> None:
+    current = await _get_skill_runtime_modes()
+    if str(skill_id) in current:
+        del current[str(skill_id)]
+        await sqlite_service.set_setting("SKILL_RUNTIME_MODES", json.dumps(current, ensure_ascii=False))
+
+def _skills_library_root() -> Path:
+    return Path(__file__).resolve().parent.parent / "workspace" / "skills" / "library"
+
+def _skill_markdown_basename(skill: dict) -> str:
+    raw_name = str(skill.get("name", "skill")).strip().lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", raw_name).strip("-")
+    if not slug:
+        slug = "skill"
+    return f"{str(skill.get('id', 'skill'))}_{slug}.md"
+
+def _render_skill_markdown(skill: dict) -> str:
+    return (
+        "---\n"
+        f"id: {str(skill.get('id', ''))}\n"
+        f"name: {str(skill.get('name', ''))}\n"
+        f"enabled: {str(bool(skill.get('enabled', False))).lower()}\n"
+        f"purpose: {str(skill.get('purpose', '')).replace(chr(10), ' ').strip()}\n"
+        f"triggers: {str(skill.get('triggers', ''))}\n"
+        "---\n\n"
+        f"{str(skill.get('instructions', '')).strip()}\n"
+    )
+
+def _upsert_skill_markdown_file(skill: dict) -> str:
+    root = _skills_library_root()
+    root.mkdir(parents=True, exist_ok=True)
+
+    skill_id = str(skill.get("id", "")).strip()
+    if skill_id:
+        for stale in root.glob(f"{skill_id}_*.md"):
+            try:
+                stale.unlink()
+            except Exception:
+                pass
+
+    target = root / _skill_markdown_basename(skill)
+    target.write_text(_render_skill_markdown(skill), encoding="utf-8")
+    return target.relative_to(Path(__file__).resolve().parent.parent).as_posix()
+
+def _parse_skill_template_file(content: str, fallback_name: str) -> dict:
+    name = fallback_name
+    purpose = ""
+    triggers = ""
+    instructions = content.strip()
+
+    raw = content.strip()
+    if raw.startswith("---"):
+        parts = raw.split("---", 2)
+        # Expected: "", "<meta>", "<body>"
+        if len(parts) == 3:
+            meta_block = parts[1]
+            body = parts[2].strip()
+            meta: dict[str, str] = {}
+            for line in meta_block.splitlines():
+                if ":" not in line:
+                    continue
+                k, v = line.split(":", 1)
+                meta[k.strip().lower()] = v.strip()
+            name = meta.get("name", name) or name
+            purpose = meta.get("purpose", "")
+            triggers = meta.get("triggers", "")
+            instructions = body if body else instructions
+
+    return {
+        "name": name,
+        "purpose": purpose,
+        "triggers": triggers,
+        "instructions": instructions,
+    }
+
+@app.get("/skills/templates")
+async def list_skill_templates():
+    """Lists skill templates from workspace/skills/templates."""
+    root = _skills_templates_root()
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+        templates = []
+        for file_path in sorted(root.glob("*.md")):
+            raw = file_path.read_text(encoding="utf-8")
+            parsed = _parse_skill_template_file(raw, file_path.stem.replace("_", " ").title())
+            templates.append(
+                {
+                    "filename": file_path.name,
+                    "name": parsed["name"],
+                    "purpose": parsed["purpose"],
+                    "triggers": parsed["triggers"],
+                    "preview": (parsed["instructions"][:180] + "...") if len(parsed["instructions"]) > 180 else parsed["instructions"],
+                }
+            )
+        return {"status": "success", "templates": templates}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/skills/templates/apply")
+async def apply_skill_template(request: SkillTemplateApplyRequest):
+    """Loads one template file and returns fields ready for skill creation form."""
+    root = _skills_templates_root()
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+        filename = Path(request.filename).name
+        candidate = (root / filename).resolve()
+        if not candidate.exists() or not candidate.is_file():
+            return {"status": "error", "message": "Template not found."}
+        if root.resolve() not in candidate.parents and candidate != root.resolve():
+            return {"status": "error", "message": "Invalid template path."}
+
+        raw = candidate.read_text(encoding="utf-8")
+        parsed = _parse_skill_template_file(raw, candidate.stem.replace("_", " ").title())
+        return {"status": "success", "template": {"filename": filename, **parsed}}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -803,6 +1041,109 @@ async def delete_cron_job(job_id: str):
         if not removed:
             return {"status": "error", "message": "Cron job not found."}
         return {"status": "success", "message": "Cron job deleted."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/workspace/files")
+async def list_workspace_files():
+    """Lists files from the /workspace directory recursively."""
+    workspace_root = Path(__file__).resolve().parent.parent / "workspace"
+    try:
+        files = []
+        if workspace_root.exists():
+            for file_path in workspace_root.rglob("*"):
+                if not file_path.is_file():
+                    continue
+                rel = file_path.relative_to(workspace_root).as_posix()
+                stat = file_path.stat()
+                files.append({
+                    "path": rel,
+                    "size_bytes": stat.st_size,
+                    "size": f"{round(stat.st_size / 1024, 1)} KB",
+                    "modified_at": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+                    "extension": file_path.suffix.lower(),
+                })
+        files.sort(key=lambda item: item["path"].lower())
+        return {"status": "success", "files": files}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.post("/workspace/upload")
+async def upload_workspace_file(file: UploadFile = File(...)):
+    """Uploads a file directly into /workspace."""
+    workspace_root = Path(__file__).resolve().parent.parent / "workspace"
+    try:
+        safe_name = Path(file.filename or "").name
+        if not safe_name:
+            return {"status": "error", "message": "Invalid filename."}
+
+        workspace_root.mkdir(parents=True, exist_ok=True)
+        target = workspace_root / safe_name
+        content = await file.read()
+        with open(target, "wb") as f:
+            f.write(content)
+
+        await sqlite_service.add_log("info", "WORKSPACE", f"Uploaded workspace file: {safe_name}")
+        return {"status": "success", "message": f"File '{safe_name}' uploaded.", "path": safe_name}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/workspace/content")
+async def get_workspace_file_content(path: str):
+    """Returns raw text content of a file inside /workspace."""
+    workspace_root = Path(__file__).resolve().parent.parent / "workspace"
+    try:
+        if not path or not path.strip():
+            return {"status": "error", "message": "Query parameter 'path' is required."}
+
+        candidate = (workspace_root / path).resolve()
+        root_resolved = workspace_root.resolve()
+        if root_resolved not in candidate.parents and candidate != root_resolved:
+            return {"status": "error", "message": "Invalid path."}
+        if not candidate.exists() or not candidate.is_file():
+            return {"status": "error", "message": "File not found."}
+
+        # Best-effort text read for notes/reports generated by the agent.
+        with open(candidate, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        return {"status": "success", "path": candidate.relative_to(root_resolved).as_posix(), "content": content}
+    except UnicodeDecodeError:
+        return {"status": "error", "message": "Binary file preview is not supported."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.delete("/workspace/content")
+async def delete_workspace_file(path: str):
+    """Deletes a file inside /workspace."""
+    workspace_root = Path(__file__).resolve().parent.parent / "workspace"
+    try:
+        if not path or not path.strip():
+            return {"status": "error", "message": "Query parameter 'path' is required."}
+
+        candidate = (workspace_root / path).resolve()
+        root_resolved = workspace_root.resolve()
+        if root_resolved not in candidate.parents and candidate != root_resolved:
+            return {"status": "error", "message": "Invalid path."}
+        if not candidate.exists() or not candidate.is_file():
+            return {"status": "error", "message": "File not found."}
+
+        candidate.unlink()
+        await sqlite_service.add_log("warning", "WORKSPACE", f"Deleted workspace file: {candidate.relative_to(root_resolved).as_posix()}")
+        return {"status": "success", "message": "File deleted."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/social/tweet-drafts")
+async def list_tweet_drafts(limit: int = 10):
+    try:
+        settings = await sqlite_service.get_settings()
+        raw = settings.get("SOCIAL_TWEET_DRAFTS", "[]")
+        drafts = json.loads(raw) if isinstance(raw, str) else []
+        if not isinstance(drafts, list):
+            drafts = []
+        safe_limit = max(1, min(int(limit), 50))
+        return {"status": "success", "drafts": drafts[:safe_limit]}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

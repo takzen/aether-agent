@@ -196,6 +196,46 @@ class SQLiteService:
                 item["enabled"] = bool(item.get("enabled", 0))
                 return item
 
+    async def update_agent_skill(
+        self,
+        skill_id: str,
+        name: str,
+        purpose: str,
+        triggers: str,
+        instructions: str,
+        enabled: bool
+    ) -> Optional[Dict[str, Any]]:
+        """Updates an existing skill and returns updated row."""
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                """UPDATE agent_skills
+                   SET name = ?, purpose = ?, triggers = ?, instructions = ?, enabled = ?, updated_at = CURRENT_TIMESTAMP
+                   WHERE id = ?""",
+                (name, purpose, triggers, instructions, 1 if enabled else 0, skill_id)
+            )
+            await db.commit()
+
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM agent_skills WHERE id = ?", (skill_id,)) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    return None
+                item = dict(row)
+                item["enabled"] = bool(item.get("enabled", 0))
+                return item
+
+    async def get_agent_skill(self, skill_id: str) -> Optional[Dict[str, Any]]:
+        """Returns a skill by id."""
+        async with aiosqlite.connect(self.db_path) as db:
+            db.row_factory = aiosqlite.Row
+            async with db.execute("SELECT * FROM agent_skills WHERE id = ?", (skill_id,)) as cursor:
+                row = await cursor.fetchone()
+                if not row:
+                    return None
+                item = dict(row)
+                item["enabled"] = bool(item.get("enabled", 0))
+                return item
+
     async def delete_agent_skill(self, skill_id: str) -> bool:
         """Deletes skill by id."""
         async with aiosqlite.connect(self.db_path) as db:

@@ -18,12 +18,28 @@ type CronJob = {
   run_at?: string | null;
   timezone: string;
   task: string;
-  payload?: { prompt?: string };
+  payload?: { prompt?: string; skill_id?: string; instruction?: string; store_as_tweet?: boolean };
   enabled: boolean;
   last_run_at?: string | null;
   next_run_at?: string | null;
   last_status?: string | null;
   last_error?: string | null;
+};
+
+type TweetDraft = {
+  tweet: string;
+  highlights?: string[];
+  generated_at?: string;
+  from_log_id?: number;
+  to_log_id?: number;
+  log_count?: number;
+};
+
+type Skill = {
+  id: string;
+  name: string;
+  enabled: boolean;
+  cron_enabled?: boolean;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
@@ -47,8 +63,22 @@ export default function CronPage() {
   const [task, setTask] = useState("sleep_cycle");
   const [enabled, setEnabled] = useState(true);
   const [agentPrompt, setAgentPrompt] = useState("");
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [selectedSkillId, setSelectedSkillId] = useState("");
+  const [skillInstruction, setSkillInstruction] = useState("Przygotuj raport statusowy projektu do social media.");
+  const [storeAsTweet, setStoreAsTweet] = useState(true);
+  const [latestTweetDraft, setLatestTweetDraft] = useState<TweetDraft | null>(null);
+  const [runningJobId, setRunningJobId] = useState<string | null>(null);
+  const [actionStatus, setActionStatus] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
   const taskOptions = useMemo(() => tasks.map((t) => ({ value: t.key, label: t.label })), [tasks]);
+  const taskMetaByKey = useMemo(() => {
+    const out: Record<string, CronTask> = {};
+    tasks.forEach((t) => {
+      out[t.key] = t;
+    });
+    return out;
+  }, [tasks]);
 
   useEffect(() => {
     if (scheduleMode !== "simple") return;
@@ -91,6 +121,34 @@ export default function CronPage() {
         setJobs(jobsData.jobs || []);
       }
 
+      try {
+        const skillsRes = await fetch(`${API_BASE}/skills`);
+        const skillsData = await skillsRes.json();
+        if (skillsData.status === "success" && Array.isArray(skillsData.skills)) {
+          const enabledSkills = (skillsData.skills as Skill[]).filter((s) => (s.cron_enabled ?? true));
+          setSkills(enabledSkills);
+          if (!selectedSkillId && enabledSkills.length > 0) {
+            setSelectedSkillId(enabledSkills[0].id);
+          }
+        } else {
+          setSkills([]);
+        }
+      } catch {
+        setSkills([]);
+      }
+
+      try {
+        const draftsRes = await fetch(`${API_BASE}/social/tweet-drafts?limit=1`);
+        const draftsData = await draftsRes.json();
+        if (draftsData.status === "success" && Array.isArray(draftsData.drafts) && draftsData.drafts.length > 0) {
+          setLatestTweetDraft(draftsData.drafts[0] as TweetDraft);
+        } else {
+          setLatestTweetDraft(null);
+        }
+      } catch {
+        setLatestTweetDraft(null);
+      }
+
       if (tasksData.status !== "success" || jobsData.status !== "success") {
         setError(tasksData.message || jobsData.message || "Failed to load cron data.");
       }
@@ -120,7 +178,16 @@ export default function CronPage() {
           timezone,
           task,
           enabled,
-          payload: task === "agent_task" ? { prompt: agentPrompt } : {},
+          payload:
+            task === "agent_task"
+              ? { prompt: agentPrompt }
+              : task === "skill_task"
+                ? {
+                    skill_id: selectedSkillId,
+                    instruction: skillInstruction,
+                    store_as_tweet: storeAsTweet,
+                  }
+                : {},
         }),
       });
       const data = await res.json();
@@ -129,6 +196,7 @@ export default function CronPage() {
       } else {
         setName("");
         setAgentPrompt("");
+        setSkillInstruction("Przygotuj raport statusowy projektu do social media.");
         setRunAtLocal("");
         await load();
       }
@@ -140,22 +208,58 @@ export default function CronPage() {
   };
 
   const toggleJob = async (job: CronJob) => {
-    await fetch(`${API_BASE}/cron/jobs/${job.id}/toggle`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: !job.enabled }),
-    });
-    await load();
+    try {
+      setActionStatus({ type: "info", message: `${job.enabled ? "Pausing" : "Resuming"} "${job.name}"...` });
+      const res = await fetch(`${API_BASE}/cron/jobs/${job.id}/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !job.enabled }),
+      });
+      const data = await res.json();
+      if (data.status !== "success") {
+        setActionStatus({ type: "error", message: data.message || "Failed to toggle cron job." });
+      } else {
+        setActionStatus({ type: "success", message: `Job "${job.name}" updated.` });
+      }
+      await load();
+    } catch {
+      setActionStatus({ type: "error", message: "Failed to toggle cron job." });
+    }
   };
 
   const runNow = async (job: CronJob) => {
-    await fetch(`${API_BASE}/cron/jobs/${job.id}/run`, { method: "POST" });
-    await load();
+    try {
+      setRunningJobId(job.id);
+      setActionStatus({ type: "info", message: `Running "${job.name}"...` });
+      const res = await fetch(`${API_BASE}/cron/jobs/${job.id}/run`, { method: "POST" });
+      const data = await res.json();
+      if (data.status !== "success") {
+        setActionStatus({ type: "error", message: data.message || `Job "${job.name}" failed.` });
+      } else {
+        setActionStatus({ type: "success", message: `Job "${job.name}" completed.` });
+      }
+      await load();
+    } catch {
+      setActionStatus({ type: "error", message: `Job "${job.name}" failed to run.` });
+    } finally {
+      setRunningJobId(null);
+    }
   };
 
   const deleteJob = async (job: CronJob) => {
-    await fetch(`${API_BASE}/cron/jobs/${job.id}`, { method: "DELETE" });
-    await load();
+    try {
+      setActionStatus({ type: "info", message: `Deleting "${job.name}"...` });
+      const res = await fetch(`${API_BASE}/cron/jobs/${job.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.status !== "success") {
+        setActionStatus({ type: "error", message: data.message || "Failed to delete cron job." });
+      } else {
+        setActionStatus({ type: "success", message: `Job "${job.name}" deleted.` });
+      }
+      await load();
+    } catch {
+      setActionStatus({ type: "error", message: "Failed to delete cron job." });
+    }
   };
 
   return (
@@ -187,6 +291,19 @@ export default function CronPage() {
         <div className="flex-1 relative overflow-y-auto bg-[#1e1e1e]">
           <div className="p-6 space-y-4">
             {error && <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">{error}</div>}
+            {actionStatus && (
+              <div
+                className={`text-xs rounded-lg px-3 py-2 border ${
+                  actionStatus.type === "error"
+                    ? "text-red-300 bg-red-500/10 border-red-500/30"
+                    : actionStatus.type === "success"
+                      ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
+                      : "text-cyan-300 bg-cyan-500/10 border-cyan-500/30"
+                }`}
+              >
+                {actionStatus.message}
+              </div>
+            )}
 
             <div className="grid grid-cols-12 gap-4">
               <section className="col-span-12 lg:col-span-4 bg-[#181818] border border-[#303030] rounded-2xl p-4 space-y-3">
@@ -309,6 +426,11 @@ export default function CronPage() {
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
+                {taskMetaByKey[task]?.description && (
+                  <div className="text-[11px] text-neutral-400 leading-relaxed">
+                    {taskMetaByKey[task].description}
+                  </div>
+                )}
 
                 {task === "agent_task" && (
                   <textarea
@@ -317,6 +439,36 @@ export default function CronPage() {
                     placeholder="Agent prompt (what should Aether do on each run?)"
                     className="w-full min-h-[100px] bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
                   />
+                )}
+
+                {task === "skill_task" && (
+                  <div className="space-y-2 rounded-lg border border-white/10 p-3 bg-[#161616]">
+                    <label className="text-[10px] text-neutral-400 uppercase tracking-wider block">Skill</label>
+                    <select
+                      value={selectedSkillId}
+                      onChange={(e) => setSelectedSkillId(e.target.value)}
+                      className="w-full bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                    >
+                      {skills.length === 0 && <option value="">No enabled skills</option>}
+                      {skills.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                    <textarea
+                      value={skillInstruction}
+                      onChange={(e) => setSkillInstruction(e.target.value)}
+                      placeholder="Runtime instruction for this skill execution"
+                      className="w-full min-h-[84px] bg-[#1e1e1e] border border-[#404040] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500/50"
+                    />
+                    <label className="flex items-center gap-2 text-xs text-neutral-300">
+                      <input
+                        type="checkbox"
+                        checked={storeAsTweet}
+                        onChange={(e) => setStoreAsTweet(e.target.checked)}
+                      />
+                      Store output as tweet draft
+                    </label>
+                  </div>
                 )}
 
                 <label className="flex items-center gap-2 text-xs text-neutral-300">
@@ -329,6 +481,7 @@ export default function CronPage() {
                     || isSaving
                     || isLoading
                     || (task === "agent_task" && !agentPrompt.trim())
+                    || (task === "skill_task" && !selectedSkillId.trim())
                     || (scheduleMode === "simple" && repeatMode === "once" && !runAtLocal.trim())
                   }
                   onClick={createJob}
@@ -359,21 +512,57 @@ export default function CronPage() {
                           <div className="text-[11px] text-neutral-400 font-mono">
                             {job.trigger_type === "date" ? `One-time @ ${job.run_at || "-"}` : `${job.schedule} (${job.timezone})`}
                           </div>
-                          <div className="text-[11px] text-neutral-500 mt-1">Task: {job.task}</div>
-                          {job.task === "agent_task" && job.payload?.prompt && (
-                            <div className="text-[11px] text-neutral-400 mt-1">Prompt: {job.payload.prompt}</div>
+                          <div className="text-[11px] text-neutral-500 mt-1">
+                            Task: {taskMetaByKey[job.task]?.label || job.task}
+                          </div>
+                          {taskMetaByKey[job.task]?.description && (
+                            <div className="text-[11px] text-neutral-500">{taskMetaByKey[job.task].description}</div>
                           )}
                           <div className="text-[11px] text-neutral-500">Next: {job.next_run_at || "-"}</div>
                           <div className="text-[11px] text-neutral-500">Last: {job.last_run_at || "-"}</div>
                           {job.last_error && <div className="text-[11px] text-red-300 mt-1">Error: {job.last_error}</div>}
+                          <div className="mt-2 rounded-lg border border-white/10 bg-[#181818] p-2">
+                            <div className="text-[10px] uppercase tracking-wider text-neutral-500 mb-1">Task Preview</div>
+                            {job.task === "agent_task" && job.payload?.prompt ? (
+                              <pre className="text-[11px] text-neutral-300 whitespace-pre-wrap break-words font-mono">
+                                {job.payload.prompt}
+                              </pre>
+                            ) : job.task === "skill_task" ? (
+                              <div className="space-y-1">
+                                <div className="text-[11px] text-neutral-400">
+                                  Skill ID: <span className="font-mono text-neutral-300">{job.payload?.skill_id || "-"}</span>
+                                </div>
+                                <div className="text-[11px] text-neutral-300 whitespace-pre-wrap break-words">
+                                  {job.payload?.instruction || "No runtime instruction"}
+                                </div>
+                                <div className="text-[10px] text-neutral-500">
+                                  Store as tweet: {job.payload?.store_as_tweet ? "yes" : "no"}
+                                </div>
+                              </div>
+                            ) : job.task === "tweet_update" ? (
+                              <div className="space-y-1">
+                                <div className="text-[11px] text-neutral-300 whitespace-pre-wrap break-words">
+                                  {latestTweetDraft?.tweet || "Brak draftu jeszcze. Uruchom job, aby wygenerowac podglad."}
+                                </div>
+                                {latestTweetDraft?.generated_at && (
+                                  <div className="text-[10px] text-neutral-500 font-mono">
+                                    Generated: {latestTweetDraft.generated_at}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-neutral-500">Ten task nie ma dedykowanego podgladu payloadu.</div>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => runNow(job)}
+                            disabled={runningJobId === job.id}
                             className="text-[10px] font-mono px-2 py-1 rounded border border-white/10 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-1"
                           >
-                            <Play className="w-3.5 h-3.5" /> Run
+                            <Play className="w-3.5 h-3.5" /> {runningJobId === job.id ? "Running..." : "Run"}
                           </button>
 
                           <button

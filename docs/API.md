@@ -101,6 +101,21 @@ Lists markdown docs in `/docs`.
 ### `GET /system/docs/content/{filename}`
 Returns markdown file content.
 
+## Workspace Browser
+
+### `GET /workspace/files`
+Lists files recursively from `/workspace`.
+
+### `POST /workspace/upload`
+Uploads a file directly into `/workspace`.
+
+### `GET /workspace/content?path=<relative_path>`
+Returns raw text content for a file inside `/workspace`.
+Path must be relative to `/workspace`.
+
+### `DELETE /workspace/content?path=<relative_path>`
+Deletes a file inside `/workspace`.
+
 ## Memories and Graph
 
 ### `GET /memories`
@@ -122,6 +137,13 @@ Runs sleep cycle process.
 
 ### `GET /cron/tasks`
 Lists available cron task handlers.
+Includes built-in `tweet_update` and (on first boot) auto-created jobs:
+- `Aether Tweet Update 07:00` (`0 7 * * *`, `Europe/Warsaw`)
+- `Aether Tweet Update 19:00` (`0 19 * * *`, `Europe/Warsaw`)
+Also supports `skill_task` payload:
+- `skill_id` (required): id from `GET /skills`
+- `instruction` (optional): runtime instruction
+- `store_as_tweet` (optional, bool): store output into tweet drafts
 
 ### `GET /cron/jobs`
 Lists scheduled jobs.
@@ -138,10 +160,32 @@ Runs a cron job immediately.
 ### `DELETE /cron/jobs/{job_id}`
 Deletes a cron job.
 
+## Social Updates
+
+### `GET /social/tweet-drafts`
+Returns latest generated tweet drafts.
+
+Query params:
+- `limit` (optional, default `10`, max `50`)
+
 ## Agent Skills
 
 ### `GET /skills`
 Lists stored skills.
+Includes `markdown_path` for each skill file in `workspace/skills/library`.
+
+### `GET /skills/templates`
+Lists skill templates from `workspace/skills/templates`.
+
+### `POST /skills/templates/apply`
+Loads one template and returns parsed fields for skill form:
+- `name`
+- `purpose`
+- `triggers`
+- `instructions`
+
+### `GET /skills/{skill_id}/markdown`
+Returns markdown content and path for one skill file.
 
 ### `POST /skills`
 Creates a skill.
@@ -159,6 +203,14 @@ Body:
 
 ### `POST /skills/{skill_id}/toggle`
 Enables/disables a skill.
+
+### `PUT /skills/{skill_id}`
+Updates a skill (`name`, `purpose`, `triggers`, `instructions`, `enabled`).
+
+### `POST /skills/{skill_id}/runtime`
+Updates where a skill can run:
+- `agent_enabled` (bool): allow skill in regular agent chats
+- `cron_enabled` (bool): allow skill in cron `skill_task`
 
 ### `DELETE /skills/{skill_id}`
 Deletes a skill.
