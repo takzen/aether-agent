@@ -77,8 +77,13 @@ async def lifespan(app: FastAPI):
     await stop_telegram_bot()
     print("[CORE] Aether Kernel shut down.")
 
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI(title="Aether API", version="1.4.0", lifespan=lifespan)
 
+workspace_path = Path(__file__).resolve().parent.parent / "workspace"
+workspace_path.mkdir(parents=True, exist_ok=True)
+app.mount("/workspace_files", StaticFiles(directory=str(workspace_path)), name="workspace_files")
 from typing import Optional, List, Any
 
 class ChatRequest(BaseModel):

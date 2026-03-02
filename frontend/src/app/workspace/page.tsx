@@ -1,7 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
-import { Search, FileText, ExternalLink, Trash, FolderOpen, X, Loader2, RefreshCcw, Upload } from "lucide-react";
+import { Search, FileText, ExternalLink, Trash, FolderOpen, X, Loader2, RefreshCcw, Upload, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
@@ -17,11 +17,11 @@ type WorkspaceFile = {
 
 type WorkspaceItem = {
   id: string;
-  type: "code" | "doc";
+  type: "code" | "doc" | "image";
   title: string;
   added: "WORKSPACE";
   size: string;
-  icon: typeof FileText;
+  icon: typeof FileText | typeof ImageIcon;
   lines: number;
 };
 
@@ -45,11 +45,12 @@ export default function WorkspacePage() {
     message: "",
     type: "success",
   });
-  const [previewModal, setPreviewModal] = useState<{ isOpen: boolean; path: string | null; content: string; isLoading: boolean }>({
+  const [previewModal, setPreviewModal] = useState<{ isOpen: boolean; path: string | null; content: string; isLoading: boolean; isImage?: boolean }>({
     isOpen: false,
     path: null,
     content: "",
     isLoading: false,
+    isImage: false,
   });
 
   const filteredItems = items.filter((item) => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -63,13 +64,15 @@ export default function WorkspacePage() {
         const mapped: WorkspaceItem[] = (data.files as WorkspaceFile[]).map((f, idx) => {
           const ext = (f.extension || "").toLowerCase();
           const isCode = [".py", ".js", ".ts", ".tsx", ".jsx", ".json", ".yaml", ".yml", ".toml", ".ini", ".sh", ".ps1"].includes(ext);
+          const isImage = [".png", ".jpg", ".jpeg", ".gif", ".webp"].includes(ext);
+
           return {
             id: `ws-${idx}-${f.path}`,
-            type: isCode ? "code" : "doc",
+            type: isCode ? "code" : isImage ? "image" : "doc",
             title: f.path,
             added: "WORKSPACE",
             size: f.size,
-            icon: FileText,
+            icon: isImage ? ImageIcon : FileText,
             lines: 0,
           };
         });
@@ -186,17 +189,26 @@ export default function WorkspacePage() {
 
   const handlePreview = async (e: React.MouseEvent, path: string) => {
     e.stopPropagation();
-    setPreviewModal({ isOpen: true, path, content: "", isLoading: true });
+
+    const ext = path.substring(path.lastIndexOf('.')).toLowerCase();
+    const isImage = [".png", ".jpg", ".jpeg", ".gif", ".webp"].includes(ext);
+
+    if (isImage) {
+      setPreviewModal({ isOpen: true, path, content: "", isLoading: false, isImage: true });
+      return;
+    }
+
+    setPreviewModal({ isOpen: true, path, content: "", isLoading: true, isImage: false });
     try {
       const res = await fetch(`${API_BASE}/workspace/content?path=${encodeURIComponent(path)}`);
       const data = await res.json();
       if (data.status === "success") {
-        setPreviewModal({ isOpen: true, path, content: data.content, isLoading: false });
+        setPreviewModal({ isOpen: true, path, content: data.content, isLoading: false, isImage: false });
       } else {
-        setPreviewModal({ isOpen: true, path, content: `Error: ${data.message}`, isLoading: false });
+        setPreviewModal({ isOpen: true, path, content: `Error: ${data.message}`, isLoading: false, isImage: false });
       }
     } catch {
-      setPreviewModal({ isOpen: true, path, content: "Error connecting to the backend server.", isLoading: false });
+      setPreviewModal({ isOpen: true, path, content: "Error connecting to the backend server.", isLoading: false, isImage: false });
     }
   };
 
@@ -299,7 +311,7 @@ export default function WorkspacePage() {
                       <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500">
                         <span className="inline-flex items-center text-[10px] font-mono text-cyan-300/80">Workspace</span>
                         <span className="text-neutral-700">|</span>
-                        <span>{item.type === "code" ? "Code" : "Document"}</span>
+                        <span>{item.type === "code" ? "Code" : item.type === "image" ? "Image" : "Document"}</span>
                       </div>
                     </div>
                   </div>
@@ -385,6 +397,11 @@ export default function WorkspacePage() {
                   <div className="flex flex-col items-center justify-center h-full text-neutral-500 space-y-4">
                     <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
                     <span className="font-mono text-xs">DECRYPTING DATA...</span>
+                  </div>
+                ) : previewModal.isImage ? (
+                  <div className="flex items-center justify-center w-full h-full p-4 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`${API_BASE}/workspace_files/${previewModal.path}`} alt={previewModal.path || "Preview"} className="max-w-full max-h-full object-contain rounded" />
                   </div>
                 ) : (
                   <pre className="text-xs font-mono text-neutral-300 whitespace-pre-wrap leading-relaxed">{previewModal.content}</pre>

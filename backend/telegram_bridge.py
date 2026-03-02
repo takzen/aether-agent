@@ -5,16 +5,12 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from local_db import sqlite_service
 import json
+import httpx
 
 # Setup
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ALLOWED_USER_ID = os.getenv("TELEGRAM_USER_ID") # Only allowed user can talk to the bot
-
-# We will need a way to communicate with our Main API
-# Since this bot will run alongside FastAPI, we can make internal HTTP calls 
-# to our own Chat API, keeping Telegram strictly as a bridge.
-import httpx
 
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
@@ -64,6 +60,80 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"Connection to Aether Core failed: {str(e)}")
 
+async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.effective_user.id)
+    if ALLOWED_USER_ID and user_id != ALLOWED_USER_ID:
+        return
+        
+    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action='upload_document')
+    
+    try:
+        from pathlib import Path
+        workspace_dir = Path(__file__).resolve().parent.parent / "workspace"
+        workspace_dir.mkdir(parents=True, exist_ok=True)
+        
+        caption = update.message.caption or ""
+        file_id = None
+        file_name = None
+        
+        if update.message.photo:
+            photo = update.message.photo[-1]
+            file_id = photo.file_id
+            file_name = f"photo_{file_id[-6:]}.jpg"
+        elif update.message.document:
+            doc = update.message.document
+            file_id = doc.file_id
+            file_name = doc.file_name or f"document_{file_id[-6:]}"
+            
+        if not file_id:
+            await update.message.reply_text("Unsupported file type.")
+            return
+            
+        new_file = await context.bot.get_file(file_id)
+        
+        target_path = workspace_dir / file_name
+        counter = 1
+        stem = target_path.stem
+        ext = target_path.suffix
+        while target_path.exists():
+            target_path = workspace_dir / f"{stem}_{counter}{ext}"
+            counter += 1
+            
+        await new_file.download_to_drive(custom_path=target_path)
+        
+        await sqlite_service.add_log("info", "TELEGRAM", f"Received file {target_path.name} from Telegram.")
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            message = f"Właśnie wysłałem Ci plik/zdjęcie o nazwie '{target_path.name}' prosto do folderu workspace/."
+            if caption:
+                message += f" Z następującym opisem/instrukcją: '{caption}'"
+                
+            response = await client.post(
+                "http://localhost:8000/chat",
+                json={
+                    "message": message,
+                    "session_id": "telegram_mobile_link",
+                    "source": "telegram"
+                }
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("status") == "success":
+                    answer = data.get("response", "File received by Aether.")
+                    if len(answer) > 4000:
+                        for x in range(0, len(answer), 4000):
+                            await update.message.reply_text(answer[x:x+4000])
+                    else:
+                        await update.message.reply_text(answer)
+                else:
+                    await update.message.reply_text(f"Zapisano plik jako {target_path.name}, ale agent zwrócił błąd: {data.get('message')}")
+            else:
+                await update.message.reply_text(f"Zapisano plik {target_path.name}, ale rdzeń Aether jest offline.")
+                
+    except Exception as e:
+        await update.message.reply_text(f"Nie udało się przetworzyć pliku: {str(e)}")
+
 telegram_app = None
 
 async def run_telegram_bot():
@@ -76,6 +146,7 @@ async def run_telegram_bot():
 
     telegram_app.add_handler(CommandHandler("start", start_cmd))
     telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    telegram_app.add_handler(MessageHandler(filters.PHOTO | filters.Document.ALL, handle_document))
 
     print("[Telegram Link] Connecting to Telegram Secure Bridge...")
     try:
@@ -107,5 +178,3 @@ async def stop_telegram_bot():
 if __name__ == "__main__":
     # Wait for Aether API to boot first if we run this as standalone module
     asyncio.run(run_telegram_bot())
-    # Note: Application needs to be kept alive, so usually loop.run_forever() is used, 
-    # but we'll integrate it into main.py's lifespan or background task.
