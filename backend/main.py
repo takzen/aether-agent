@@ -231,7 +231,7 @@ async def vision_index_pdf(filename: str, max_pages: int = 4, model: str | None 
             return {"status": "error", "message": "Vision indexing supports PDF files only."}
 
         settings = await sqlite_service.get_settings()
-        vision_model = str(model or os.getenv("VISION_MODEL_OVERRIDE", "ollama:qwen3-vl:4b")).strip()
+        vision_model = str(model or os.getenv("VISION_MODEL_OVERRIDE", "gemini:gemini-2.5-flash")).strip()
         if not (vision_model.startswith("ollama:") or vision_model.startswith("gemini:")):
             return {"status": "error", "message": "Vision model must be 'ollama:*' or 'gemini:*'."}
 

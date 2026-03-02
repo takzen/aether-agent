@@ -94,7 +94,7 @@ Indexes an existing source file.
 ### `POST /knowledge/vision-index/{filename}`
 Runs multimodal vision indexing for a PDF:
 - renders PDF pages to images
-- analyzes pages with selected vision model (default: `ollama:qwen3-vl:4b`)
+- analyzes pages with selected vision model (default: `gemini:gemini-2.5-flash`)
 - stores extracted page knowledge in vector index as `vision` layer
 - after successful run, knowledge metadata includes:
   - `vision_indexed: true`

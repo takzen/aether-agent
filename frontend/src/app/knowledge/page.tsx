@@ -14,7 +14,7 @@ export default function KnowledgeBase() {
     const [isUploading, setIsUploading] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [visionIndexingFile, setVisionIndexingFile] = useState<string | null>(null);
-    const [visionModel, setVisionModel] = useState("ollama:qwen3-vl:4b");
+    const [visionModel, setVisionModel] = useState("gemini:gemini-2.5-flash");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Modal States
