@@ -15,9 +15,9 @@ This folder contains technical documentation for Aether Agent.
 
 ## Current Version
 
-- Version: 1.4.1
+- Version: 1.4.2
 - Status: Active development
-- Last update: 2026-03-01
+- Last update: 2026-03-02
 
 ## Notes
 

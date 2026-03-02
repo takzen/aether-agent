@@ -1,6 +1,6 @@
 {
     "name": "aether-desktop",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "description": "Desktop wrapper for Aether Core",
     "main": "main.js",
     "scripts": {

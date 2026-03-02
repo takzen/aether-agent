@@ -2,6 +2,10 @@
 
 All notable changes to the Aether Agent project will be documented in this file.
 
+## [1.4.2] - 2026-03-02
+### Added
+- **Evaluation Infrastructure**: Added the evaluation engine modules including RAG evaluation testing and LLM judges.
+
 ## [1.4.1] - 2026-03-01
 ### Added
 - **Intelligent Responsive Layout**: Major update to Dashboard, Sidebar, and Memories for small screens (Tablets/Mini).

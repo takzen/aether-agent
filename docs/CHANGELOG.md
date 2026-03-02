@@ -2,6 +2,20 @@
 
 All notable changes to Aether Agent are documented here.
 
+## [1.4.2] - 2026-03-02
+
+### Added
+- **Evaluation Infrastructure**: Added the evaluation engine modules including RAG evaluation testing and LLM judges.
+
+## [1.4.1] - 2026-03-01
+
+### Added
+- **Intelligent Responsive Layout**: Major update to Dashboard, Sidebar, and Memories for small screens (Tablets/Mini).
+  - **Dynamic Sidebar**: Automatically collapses to a minimalist icon-only mode (w-20) with perfectly centered icons on screens below 1280px.
+  - **Compact Header Stats**: Dashboard statistics now use an icons-only display on m-resolutions to prevent text overflow and layout breakages.
+  - **Neural Canvas Optimization**: Memories page now hides search/filter bars on tablet views to maximize the neural graph workspace.
+- **Improved Alignment**: Perfectly right-aligned statistics on Desktop and centered icons in the collapsed Sidebar.
+
 ## [1.4.0] - 2026-03-01
 
 ### Added
