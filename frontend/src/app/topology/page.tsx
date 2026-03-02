@@ -30,10 +30,10 @@ flowchart LR
 
     MODEL --> PROMPT_ENGINE["2 Dynamic System Prompt Builder"]
 
-    subgraph PromptStream["System Prompt Lifecycle"]
-        B_P["inject_base_prompt<br/>language control and<br/>CORE-X directives"] --> C_P["inject_cognition_prompt<br/>apply persona and<br/>autonomy levels"]
-        C_P --> S_P["inject_skill_prompt<br/>runtime skill activation<br/>and triggers"]
-        S_P --> D_P["inject_dynamic_context<br/>aggregate RAG and<br/>circadian state"]
+    subgraph PromptStream["2 System Prompt Lifecycle"]
+        B_P["inject_base_prompt<br/>language and CORE-X rules"] --> C_P["inject_cognition_prompt<br/>persona and autonomy"]
+        C_P --> S_P["inject_skill_prompt<br/>runtime skill activation"]
+        S_P --> D_P["inject_dynamic_context<br/>RAG and circadian state"]
     end
 
     PROMPT_ENGINE --> B_P
@@ -68,8 +68,8 @@ flowchart LR
     TOOL_LOOP --> T_SKB
     TOOL_LOOP --> T_WRITE
 
-    T_WRITE -- Autonomy below 3 --> HITL["PENDING_ACTION<br/>waiting for approval"]
-    T_WRITE -- Autonomy equals 3 --> AUTO_W["FILE_WRITTEN<br/>direct write"]
+    T_WRITE -- Default --> HITL["PENDING_ACTION<br/>waiting for approval"]
+    T_WRITE -- Telegram + Autonomy 2 --> AUTO_W["FILE_WRITTEN<br/>project auto-write"]
 
     T_FS --> TOOL_RES["Tool result returned<br/>to agent reasoning"]
     T_WEB --> TOOL_RES
@@ -83,7 +83,7 @@ flowchart LR
 
     TOOL_LOOP -->|Final answer ready| CORE_X["5 CORE-X<br/>response shaping"]
 
-    subgraph OutputSchema["AetherResponse model"]
+    subgraph OutputSchema["5 AetherResponse model"]
         R_TXT["response:<br/>Markdown message"]
         R_CONF["confidence_score:<br/>reliability 0.0 to 1.0"]
         R_TYPE["reasoning_type:<br/>DOCS / MEMORY /<br/>WEB / HYPOTHESIS"]
@@ -130,7 +130,7 @@ flowchart LR
             num: 4,
             title: "Rejestr Narzędzi (PydanticAI Loop)",
             color: "emerald",
-            text: `Silnik PydanticAI uruchamia pętlę iteracyjną aether_agent.run(). Model sam decyduje, jakich narzędzi użyć: list_directory / read_file (analiza projektu), web_search (Tavily API), remember / recall (operacje na pamięci semantycznej), connect_concepts / modify_concept (graf wiedzy), search_knowledge_base (głęboki RAG z limitem). Kluczowe: jeśli agent wywołuje prepare_write_file przy Autonomii < 3, akcja jest blokowana statusem PENDING_ACTION (Human-in-the-Loop) i czeka na zatwierdzenie z UI. Przy Autonomii = 3 zapis wykonuje się natychmiast. Każdy wynik narzędzia wraca do pętli agenta jako kontekst do dalszych decyzji.`,
+            text: `Silnik PydanticAI uruchamia pętlę iteracyjną aether_agent.run(). Model sam decyduje, jakich narzędzi użyć: list_directory / read_file (analiza projektu), web_search (Tavily API), remember / recall (operacje na pamięci semantycznej), connect_concepts / modify_concept (graf wiedzy), search_knowledge_base (głęboki RAG z limitem). Kluczowe: prepare_write_file zawsze generuje STATUS PENDING_ACTION i wymaga zatwierdzenia z UI (Human-in-the-Loop). Jedyny wyjątek to źródło Telegram przy Autonomii 2 — wtedy pliki wewnątrz projektu są zapisywane automatycznie. Autonomia 3 rozszerza zakres dostępu do ścieżek poza projekt (validate_path), ale sam zapis nadal przechodzi przez HITL. Każdy wynik narzędzia wraca do pętli agenta jako kontekst do dalszych decyzji.`,
         },
         {
             num: 5,
@@ -212,8 +212,8 @@ flowchart LR
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition-colors flex items-center gap-1.5 ${isSidebarOpen
-                                    ? "text-white bg-white/5"
-                                    : "text-neutral-500 hover:text-white hover:bg-white/5"
+                                ? "text-white bg-white/5"
+                                : "text-neutral-500 hover:text-white hover:bg-white/5"
                                 }`}
                             title="Toggle algorithm guide"
                         >
