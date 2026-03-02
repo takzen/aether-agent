@@ -37,8 +37,8 @@ export default function ConfirmationModal({
                             <AlertTriangle className="w-6 h-6" />
                         </div>
                     )}
-                    <div className="space-y-2">
-                        <p className="text-sm text-neutral-400 font-mono leading-relaxed">
+                    <div className="space-y-2 min-w-0">
+                        <p className="w-full text-sm text-neutral-400 font-mono leading-relaxed break-all">
                             {message}
                         </p>
                     </div>

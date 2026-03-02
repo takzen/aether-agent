@@ -19,7 +19,7 @@ interface ThoughtStreamProps {
 
 export default function ThoughtStream({ steps = [] }: ThoughtStreamProps) {
     return (
-        <div className="w-80 h-full bg-[#181818] border-l border-[#303030] flex flex-col hidden xl:flex z-20">
+        <div className="w-80 h-full bg-[#181818] border-l border-[#303030] flex flex-col hidden xl:flex z-20 min-w-0">
             <div className="p-6 border-b border-white/5 flex items-center justify-between">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Thought Stream</h3>
                 <div className="flex gap-1">
@@ -46,8 +46,8 @@ export default function ThoughtStream({ steps = [] }: ThoughtStreamProps) {
                                 <step.icon className="w-4 h-4" />
                             </div>
 
-                            <div className="flex-1 pt-1">
-                                <p className={`text-xs font-medium leading-relaxed ${step.type === 'complete' ? 'text-green-400' : 'text-foreground'
+                            <div className="flex-1 min-w-0 pt-1">
+                                <p className={`w-full text-xs font-medium leading-relaxed whitespace-pre-wrap break-words ${step.type === 'complete' ? 'text-green-400' : 'text-foreground'
                                     }`}>
                                     {step.message}
                                 </p>

@@ -235,6 +235,8 @@ export default function Settings() {
                                             <optgroup label="Local Models (Private)" className="bg-[#1e1e1e]">
                                                 <option value="ollama:llama3.2">Ollama: Llama 3.2</option>
                                                 <option value="ollama:mistral">Ollama: Mistral</option>
+                                                <option value="ollama:qwen2.5:7b-instruct">Ollama: Qwen 2.5 7B Instruct</option>
+                                                <option value="ollama:qwen3-vl:4b">Ollama: Qwen3-VL 4B</option>
                                             </optgroup>
                                         </select>
                                     </div>

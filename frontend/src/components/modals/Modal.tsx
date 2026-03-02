@@ -32,11 +32,11 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
                             className="w-full max-w-lg bg-[#181818] border border-[#303030] rounded-xl shadow-2xl overflow-hidden"
                         >
                             {/* Header */}
-                            <div className="px-6 py-4 border-b border-[#303030] flex items-center justify-between bg-[#1e1e1e]">
-                                <h2 className="text-sm font-bold text-white uppercase tracking-wider">{title}</h2>
+                            <div className="px-6 py-4 border-b border-[#303030] flex items-start justify-between gap-3 bg-[#1e1e1e]">
+                                <h2 className="min-w-0 text-sm font-bold text-white uppercase tracking-wider break-all">{title}</h2>
                                 <button
                                     onClick={onClose}
-                                    className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+                                    className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors shrink-0"
                                 >
                                     <X className="w-4 h-4" />
                                 </button>

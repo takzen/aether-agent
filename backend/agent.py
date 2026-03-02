@@ -49,7 +49,9 @@ AVAILABLE_MODELS = {
     "gemini-3-flash": "gemini-3-flash-1225",
     "gemini-2.5-pro": "gemini-2.5-pro-0625",
     "ollama-llama3": "ollama:llama3.2",
-    "ollama-mistral": "ollama:mistral"
+    "ollama-mistral": "ollama:mistral",
+    "ollama-qwen2.5-7b": "ollama:qwen2.5:7b-instruct",
+    "ollama-qwen3-vl": "ollama:qwen3-vl:4b"
 }
 
 def get_current_model_name():

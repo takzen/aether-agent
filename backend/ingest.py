@@ -11,6 +11,8 @@ SOURCE_DIR = "./knowledge_source"
 CHUNK_SIZE = 1000  # Characters for now, rough approximation
 CHUNK_OVERLAP = 200
 
+TEXT_EXTENSIONS = {".txt", ".md", ".markdown", ".log", ".json", ".yaml", ".yml", ".csv"}
+
 def split_text(text: str, chunk_size=1000, overlap=100) -> list[str]:
     """
     Very simple text splitter.
@@ -66,14 +68,44 @@ async def process_content(content: str, filename: str, db: DatabaseService, file
         print(f"Error processing content for {filename}: {e}")
         return False
 
+def extract_text_from_file(file_path: str) -> str:
+    """
+    Extract raw text from supported file types.
+    Supports:
+    - Plain text-like files (.txt, .md, .json, ...)
+    - PDF via pypdf
+    """
+    path = Path(file_path)
+    suffix = path.suffix.lower()
+
+    if suffix == ".pdf":
+        try:
+            from pypdf import PdfReader
+        except Exception as e:
+            raise ValueError(
+                "PDF parsing requires 'pypdf'. Install dependencies (e.g. `uv sync` in backend or `pip install pypdf`)."
+            ) from e
+        reader = PdfReader(str(path))
+        pages = []
+        for page in reader.pages:
+            pages.append(page.extract_text() or "")
+        text = "\n\n".join(pages).strip()
+        if not text:
+            raise ValueError("PDF extraction produced empty text (possibly scanned image PDF).")
+        return text
+
+    if suffix in TEXT_EXTENSIONS:
+        return path.read_text(encoding="utf-8", errors="ignore")
+
+    raise ValueError(f"Unsupported file type for indexing: '{suffix}'")
+
 async def process_file(file_path: str, db: DatabaseService):
     """
     Reads a file and delegates to process_content.
     """
     print(f"Processing: {file_path}")
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = extract_text_from_file(file_path)
             
         filename = os.path.basename(file_path)
         stats = os.stat(file_path)

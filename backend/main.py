@@ -11,7 +11,7 @@ import re
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from ingest import process_content
+from ingest import process_content, extract_text_from_file
 from local_db import sqlite_service
 from world_model import run_active_world_model_simulation
 from cron_scheduler import cron_service
@@ -316,8 +316,7 @@ async def index_existing_file(filename: str):
         stats = os.stat(file_path)
         file_size = f"{round(stats.st_size / 1024, 1)} KB"
         
-        with open(file_path, "r", encoding="utf-8") as f:
-            text_content = f.read()
+        text_content = extract_text_from_file(file_path)
             
         success = await process_content(text_content, filename, db_service, file_size)
         
@@ -340,8 +339,7 @@ async def get_document_content(filename: str):
         if not os.path.exists(file_path):
             return {"status": "error", "message": f"File '{filename}' not found on disk."}
             
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        content = extract_text_from_file(file_path)
             
         return {"status": "success", "content": content}
     except Exception as e:

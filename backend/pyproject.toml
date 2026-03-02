@@ -15,6 +15,7 @@ dependencies = [
     "mcp>=1.26.0",
     "pydantic-ai>=1.58.0",
     "python-dotenv>=1.2.1",
+    "pypdf>=6.0.0",
     "python-multipart>=0.0.22",
     "python-telegram-bot>=22.6",
     "qdrant-client>=1.16.2",

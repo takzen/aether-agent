@@ -315,8 +315,8 @@ export default function KnowledgeBase() {
                                     <div className="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500/20 transition-colors shrink-0">
                                         <item.icon className="w-4 h-4" />
                                     </div>
-                                    <div className="min-w-0 pr-16 text-left">
-                                        <h3 className="text-[13px] font-bold text-neutral-200 mb-1 line-clamp-1 group-hover:text-white transition-colors tracking-tight" title={item.title}>
+                                    <div className="min-w-0 flex-1 pr-24 text-left">
+                                        <h3 className="text-[13px] font-bold text-neutral-200 mb-1 truncate group-hover:text-white transition-colors tracking-tight" title={item.title}>
                                             {item.title}
                                         </h3>
                                         <div className="flex items-center gap-2 text-[10px] font-mono text-neutral-500">

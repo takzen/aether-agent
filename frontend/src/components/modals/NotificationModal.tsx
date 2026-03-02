@@ -26,7 +26,7 @@ export default function NotificationModal({
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        className="w-full max-w-sm bg-[#181818] border border-[#303030] rounded-xl shadow-2xl overflow-hidden"
+                        className="w-full max-w-md bg-[#181818] border border-[#303030] rounded-xl shadow-2xl overflow-hidden"
                     >
                         <div className="p-6 flex flex-col items-center text-center gap-4">
                             <div className={`p-4 rounded-full ${type === 'success' ? 'bg-green-500/10 text-green-500' :
@@ -39,7 +39,7 @@ export default function NotificationModal({
                             </div>
 
                             <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
-                            <p className="text-sm text-neutral-400 font-mono leading-relaxed">
+                            <p className="w-full text-sm text-neutral-400 font-mono leading-relaxed break-all">
                                 {message}
                             </p>
 
