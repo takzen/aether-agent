@@ -54,6 +54,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         answer = str(answer)
                         
                     # Telegram limit per message is 4096 chars formatting
+                    import re
+                    # Remove trailing JSON context window the LLM sometimes explicitly prints
+                    answer = re.sub(r'```json\s*\{.*"confidence_score".*\}\s*```\s*$', '', answer, flags=re.DOTALL | re.IGNORECASE).strip()
+                    
                     if len(answer) > 4000:
                         for x in range(0, len(answer), 4000):
                             await update.message.reply_text(answer[x:x+4000])
@@ -128,6 +132,14 @@ async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 data = response.json()
                 if data.get("status") == "success":
                     answer = data.get("response", "File received by Aether.")
+                    if isinstance(answer, dict):
+                        answer = answer.get("response", str(answer))
+                    elif not isinstance(answer, str):
+                        answer = str(answer)
+
+                    import re
+                    answer = re.sub(r'```json\s*\{.*"confidence_score".*\}\s*```\s*$', '', answer, flags=re.DOTALL | re.IGNORECASE).strip()
+                    
                     if len(answer) > 4000:
                         for x in range(0, len(answer), 4000):
                             await update.message.reply_text(answer[x:x+4000])
