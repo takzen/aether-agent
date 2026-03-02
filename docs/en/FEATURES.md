@@ -35,5 +35,21 @@ The Neural Cognitive Engine (Static/Dynamic Neural Cognition) allows for deep pe
 -   **Autonomy Engine:** A three-level trust scale (Manual, Co-Pilot, Full Autonomy) that defines the agent's permissions to independently modify system files.
 -   **Custom Directives:** The ability to manually inject low-level style and behavior instructions that are prioritized by the model's core.
 
+## Skills Management
+
+Aether Agent features a modular skills architecture that extends its capabilities without the need to modify the core codebase.
+
+-   **Dynamic Loading:** Skills are loaded into the runtime environment on the fly (`inject_skill_prompt`).
+-   **Context Injection:** When a skill is activated, its specific instructions (formatting, tools) and triggers are directly integrated into the agent's system prompt, giving it new expertise or particular operational vectors.
+-   **Management:** The registry of skills can be viewed, toggled on, and off safely from the Dashboard's "Skills" tab.
+
+## Scheduled Operations (Cron Tasks)
+
+A background task engine built into the backend system based on a Cron interface.
+
+-   **Task Automation:** Allows for scheduling recurring backend operations such as vector database optimization, log defragmentation, or running the internal `Sleep Cycle` loop.
+-   **Expressive Intervals:** Each task is based on standardized Cron expressions (e.g., `0 3 * * *` for 3:00 AM).
+-   **System View:** A consolidated "Cron" panel provides visibility into upcoming and completed schedule executions (cron ticks) in real time.
+
 ---
 *Documentation of Aether Project Premium Features.*

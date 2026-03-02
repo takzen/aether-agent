@@ -35,5 +35,21 @@ Neuralny silnik kognitywny (Static/Dynamic Neural Cognition) pozwala na głębok
 -   **Autonomy Engine:** Trzystopniowa skala zaufania (Manual, Co-Pilot, Full Autonomy), która określa uprawnienia agenta do samodzielnej modyfikacji plików systemowych.
 -   **Custom Directives:** Możliwość ręcznego wstrzykiwania niskopoziomowych instrukcji stylu i zachowania, które są priorytetowo traktowane przez rdzeń modelu.
 
+## System Umiejętności (Skills Management)
+
+Aether Agent posiada modułową architekturę umiejętności, która pozwala na rozbudowę jego możliwości bez modyfikacji głównego kodu.
+
+-   **Dynamiczne Ładowanie:** Umiejętności są ładowane do środowiska uruchomieniowego w locie (`inject_skill_prompt`).
+-   **Wstrzykiwanie Kontekstu:** Kiedy umiejętność zostaje aktywowana, jej specyficzne instrukcje (formatowanie, narzędzia) i wyzwalacze (triggers) są bezpośrednio integrowane w system prompt agenta, dostosowując jego wektor działania.
+-   **Zarządzanie:** Rejestr umiejętności może być na bieżąco przeglądany oraz włączany/wyłączany z poziomu panelu Dashboard w zakładce "Skills".
+
+## System Harmonogramów (Cron Tasks)
+
+Silnik czasu rzeczywistego wbudowany w backend z obsługą zadań w tle opartych na interfejsie Cron.
+
+-   **Automatyzacja Zadań:** Pozwala na zaplanowanie cyklicznych operacji (takich jak optymalizacja bazy wektorowej, czyszczenie osieroconych logów czy manualne włączanie `Sleep Cycle`).
+-   **Wyrażenia Cron:** Każde zadanie bazuje na ustandaryzowanych interwałach z użyciem wyrażeń Cron (np. `0 3 * * *` dla uruchomienia procesu o 3:00 w nocy).
+-   **Widok Systemowy:** Skonsolidowany panel "Cron" pozwala monitorować statusy nadchodzących jak i zakończonych wywołań zadań (cron ticks) w czasie rzeczywistym.
+
 ---
 *Dokumentacja funkcji Premium Projektu Aether.*
