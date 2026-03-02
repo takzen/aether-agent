@@ -504,20 +504,30 @@ async def prepare_write_file(ctx: RunContext[dict], path: str, content: str) -> 
         deps = ctx.deps or {}
         autonomy = int(deps.get("autonomy", 2))
         source = str(deps.get("source", "dashboard") or "dashboard").lower().strip()
+        workspace_dir = BASE_DIR / "workspace"
+
+        # Telegram auto-routing: force files to be saved in workspace
+        if source == "telegram" and not target_path.is_relative_to(workspace_dir):
+            if target_path.parent == BASE_DIR:
+                target_path = workspace_dir / target_path.name
+                path = f"workspace/{target_path.name}"
+            else:
+                return f"ERROR: In Telegram, you are strictly limited to saving files in the 'workspace/' directory. You attempted to save to: {path}"
+
         can_auto_write_project = (
             autonomy == 2
             and source == "telegram"
-            and target_path.is_relative_to(BASE_DIR)
+            and target_path.is_relative_to(workspace_dir)
         )
 
         if can_auto_write_project:
-            mode_label = "TELEGRAM_PROJECT_AUTOWRITE"
+            mode_label = "TELEGRAM_WORKSPACE_AUTOWRITE"
             print(f"[Agent] {mode_label} Active: Writing file '{path}' directly.")
             await sqlite_service.add_log("success", "CORE", f"Autonomous action ({mode_label}): Writing to {path}")
             target_path.parent.mkdir(parents=True, exist_ok=True)
             with open(target_path, "w", encoding="utf-8") as f:
                 f.write(content)
-            return f"FILE_WRITTEN: Telegram project auto-write enabled. Content written directly to '{path}'."
+            return f"FILE_WRITTEN: Telegram auto-write enabled. Content written directly to '{path}'."
 
         action_id = str(uuid.uuid4())
         _prune_pending_actions()

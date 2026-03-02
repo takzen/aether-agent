@@ -45,16 +45,19 @@ Silnik Autonomii definiuje poziom zaufania i zdolności do samodzielnego działa
 
 ### Poziom 1: MANUAL_OVERRIDE
 *   **Poziom Zaufania:** Minimum.
-*   **Zachowanie:** Każda operacja zapisu pliku wymaga ręcznego zatwierdzenia przez użytkownika (HITL). Najlepsze do pracy nad krytycznym kodem produkcyjnym.
+*   **Zachowanie:** Każda operacja zapisu pliku wymaga ręcznego zatwierdzenia przez użytkownika (HITL przez Dashboard). Brak wyjątków dla zapytań z Telegrama. Najlepsze do pracy nad krytycznym kodem.
 
 ### Poziom 2: CO-PILOT_MODE
 *   **Poziom Zaufania:** Zoptymalizowany.
-*   **Zachowanie:** Agent samodzielnie przeprowadza research, analizę i operacje odczytu. Modyfikacje plików nadal wymagają akceptacji, ale proces myślowy jest bardziej niezależny.
+*   **Zachowanie:** Agent samodzielnie przeprowadza research, analizę i operacje odczytu. 
+  * **Dashboard:** Modyfikacje plików nadal zawsze wymagają akceptacji (HITL).
+  * **Telegram:** Rozszerzone zaufanie - auto-zapis jest dozwolony, ale tylko wewnątrz bezpiecznego folderu projektu Aether (`BASE_DIR`).
 
 ### Poziom 3: FULL_AUTONOMY (DANGER_ZONE)
 *   **Poziom Zaufania:** Maksimum.
-*   **Zachowanie:** Agent ma uprawnienia do automatycznej modyfikacji kodu w celu rozwiązania zadania. System zatwierdzeń (HITL) jest pomijany przy zapisie plików w obrębie projektu.
-*   **Bezpieczeństwo:** Wszystkie akcje są logowane w czasie rzeczywistym. Zalecane do szybkich refaktoryzacji w zaufanym środowisku lokalnym.
+*   **Zachowanie:** Agent ma rozszerzony dostęp do całego lokalnego systemu plików (nie tylko projektu) dla operacji odczytu, listowania i analizy. 
+*   **Bezpieczeństwo (Runtime Policy):** Rozszerzony zasięg nie oznacza całkowitego automatycznego zapisu. Ze względów bezpieczeństwa, operacje zapisu plików na zewnątrz projektu nadal zawsze wymagają ręcznego zatwierdzenia (HITL).
+
 
 ---
 
@@ -95,18 +98,3 @@ Poniezej techniczne doprecyzowanie jak dziala funkcja Persona Profiles:
 - Ustawienie `COGNITION_CREATIVITY` mapuje sie na `ModelSettings.temperature` i bezposrednio wplywa na styl odpowiedzi.
 - Zmiany sa natychmiastowe dla nowych wiadomosci (bez restartu backendu).
 
----
-
-## 8. Autonomy Runtime Policy (Current)
-
-Aktualna egzekucja poziomow autonomii w runtime:
-
-- Level 1 (Manual): Wszystkie zapisy plikow wymagaja HITL (Dashboard approve). Brak wyjatkow dla Telegrama.
-- Level 2 (Co-Pilot):
-  - Dashboard: zapis zawsze przez HITL.
-  - Telegram: auto-zapis dozwolony tylko wewnatrz folderu projektu Aether (`BASE_DIR`).
-- Level 3 (Extended Scope):
-  - Dostep do calego filesystemu lokalnego (nie tylko projekt) dla odczytu/listowania.
-  - Zapis plikow nadal zawsze wymaga HITL (potwierdzenia).
-
-To jest celowa polityka bezpieczenstwa: rozszerzony zasieg nie oznacza automatycznego zapisu.

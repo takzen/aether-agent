@@ -530,9 +530,10 @@ async def get_document_content(filename: str):
         return {"status": "error", "message": str(e)}
 
 @app.get("/system/docs")
-async def list_system_docs():
-    """Lists documentation files from the /docs directory."""
-    docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
+async def list_system_docs(lang: str = "en"):
+    """Lists documentation files from the /docs/{lang} directory."""
+    base_docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
+    docs_path = os.path.join(base_docs_path, lang)
     try:
         files = []
         if os.path.exists(docs_path):
@@ -544,9 +545,10 @@ async def list_system_docs():
         return {"status": "error", "message": str(e)}
 
 @app.get("/system/docs/content/{filename}")
-async def get_system_doc_content(filename: str):
+async def get_system_doc_content(filename: str, lang: str = "en"):
     """Retrieves content of a specific documentation file."""
-    docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
+    base_docs_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
+    docs_path = os.path.join(base_docs_path, lang)
     try:
         file_path = os.path.join(docs_path, filename)
         if not os.path.exists(file_path):

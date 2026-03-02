@@ -19,24 +19,23 @@ export default function NeuralTopologyPage() {
     // Mermaid-safe technical map in English/ASCII for stable parsing.
     const mermaidChart = `
 flowchart LR
-    START["USER_MESSAGE"] --> GAP["get_agent_response<br/>main API entry"]
+    START["USER_MESSAGE"] --> GAP
 
     subgraph Configuration["1 Configuration Layer"]
-        GAP --> SETS["sqlite_service.get_settings<br/>load cognition config"]
-        SETS --> DEPS["Init deps<br/>persona autonomy<br/>reflection circadian lock"]
+        GAP["get_agent_response<br/>main API entry"] --> SETS["sqlite_service.get_settings<br/>load cognition config"]
+        SETS --> DEPS["Init deps<br/>load parameters"]
         DEPS --> TEMP["Creativity to temperature<br/>mapping 0.0 to 1.0"]
         TEMP --> MODEL["create_model_instance<br/>choose Gemini or Ollama"]
     end
 
-    MODEL --> PROMPT_ENGINE["2 Dynamic System Prompt Builder"]
+    MODEL --> PROMPT_ENGINE
 
-    subgraph PromptStream["2 System Prompt Lifecycle"]
-        B_P["inject_base_prompt<br/>language and CORE-X rules"] --> C_P["inject_cognition_prompt<br/>persona and autonomy"]
-        C_P --> S_P["inject_skill_prompt<br/>runtime skill activation"]
-        S_P --> D_P["inject_dynamic_context<br/>RAG and circadian state"]
+    subgraph PromptStream["2 Prompt Lifecycle"]
+        PROMPT_ENGINE["Dynamic System<br/>Prompt Builder"] --> B_P["inject_base_prompt<br/>CORE-X and language"]
+        B_P --> C_P["inject_cognition_prompt<br/>persona and autonomy"]
+        C_P --> S_P["inject_skill_prompt<br/>skill activation"]
+        S_P --> D_P["inject_dynamic_context<br/>RAG and circadian"]
     end
-
-    PROMPT_ENGINE --> B_P
 
     subgraph RAG_Engine["3 Hybrid Context Injection"]
         D_P --> CIRC["Digital circadian rhythm<br/>cron based persona:<br/>strategist executor philosopher"]
@@ -69,7 +68,7 @@ flowchart LR
     TOOL_LOOP --> T_WRITE
 
     T_WRITE -- Default --> HITL["PENDING_ACTION<br/>waiting for approval"]
-    T_WRITE -- Telegram + Autonomy 2 --> AUTO_W["FILE_WRITTEN<br/>project auto-write"]
+    T_WRITE -- Telegram + Autonomy 2 --> AUTO_W["FILE_WRITTEN<br/>workspace auto-write"]
 
     T_FS --> TOOL_RES["Tool result returned<br/>to agent reasoning"]
     T_WEB --> TOOL_RES
@@ -130,7 +129,7 @@ flowchart LR
             num: 4,
             title: "Rejestr Narzędzi (PydanticAI Loop)",
             color: "emerald",
-            text: `Silnik PydanticAI uruchamia pętlę iteracyjną aether_agent.run(). Model sam decyduje, jakich narzędzi użyć: list_directory / read_file (analiza projektu), web_search (Tavily API), remember / recall (operacje na pamięci semantycznej), connect_concepts / modify_concept (graf wiedzy), search_knowledge_base (głęboki RAG z limitem). Kluczowe: prepare_write_file zawsze generuje STATUS PENDING_ACTION i wymaga zatwierdzenia z UI (Human-in-the-Loop). Jedyny wyjątek to źródło Telegram przy Autonomii 2 — wtedy pliki wewnątrz projektu są zapisywane automatycznie. Autonomia 3 rozszerza zakres dostępu do ścieżek poza projekt (validate_path), ale sam zapis nadal przechodzi przez HITL. Każdy wynik narzędzia wraca do pętli agenta jako kontekst do dalszych decyzji.`,
+            text: `Silnik PydanticAI uruchamia pętlę iteracyjną aether_agent.run(). Model sam decyduje, jakich narzędzi użyć: list_directory / read_file (analiza projektu), web_search (Tavily API), remember / recall (operacje na pamięci semantycznej), connect_concepts / modify_concept (graf wiedzy), search_knowledge_base (głęboki RAG z limitem). Kluczowe: prepare_write_file zawsze generuje STATUS PENDING_ACTION i wymaga zatwierdzenia z UI (Human-in-the-Loop). Jedyny wyjątek to źródło Telegram przy Autonomii 2 — wtedy pliki są wymuszone i zapisywane automatycznie tylko wewnątrz folderu 'workspace/'. Autonomia 3 rozszerza zakres dostępu do ścieżek poza projekt (validate_path), ale sam zapis nadal przechodzi przez HITL. Każdy wynik narzędzia wraca do pętli agenta jako kontekst do dalszych decyzji.`,
         },
         {
             num: 5,

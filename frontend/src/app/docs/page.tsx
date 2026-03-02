@@ -42,12 +42,13 @@ export default function DocsPage() {
     const [content, setContent] = useState("");
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [lang, setLang] = useState<"en" | "pl">("en");
 
-    const handleSelectDoc = useCallback(async (filename: string) => {
+    const handleSelectDoc = useCallback(async (filename: string, language: string = lang) => {
         setSelectedDoc(filename);
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8000/system/docs/content/${filename}`);
+            const res = await fetch(`http://localhost:8000/system/docs/content/${filename}?lang=${language}`);
             const data = await res.json();
             if (data.status === "success") {
                 setContent(data.content);
@@ -57,13 +58,14 @@ export default function DocsPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [lang]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/system/docs")
+        setLoading(true);
+        fetch(`http://localhost:8000/system/docs?lang=${lang}`)
             .then(res => res.json())
             .then(data => {
-                if (data.status === "success") {
+                if (data.status === "success" && data.docs) {
                     const sortedDocs = [...data.docs].sort((a, b) => {
                         if (a.toLowerCase() === "readme.md") return -1;
                         if (b.toLowerCase() === "readme.md") return 1;
@@ -71,13 +73,19 @@ export default function DocsPage() {
                     });
                     setDocs(sortedDocs);
                     if (sortedDocs.length > 0) {
-                        handleSelectDoc(sortedDocs[0]);
+                        handleSelectDoc(sortedDocs[0], lang);
+                    } else {
+                        setContent("# Missing\nNo documentation found for this language.");
+                        setSelectedDoc(null);
                     }
                 }
                 setLoading(false);
             })
-            .catch(err => console.error("Docs fetch error:", err));
-    }, [handleSelectDoc]);
+            .catch(err => {
+                console.error("Docs fetch error:", err);
+                setLoading(false);
+            });
+    }, [handleSelectDoc, lang]);
 
     const filteredDocs = docs.filter(doc =>
         doc.toLowerCase().includes(searchTerm.toLowerCase())
@@ -98,7 +106,21 @@ export default function DocsPage() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center bg-[#252526] rounded-lg p-1 border border-[#303030]">
+                            <button
+                                onClick={() => setLang("en")}
+                                className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-all ${lang === "en" ? "bg-cyan-500/20 text-cyan-400" : "text-neutral-500 hover:text-neutral-300"}`}
+                            >
+                                EN
+                            </button>
+                            <button
+                                onClick={() => setLang("pl")}
+                                className={`px-3 py-1 text-[11px] font-bold tracking-wider rounded-md transition-all ${lang === "pl" ? "bg-cyan-500/20 text-cyan-400" : "text-neutral-500 hover:text-neutral-300"}`}
+                            >
+                                PL
+                            </button>
+                        </div>
                         <div className="text-[10px] text-neutral-600 border-r border-white/10 pr-3 mr-1 font-mono hidden lg:block">
                             Docs: {docs.length}
                         </div>

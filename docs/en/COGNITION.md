@@ -45,16 +45,18 @@ The Autonomy Engine defines the level of trust and the Agent's ability to act in
 
 ### Level 1: MANUAL_OVERRIDE
 *   **Trust Level:** Minimum.
-*   **Behavior:** Every file write operation requires manual user approval (HITL). Best for working on critical production code.
+*   **Behavior:** Every file write operation requires manual user approval (HITL via Dashboard). No exceptions for Telegram requests. Best for working on critical code.
 
 ### Level 2: CO-PILOT_MODE
 *   **Trust Level:** Optimized.
-*   **Behavior:** The Agent independently conducts research, analysis, and read operations. File modifications still require approval, but the thought process is more independent.
+*   **Behavior:** The Agent independently conducts research, analysis, and read operations.
+  * **Dashboard:** File modifications still always require manual approval (HITL).
+  * **Telegram:** Extended trust - auto-save is allowed, but strictly within the secure Aether project folder (`BASE_DIR`).
 
 ### Level 3: FULL_AUTONOMY (DANGER_ZONE)
 *   **Trust Level:** Maximum.
-*   **Behavior:** The Agent has permission to automatically modify code to solve a task. The approval system (HITL) is bypassed for file writes within the project.
-*   **Security:** All actions are logged in real-time. Recommended for rapid refactoring in a trusted local environment.
+*   **Behavior:** The Agent has extended access to the entire local filesystem (not just the project) for reading, listing, and analysis.
+*   **Security (Runtime Policy):** Extended scope does not mean complete auto-saving. For security reasons, file write operations outside the project still always require manual approval (HITL).
 
 ---
 
@@ -95,18 +97,3 @@ Below is a technical clarification of how the Persona Profiles feature works:
 - The `COGNITION_CREATIVITY` setting maps to `ModelSettings.temperature` and directly influences the response style.
 - Changes are immediate for new messages (without a backend restart).
 
----
-
-## 8. Autonomy Runtime Policy (Current)
-
-Current execution of autonomy levels at runtime:
-
-- Level 1 (Manual): All file writes require HITL (Dashboard approval). No exceptions for Telegram.
-- Level 2 (Co-Pilot):
-  - Dashboard: writes always via HITL.
-  - Telegram: auto-save allowed only within the Aether project folder (`BASE_DIR`).
-- Level 3 (Extended Scope):
-  - Access to the entire local filesystem (not just the project) for reading/listing.
-  - File writes still always require HITL (confirmation).
-
-This is a deliberate security policy: extended scope does not mean automatic saving.
