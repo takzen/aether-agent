@@ -37,6 +37,10 @@ To sa testy **audit/integration**, a nie testy jednostkowe. Moga wymagac sieci, 
 - `backend/evaluation/example_rag_case.json` oraz `backend/evaluation/biology_mykology_backlog_30.jsonl`
   - dataset przypadkow RAG do audytu
   - rekordy z `expected_answer = "TODO"` lub pustym `gold_contexts` sa pomijane
+- `backend/evaluation/behavioral_scenarios_25.jsonl`
+  - backlog scenariuszy do oceny behawioralnej (manualnej lub pod automatyzacje)
+- `backend/evaluation/behavioral_review_template_25.jsonl`
+  - szablon wynikow review dla scenariuszy (`status`, `result`, `notes`, `evidence`)
 - `backend/evaluation/run_audit.bat`
   - jednokomendowe uruchomienie audytu na Windows
 
