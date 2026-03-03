@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { AetherLogo } from "@/components/AetherLogo";
 import { useState, useEffect } from "react";
+import { UserButton } from "@clerk/nextjs";
 
 const menuItems = [
     { icon: Home, label: "Command Center", href: "/dashboard" }, // Updated href to match dashboard route
@@ -93,8 +94,24 @@ export default function Sidebar() {
                 </Link>
 
                 <div className="p-2 xl:p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center xl:justify-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
-                        <span className="text-[10px] font-bold text-purple-400">AI</span>
+                    <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                        {process.env.NEXT_PUBLIC_ENABLE_AUTH === "true" ? (
+                            <UserButton
+                                appearance={{
+                                    elements: {
+                                        userButtonAvatarBox: "w-8 h-8 rounded-full border border-purple-500/30",
+                                        userButtonPopoverCard: "bg-neutral-900 border border-white/10 shadow-2xl",
+                                        userButtonPopoverActionButton: "hover:bg-white/5 text-neutral-300",
+                                        userButtonPopoverActionButtonText: "text-neutral-300",
+                                        userButtonPopoverFooter: "hidden"
+                                    }
+                                }}
+                            />
+                        ) : (
+                            <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-purple-400">AI</span>
+                            </div>
+                        )}
                     </div>
                     <div className="hidden xl:block min-w-0">
                         <p className="text-xs font-semibold text-white truncate">{modelName}</p>
