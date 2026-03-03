@@ -30,7 +30,6 @@ aether_memory/
 
 # Private Landing Page assets (not for open source)
 # page.tsx is tracked in git (redirect version), use `git update-index --assume-unchanged` to hide local changes.
-frontend/src/app/page.landing.tsx
 frontend/src/app/page.opensource.tsx
 frontend/src/components/LogoConcepts.tsx
 # Roadmap (private, not for open source)
