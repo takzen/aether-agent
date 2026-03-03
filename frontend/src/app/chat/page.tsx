@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useRef, useEffect, memo } from "react";
+import { useState, useRef, useEffect, memo, Suspense } from "react";
 import Sidebar from "@/components/Sidebar";
 import ThoughtStream, { ThoughtStep } from "@/components/ThoughtStream";
 import { Send, Sparkles, Database, FileText, Brain, FolderSearch, Globe, Terminal, CheckCircle2, AlertTriangle, Check, X, History, Plus, MessageSquare, Trash2, LucideIcon } from "lucide-react";
@@ -9,6 +9,15 @@ import ReactMarkdown from "react-markdown";
 import MermaidRenderer from "@/components/MermaidRenderer";
 import { createHighlighter } from "shiki";
 import { useSearchParams } from "next/navigation";
+
+function ChatPrefill({ onPrefill }: { onPrefill: (value: string) => void }) {
+    const searchParams = useSearchParams();
+    useEffect(() => {
+        const prefill = searchParams.get("prefill");
+        if (prefill) onPrefill(prefill);
+    }, [searchParams, onPrefill]);
+    return null;
+}
 
 interface AgentMessagePart {
     part_kind: string;
@@ -320,9 +329,8 @@ const MarkdownMessage = memo(function MarkdownMessage({ content }: { content: st
     );
 });
 
-export default function ChatPage() {
+function ChatPageInner() {
     const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-    const searchParams = useSearchParams();
     const [mounted, setMounted] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -453,12 +461,7 @@ export default function ChatPage() {
         fetchSessions();
     }, []);
 
-    useEffect(() => {
-        const prefill = searchParams.get("prefill");
-        if (prefill) {
-            setInput(prefill);
-        }
-    }, [searchParams]);
+
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -711,6 +714,7 @@ export default function ChatPage() {
     return (
         <div className="flex h-screen w-full bg-[#1e1e1e] overflow-hidden font-sans text-foreground">
 
+            <Suspense><ChatPrefill onPrefill={setInput} /></Suspense>
             <Sidebar />
 
             <main className="flex-1 min-w-0 flex relative overflow-hidden bg-[#1e1e1e]">
@@ -1047,3 +1051,10 @@ export default function ChatPage() {
     );
 }
 
+export default function ChatPage() {
+    return (
+        <Suspense>
+            <ChatPageInner />
+        </Suspense>
+    );
+}
