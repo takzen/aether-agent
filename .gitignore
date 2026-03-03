@@ -32,10 +32,7 @@ aether_memory/
 # page.tsx is tracked in git (redirect version), use `git update-index --assume-unchanged` to hide local changes.
 frontend/src/app/page.landing.tsx
 frontend/src/app/page.opensource.tsx
-frontend/src/components/AetherLogo.tsx
 frontend/src/components/LogoConcepts.tsx
-frontend/src/components/WaveLogo.tsx
-
 # Roadmap (private, not for open source)
 ROADMAP.md
 ROADMAP_TEST.md
