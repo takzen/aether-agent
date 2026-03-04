@@ -109,3 +109,11 @@
     }
   }
 }
+
+/* --- Force Hide Clerk Sign Up Footer --- */
+.cl-footerActionText, 
+.cl-footerActionLink, 
+.cl-footerAction,
+.cl-footer {
+    display: none !important;
+}
