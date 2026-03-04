@@ -161,9 +161,9 @@ export default function LandingPage() {
                         transition={{ delay: 0.5, duration: 1 }}
                         className="text-lg md:text-2xl text-neutral-400 max-w-2xl mx-auto uppercase tracking-[0.2em] font-light flex items-center justify-center gap-4 flex-wrap"
                     >
-                        <span>Infinite Memory</span>
+                        <span>Cloud Intelligence</span>
                         <span className="text-purple-500/50">•</span>
-                        <span>Local Privacy</span>
+                        <span>Secure Architecture</span>
                         <span className="text-purple-500/50">•</span>
                         <span className="text-neutral-300">Autonomy</span>
                     </motion.p>
