@@ -2,6 +2,14 @@
 
 All notable changes to the Aether Agent project will be documented in this file.
 
+## [1.5.0] - 2026-03-04
+### Added
+- **Hybrid Cloud Deploy (Vercel + Hetzner)**: Separated architecture into fully remote brain core (Backend) connected under an independent VPS container (Docker), and a fast frontend hosted globally on Vercel.
+- **Clerk Authentication**: Implemented a private, invite-only login model by fully disabling public signups using forcefully applied CSS overrides on Clerk UI.
+- **Reverse Proxy (Next.js Rewrites)**: Tunneled API safely via the `/api/v1` path to circumvent aggressive Mixed Content browser interventions under Vercel HTTPS environments.
+- Completely removed hardcoded Localhost constraints in favor of using flexible `NEXT_PUBLIC_API_URL` values globally across the frontend.
+
+
 ## [1.4.2] - 2026-03-02
 ### Added
 - **Evaluation Infrastructure**: Added the evaluation engine modules including RAG evaluation testing and LLM judges.
