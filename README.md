@@ -5,7 +5,7 @@
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
-[![Version](https://img.shields.io/badge/version-1.4.2-blue?style=flat-square)](https://github.com/takzen/aether-agent)
+[![Version](https://img.shields.io/badge/version-1.5.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
@@ -195,7 +195,7 @@ docker-compose up -d --build
 
 > _"Aether aims to be more than just a software tool — it's an intelligent entity aware of its existence in time and space."_
 
-Aether is fully feature-complete based on our original 6-Phase Master Plan for the Open Source release (37/37 Tasks Done). Now in v1.4, we are focusing on **Autonomous Skill Execution** and **Cognitive Persona Calibration**.
+Aether is fully feature-complete based on our original 6-Phase Master Plan for the Open Source release (37/37 Tasks Done). Now in v1.5, we are focusing on Cloud deployment, Hybrid arch and Cognitive Persona Calibration.
 
 ---
 
