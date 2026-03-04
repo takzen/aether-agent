@@ -320,7 +320,7 @@ const MarkdownMessage = memo(function MarkdownMessage({ content }: { content: st
 });
 
 export default function ChatPage() {
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}`;
     const [mounted, setMounted] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -472,7 +472,7 @@ export default function ChatPage() {
 
     const handleActionApproval = async (actionId: string, approved: boolean, messageId: string) => {
         try {
-            const response = await fetch("http://localhost:8000/actions/approve", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/actions/approve`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action_id: actionId, approved })
@@ -545,7 +545,7 @@ export default function ChatPage() {
         abortControllerRef.current = abortController;
 
         try {
-            const response = await fetch("http://localhost:8000/chat/stream", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/chat/stream`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 signal: abortController.signal,

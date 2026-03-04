@@ -33,7 +33,7 @@ export default function Settings() {
         }, 1000);
 
         // Fetch current config from backend
-        fetch("http://localhost:8000/config")
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/config`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
@@ -50,7 +50,7 @@ export default function Settings() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const res = await fetch("http://localhost:8000/config", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/config`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(config)
@@ -89,7 +89,7 @@ export default function Settings() {
         setIsClearing(true);
         setIsClearModalOpen(false);
         try {
-            const res = await fetch("http://localhost:8000/system/clear", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/system/clear`, {
                 method: "POST"
             });
             const data = await res.json();

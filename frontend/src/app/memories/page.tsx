@@ -27,7 +27,7 @@ export default function Memories() {
 
     const fetchMemories = async () => {
         try {
-            const response = await fetch("http://localhost:8000/memories");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/memories`);
             const data = await response.json();
             if (data.status === "success") {
                 setMemories(data.memories);
@@ -41,7 +41,7 @@ export default function Memories() {
 
     const deleteMemory = async (id: string) => {
         try {
-            const response = await fetch(`http://localhost:8000/memories/${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/memories/${id}`, {
                 method: "DELETE"
             });
             const data = await response.json();
@@ -56,7 +56,7 @@ export default function Memories() {
 
     const fetchGraph = async () => {
         try {
-            const response = await fetch("http://localhost:8000/graph");
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/graph`);
             const data = await response.json();
             if (data.status === "success") {
                 setConceptGraph(data.graph);

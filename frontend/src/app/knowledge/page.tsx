@@ -45,7 +45,7 @@ export default function KnowledgeBase() {
     const fetchDocuments = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("http://localhost:8000/knowledge");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/knowledge`);
             const data = await res.json();
             if (data.status === "success") {
                 // Map DB documents to UI format
@@ -88,7 +88,7 @@ export default function KnowledgeBase() {
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:8000/ingest", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/ingest`, {
                 method: "POST",
                 body: formData,
             });
@@ -135,7 +135,7 @@ export default function KnowledgeBase() {
         if (!deleteModal.filename || deleteModal.id === null) return;
 
         try {
-            const res = await fetch(`http://localhost:8000/knowledge/${deleteModal.filename}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/knowledge/${deleteModal.filename}`, {
                 method: "DELETE",
             });
             const data = await res.json();
@@ -171,7 +171,7 @@ export default function KnowledgeBase() {
         e.stopPropagation();
         setIsLoading(true);
         try {
-            const res = await fetch(`http://localhost:8000/knowledge/index/${filename}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/knowledge/index/${filename}`, {
                 method: "POST",
             });
             const data = await res.json();
@@ -202,7 +202,7 @@ export default function KnowledgeBase() {
         e.stopPropagation();
         setPreviewModal({ isOpen: true, filename, content: "", isLoading: true });
         try {
-            const res = await fetch(`http://localhost:8000/knowledge/content/${filename}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/knowledge/content/${filename}`);
             const data = await res.json();
             if (data.status === "success") {
                 setPreviewModal({ isOpen: true, filename, content: data.content, isLoading: false });
@@ -221,7 +221,7 @@ export default function KnowledgeBase() {
         try {
             const encoded = encodeURIComponent(filename);
             const modelParam = encodeURIComponent(visionModel);
-            const res = await fetch(`http://localhost:8000/knowledge/vision-index/${encoded}?max_pages=4&model=${modelParam}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/knowledge/vision-index/${encoded}?max_pages=4&model=${modelParam}`, {
                 method: "POST",
             });
             const data = await res.json();

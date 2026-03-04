@@ -17,7 +17,7 @@ type AgentSkill = {
   markdown_path?: string;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}`;
 
 export default function SkillsPage() {
   const [skills, setSkills] = useState<AgentSkill[]>([]);

@@ -22,7 +22,7 @@ export default function AgentLogs() {
     const fetchLogs = async () => {
         try {
             // Added limit parameter to the endpoint call
-            const res = await fetch("http://localhost:8000/logs?limit=50");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/logs?limit=50`);
             const data = await res.json();
             if (data.status === "success") {
                 setLogs(data.logs);

@@ -258,7 +258,7 @@ export default function Home() {
 
   useEffect(() => {
     // Fetch stats
-    fetch("http://localhost:8000/stats")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/stats`)
       .then(res => res.json())
       .then(data => {
         if (data.status === "success") {
@@ -273,7 +273,7 @@ export default function Home() {
       .catch(() => console.error("Stats error"));
 
     const fetchConfig = () => {
-      fetch("http://localhost:8000/config")
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/config`)
         .then(res => res.json())
         .then(data => {
           if (data.status === "success") {
@@ -304,7 +304,7 @@ export default function Home() {
     window.addEventListener("configUpdated", fetchConfig);
 
     // Fetch recent activity
-    fetch("http://localhost:8000/recent_activity")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/recent_activity`)
       .then(res => res.json())
       .then(data => {
         setActivities(data.activities);
@@ -313,7 +313,7 @@ export default function Home() {
 
     // Fetch Morning Brief (Night Cycle Output) ONLY if messages are empty
     if (messages.length === 0) {
-      fetch("http://localhost:8000/system/morning-brief")
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/system/morning-brief`)
         .then(res => res.json())
         .then(data => {
           if (data.status === "success" && data.report) {
@@ -402,7 +402,7 @@ export default function Home() {
       const updatedConfig = { ...prev, [key]: value };
 
       // 2. Send to backend using the freshly calculated config
-      fetch("http://localhost:8000/config", {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedConfig)
@@ -425,7 +425,7 @@ export default function Home() {
         role: "user",
         content: "EXECUTE SYSTEM OVERRIDE: run_sleep_cycle()"
       }]);
-      const res = await fetch("http://localhost:8000/system/sleep-cycle", { method: "POST" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/system/sleep-cycle`, { method: "POST" });
       const data = await res.json();
       if (data.status === "success" && data.report) {
         setMessages(prev => [...prev, {
@@ -478,7 +478,7 @@ export default function Home() {
         setIsProcessing(true);
         try {
           const limit = args[0] || "15";
-          const res = await fetch(`http://localhost:8000/logs?limit=${limit}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/logs?limit=${limit}`);
           const data = await res.json();
 
           if (data.status === "success" && data.logs) {
@@ -505,7 +505,7 @@ export default function Home() {
       if (command === "logclear") {
         setIsProcessing(true);
         try {
-          await fetch("http://localhost:8000/logs", { method: "DELETE" });
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/logs`, { method: "DELETE" });
           setMessages(prev => [...prev, {
             id: "logclear-" + Date.now(),
             role: "assistant",
@@ -523,7 +523,7 @@ export default function Home() {
       if (command === "simulate") {
         setIsProcessing(true);
         try {
-          const res = await fetch("http://localhost:8000/system/simulate", { method: "POST" });
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/system/simulate`, { method: "POST" });
           const data = await res.json();
           if (data.status === "success") {
             setMessages(prev => [...prev, {
@@ -563,7 +563,7 @@ export default function Home() {
         content: "",
       }]);
 
-      const response = await fetch("http://localhost:8000/chat/stream", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: currentInput }),

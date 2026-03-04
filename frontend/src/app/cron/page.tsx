@@ -42,7 +42,7 @@ type Skill = {
   cron_enabled?: boolean;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}`;
 
 export default function CronPage() {
   const [tasks, setTasks] = useState<CronTask[]>([]);

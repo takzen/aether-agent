@@ -28,7 +28,7 @@ export default function Sidebar() {
 
     useEffect(() => {
         const fetchConfig = () => {
-            fetch("http://localhost:8000/config")
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/config`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "success") {

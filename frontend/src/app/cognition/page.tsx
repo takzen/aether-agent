@@ -51,7 +51,7 @@ export default function CognitionPage() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const response = await fetch("http://localhost:8000/cognition/settings");
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/cognition/settings`);
                 const data = await response.json();
                 if (data.status === "success") {
                     setPersona(data.settings.persona);
@@ -74,7 +74,7 @@ export default function CognitionPage() {
     const handleCommit = async () => {
         setIsSaving(true);
         try {
-            const response = await fetch("http://localhost:8000/cognition/settings", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/cognition/settings`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

@@ -48,7 +48,7 @@ export default function DocsPage() {
         setSelectedDoc(filename);
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8000/system/docs/content/${filename}?lang=${language}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/system/docs/content/${filename}?lang=${language}`);
             const data = await res.json();
             if (data.status === "success") {
                 setContent(data.content);
@@ -62,7 +62,7 @@ export default function DocsPage() {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`http://localhost:8000/system/docs?lang=${lang}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/system/docs?lang=${lang}`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success" && data.docs) {
