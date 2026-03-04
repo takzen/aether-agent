@@ -759,42 +759,28 @@ export default function LandingPage() {
                         </div>
                     </motion.div>
 
-                    {/* Siatka Linków Stopki */}
-                    <div className="w-full grid grid-cols-2 lg:grid-cols-5 gap-12 border-t border-white/10 pt-16 pb-16">
-                        <div className="col-span-2 flex flex-col gap-6">
+                    {/* Siatka Linków Stopki - Uproszczona */}
+                    <div className="w-full flex flex-col md:flex-row justify-between items-start gap-12 border-t border-white/10 pt-16 pb-16">
+                        <div className="flex flex-col gap-6 max-w-sm">
                             <span className="font-bold tracking-tighter text-2xl text-white flex items-center gap-3">
                                 <AetherLogo className="w-6 h-6" /> AETHER
                             </span>
-                            <p className="text-sm text-neutral-500 leading-relaxed max-w-sm">
-                                Premium autonomous agent architecture with long-term memory, hybrid cloud reasoning (Hetzner + Vercel), and transparent command execution. Built for the modern builder.
+                            <p className="text-sm text-neutral-500 leading-relaxed">
+                                Premium autonomous agent architecture with long-term memory, hybrid cloud reasoning (Hetzner + Vercel). Built for the modern builder.
                             </p>
-                            <div className="flex gap-4">
-                                <span className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-neutral-500 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"><Github className="w-4 h-4" /></span>
+                        </div>
+
+                        <div className="flex gap-16">
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Resources</h4>
+                                <Link href="https://github.com/takzen/aether-agent" className="text-neutral-400 hover:text-white transition-colors text-sm">Repository</Link>
+                                <Link href="/guide" className="text-neutral-400 hover:text-white transition-colors text-sm">System Manual</Link>
                             </div>
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <h4 className="text-white text-sm font-bold tracking-wider mb-2">Capabilities</h4>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Long-Term Memory</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Vector Knowledge Base</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Hybrid Reasoning</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Command Terminal</Link>
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <h4 className="text-white text-sm font-bold tracking-wider mb-2">Architecture</h4>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">FastAPI Engine</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Next.js UI Shell</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Qdrant Graph</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">SQLite State</Link>
-                        </div>
-
-                        <div className="flex flex-col gap-4">
-                            <h4 className="text-white text-sm font-bold tracking-wider mb-2">Ecosystem</h4>
-                            <Link href="https://github.com/takzen/aether-agent" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Repository</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Documentation</Link>
-                            <Link href="/dashboard" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Dashboard</Link>
-                            <Link href="/settings" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">System Config</Link>
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Platform</h4>
+                                <Link href="/dashboard" className="text-neutral-400 hover:text-white transition-colors text-sm">Access Pro</Link>
+                                <span className="text-neutral-600 text-sm">v1.5.0</span>
+                            </div>
                         </div>
                     </div>
 
