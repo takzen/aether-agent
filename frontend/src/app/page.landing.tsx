@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform, useSpring, useMotionTemplate, useMotionValue } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Globe, Zap, Shield, Database, Cpu, Network, Lock, Github } from "lucide-react";
+import { ArrowRight, Globe, Zap, Shield, Database, Cpu, Network, Lock, Github, Send } from "lucide-react";
 import { AetherLogo } from "@/components/AetherLogo";
 import { useRef } from "react";
 
@@ -71,11 +71,15 @@ export default function LandingPage() {
                     <AetherLogo className="w-8 h-8" />
                     <span className="font-bold tracking-tighter text-xl">AETHER</span>
                 </button>
-                <div className="flex gap-8 items-center">
-
-                    <Link href="https://github.com/takzen/aether-agent" target="_blank" className="hidden lg:block text-neutral-400 hover:text-white transition-colors text-sm font-medium">GitHub</Link>
-                    <Link href="/dashboard" className="px-6 py-2 border border-white/20 rounded-full hover:bg-white hover:text-black transition-all text-sm font-medium backdrop-blur-md">
-                        Access Terminal
+                <div className="flex gap-4 md:gap-6 items-center">
+                    <Link href="https://github.com/takzen/aether-agent" target="_blank" className="hidden lg:flex items-center gap-2 text-neutral-400 hover:text-white transition-colors text-sm font-medium group">
+                        <Github className="w-4 h-4" />
+                        <span>Open Source Core</span>
+                    </Link>
+                    <div className="hidden lg:block w-px h-4 bg-white/10" />
+                    <Link href="/dashboard" className="px-6 py-2.5 bg-white text-black hover:bg-purple-100 rounded-full transition-all text-sm font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center gap-2">
+                        <span>AETHER PRO</span>
+                        <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
             </nav>
@@ -321,26 +325,26 @@ export default function LandingPage() {
                         </div>
                     </Spotlight>
 
-                    {/* Feature 3: Transparent Thought Stream (Narrow) */}
+                    {/* Feature 3: Command Terminal (Narrow) */}
                     <Spotlight className="lg:col-span-1 rounded-[2rem] p-6 flex flex-col relative group overflow-hidden cursor-default bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-auto md:h-[380px]">
                         <div className="relative z-20 h-full flex flex-col">
                             <div className="flex items-start justify-between gap-4 mb-4">
-                                <h2 className="text-3xl font-bold tracking-tight text-white">Thought Stream</h2>
+                                <h2 className="text-3xl font-bold tracking-tight text-white">Command Terminal</h2>
                                 <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center border border-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.15)] flex-shrink-0">
                                     <Network className="w-6 h-6 text-green-400" />
                                 </div>
                             </div>
                             <p className="text-lg text-neutral-400 leading-relaxed font-light">
-                                Trust is built on visibility. Watch the Chain of Thought in real-time.
+                                Intercept the logic. Use slash commands like <span className="text-neutral-300 font-mono">/logs</span> and <span className="text-neutral-300 font-mono">/simulate</span>.
                             </p>
 
                             {/* Compact Visualization: Terminal */}
-                            <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col h-[180px] font-mono text-[10px] shadow-2xl">
-                                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/5 z-20">
+                            <div className="mt-auto rounded-xl bg-[#0a0a0a] border border-transparent relative overflow-hidden flex flex-col h-[180px] font-mono text-[10px] shadow-2xl">
+                                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/5 bg-white/5 z-20 shadow-md">
                                     <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50" />
-                                    <span className="ml-2 text-neutral-500 text-xs">thought_stream.log</span>
+                                    <span className="ml-2 text-neutral-500 text-xs tracking-wider font-bold">AETHER - ROOT@DASHBOARD</span>
                                 </div>
 
                                 <div className="p-4 space-y-1 overflow-hidden relative flex-1">
@@ -349,50 +353,44 @@ export default function LandingPage() {
                                     <motion.div
                                         className="flex flex-col gap-1.5"
                                         animate={{ y: [0, -120] }}
-                                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
                                     >
-                                        <div className="text-neutral-500 text-[9px] mb-2">{"// INITIATING REASONING CHAIN"}</div>
+                                        <div className="text-neutral-500 text-[9px] mb-2">{"// SECURE TUNNEL ESTABLISHED"}</div>
 
                                         <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:01]</span>
-                                            <span className="text-neutral-300">Parsing user intent...</span>
+                                            <span className="text-green-500">guest@aether</span>
+                                            <span className="text-neutral-300">~ % /cognition --set Strategist</span>
                                         </div>
                                         <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:02]</span>
-                                            <span className="text-purple-400">Context retrieved: 4 chunks</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:03]</span>
-                                            <span className="text-neutral-400">Filtering irrelevant nodes...</span>
-                                        </div>
-                                        <div className="flex gap-2 pl-4 border-l border-neutral-800">
-                                            <span className="text-neutral-600">&gt; Node A: Valid (0.91)</span>
-                                        </div>
-                                        <div className="flex gap-2 pl-4 border-l border-neutral-800">
-                                            <span className="text-neutral-600">&gt; Node B: Discarded</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:05]</span>
-                                            <span className="text-orange-400">Formulating hypothesis...</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:08]</span>
-                                            <span className="text-green-400">Generating final response.</span>
+                                            <span className="text-purple-400">&gt; Persona updated to [Strategist].</span>
                                         </div>
 
-                                        <div className="text-neutral-500 text-[9px] mt-2 mb-2">{"// NEW CYCLE START"}</div>
+                                        <div className="flex gap-2 mt-2">
+                                            <span className="text-green-500">guest@aether</span>
+                                            <span className="text-neutral-300">~ % /simulate "morning_brief"</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-neutral-500">[00:03]</span>
+                                            <span className="text-orange-400">NightCycleProcessor activated...</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-neutral-500">[00:04]</span>
+                                            <span className="text-blue-400">Consolidating 14 orphaned memories.</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <span className="text-neutral-500">[00:06]</span>
+                                            <span className="text-cyan-400">Active World Model logic triggered.</span>
+                                        </div>
+
+                                        <div className="text-neutral-500 text-[9px] mt-2 mb-2">{"// BACKGROUND AGENT TRACE"}</div>
 
                                         <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:12]</span>
-                                            <span className="text-neutral-300">Await input...</span>
+                                            <span className="text-neutral-500">[00:12]</span>
+                                            <span className="text-neutral-300">System Tool: connect_concepts x5</span>
                                         </div>
                                         <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:13]</span>
-                                            <span className="text-purple-400">Detecting pattern match</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <span className="text-blue-500">[00:15]</span>
-                                            <span className="text-neutral-400">Optimizing query path...</span>
+                                            <span className="text-neutral-500">[00:15]</span>
+                                            <span className="text-green-400">Morning Intelligence Brief generated.</span>
                                         </div>
                                     </motion.div>
                                 </div>
@@ -404,13 +402,13 @@ export default function LandingPage() {
                     <Spotlight className="lg:col-span-2 rounded-[2rem] p-6 flex flex-col group cursor-default relative overflow-hidden bg-neutral-900/40 backdrop-blur-xl border border-white/10 h-auto md:h-[380px]">
                         <div className="relative z-20 h-full flex flex-col">
                             <div className="flex items-start justify-between gap-4 mb-4">
-                                <h2 className="text-3xl font-bold text-white tracking-tight">Hybrid Core</h2>
+                                <h2 className="text-3xl font-bold text-white tracking-tight">Hybrid Cloud Engine</h2>
                                 <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex-shrink-0">
                                     <Cpu className="w-6 h-6 text-purple-400" />
                                 </div>
                             </div>
                             <p className="text-lg text-neutral-400 leading-relaxed font-light">
-                                Switch between SOTA cloud models (Gemini 3) for reasoning and local weights (Llama 3) for privacy. You own the stack.
+                                Fast Vercel edge deployment combined with a secure, dedicated Docker instance running on Hetzner VPS for deep reasoning.
                             </p>
 
                             {/* Bottom: Model List Container (same pattern as Cards 2 & 3) */}
@@ -450,7 +448,7 @@ export default function LandingPage() {
                                         <span className="text-[8px] text-neutral-500 font-mono">READY</span>
                                     </div>
 
-                                    {/* Model 4: Llama 3 (Active) */}
+                                    {/* Model 4: Dedicated Backend */}
                                     <div className="relative">
                                         <motion.div
                                             className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-green-500/50 via-emerald-500/50 to-green-500/50 opacity-30 blur-sm"
@@ -462,10 +460,10 @@ export default function LandingPage() {
                                                 <Lock className="w-3 h-3 text-green-400" />
                                                 <div>
                                                     <div className="text-[10px] font-bold text-white flex items-center gap-1">
-                                                        Llama 3.2
-                                                        <span className="text-[7px] px-1 bg-green-500/20 text-green-400 rounded border border-green-500/20 uppercase">Local</span>
+                                                        Aether Pro Core
+                                                        <span className="text-[7px] px-1 bg-green-500/20 text-green-400 rounded border border-green-500/20 uppercase">Hetzner VPS</span>
                                                     </div>
-                                                    <div className="text-[8px] text-green-400/70">Meta • Private</div>
+                                                    <div className="text-[8px] text-green-400/70">Linux • Docker • SQLite</div>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end">
@@ -473,7 +471,7 @@ export default function LandingPage() {
                                                     <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
                                                     <span className="text-[7px] text-green-400 font-bold">ACTIVE</span>
                                                 </div>
-                                                <span className="text-[7px] text-neutral-500 font-mono">12ms</span>
+                                                <span className="text-[7px] text-neutral-500 font-mono">159.xx VPS</span>
                                             </div>
                                         </div>
                                     </div>
@@ -506,9 +504,9 @@ export default function LandingPage() {
                     {[
                         {
                             step: "01",
-                            icon: <Globe className="w-6 h-6" />,
-                            title: "Upload",
-                            desc: "Feed Aether your documents, notes, and context. PDF, Markdown, plain text — it ingests everything.",
+                            icon: <Send className="w-6 h-6" />,
+                            title: "Bridge",
+                            desc: "Connect via Telegram or Web UI. Forward images, drop voice notes, or text directly to your agent.",
                             boxClass: "bg-purple-500/5 border-purple-500/20 group-hover:border-purple-500/40 group-hover:bg-purple-500/10",
                             badgeClass: "bg-purple-500/20 text-purple-400 border-purple-500/30",
                             iconClass: "text-purple-400"
@@ -517,7 +515,7 @@ export default function LandingPage() {
                             step: "02",
                             icon: <Zap className="w-6 h-6" />,
                             title: "Process",
-                            desc: "Content is chunked, embedded, and indexed into a vector knowledge graph with semantic links.",
+                            desc: "Content is analyzed, chunked, embedded, and indexed into a vector memory graph with semantic links.",
                             boxClass: "bg-blue-500/5 border-blue-500/20 group-hover:border-blue-500/40 group-hover:bg-blue-500/10",
                             badgeClass: "bg-blue-500/20 text-blue-400 border-blue-500/30",
                             iconClass: "text-blue-400"
@@ -614,126 +612,119 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                {/* Terminal Window */}
-                <div className="rounded-2xl bg-[#0a0a0a] border border-white/10 overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)]">
-                    {/* Title Bar */}
-                    <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
-                        <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/50" />
-                        <div className="w-3 h-3 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
-                        <div className="w-3 h-3 rounded-full bg-green-500/30 border border-green-500/50" />
-                        <span className="ml-3 text-xs text-neutral-500 font-mono">aether — session_live</span>
-                        <div className="ml-auto flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                            <span className="text-[10px] text-green-500/70 font-mono">CONNECTED</span>
+                {/* Terminal Window - Deep Black Premium Style */}
+                <div className="rounded-2xl bg-[#050505] border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.7)] flex flex-col">
+                    <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.03]">
+                        <div className="flex gap-1.5">
+                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/30 border border-red-500/50" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-green-500/30 border border-green-500/50" />
                         </div>
+                        <span className="ml-2 text-[10px] text-neutral-500 font-mono uppercase tracking-widest">aether - root@dashboard</span>
                     </div>
 
                     {/* Terminal Content */}
-                    <div className="p-6 space-y-5 font-mono text-sm min-h-[350px]">
-                        {/* User Message */}
+                    <div className="p-6 space-y-6 font-mono text-[13px] min-h-[400px] leading-relaxed">
+                        {/* User Message - Realistic CLI Input */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.3 }}
+                            className="flex items-start gap-2"
                         >
-                            <span className="text-purple-400">user@local</span>
-                            <span className="text-neutral-600"> ~ </span>
+                            <span className="text-purple-400 font-bold shrink-0">user@local</span>
+                            <span className="text-neutral-600">~</span>
                             <span className="text-neutral-500">$</span>
-                            <span className="text-white ml-2">What did we discuss about the authentication system last week?</span>
+                            <span className="text-neutral-200 ml-1">/simulate --context "latest_project_sync"</span>
                         </motion.div>
 
-                        {/* Aether Processing */}
+                        {/* Aether Processing - Realistic Log Output */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.9 }}
-                            className="space-y-1.5"
+                            className="space-y-2 pt-2"
                         >
-                            <div className="text-neutral-600 text-xs">
-                                <span className="text-blue-400/60">[aether]</span> Searching memory vectors...
+                            <div className="flex items-start gap-2 py-1.5 border-l-2 border-purple-500/50 bg-purple-500/5 pl-3">
+                                <span className="text-[10px] font-bold uppercase text-purple-400 min-w-[50px]">[BRIDGE]</span>
+                                <span className="text-neutral-400 text-[11px] leading-tight">Incoming sync from @takzen (Telegram).</span>
                             </div>
-                            <div className="flex items-center gap-2 text-xs">
-                                <span className="text-blue-400/60">[aether]</span>
-                                <span className="text-neutral-600">Found</span>
-                                <span className="text-green-400">3 relevant memories</span>
-                                <span className="text-neutral-600">•</span>
-                                <span className="text-neutral-500">similarity: 0.94</span>
-                                <span className="text-neutral-600">•</span>
-                                <span className="text-neutral-500">latency: 23ms</span>
+                            <div className="flex items-start gap-2 py-1.5 border-l-2 border-blue-500/50 bg-blue-500/5 pl-3">
+                                <span className="text-[10px] font-bold uppercase text-blue-400 min-w-[50px]">[INFO]</span>
+                                <span className="text-neutral-400 text-[11px] leading-tight">System simulation engine initialized.</span>
+                            </div>
+                            <div className="flex items-start gap-2 py-1.5 border-l-2 border-green-500/50 bg-green-500/5 pl-3">
+                                <span className="text-[10px] font-bold uppercase text-green-400 min-w-[50px]">[CORE]</span>
+                                <span className="text-neutral-400 text-[11px] leading-tight">Analyzing context similarity: 0.94 | latency: 23ms</span>
                             </div>
                         </motion.div>
 
-                        {/* Aether Response */}
+                        {/* Aether Response - System Insight Style */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: 1.5 }}
-                            className="rounded-lg bg-white/[0.02] border border-white/5 p-4 space-y-3"
+                            className="space-y-2 p-3 border border-cyan-500/50 bg-cyan-500/[0.03] rounded-lg"
                         >
-                            <div className="flex items-center gap-2 text-xs text-green-400/80 mb-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                <span className="font-bold">AETHER RESPONSE</span>
+                            <div className="flex items-center gap-2 mb-1 opacity-50">
+                                <div className="w-1 h-1 rounded-full bg-green-500" />
+                                <span className="text-[10px] font-bold uppercase tracking-wider">System Insight</span>
                             </div>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 1.8 }}
-                                className="text-neutral-300 leading-relaxed text-[13px]"
-                            >
-                                Last Tuesday, you outlined a <span className="text-purple-400">JWT-based auth flow</span> with refresh token rotation.
-                                Key decisions:
-                            </motion.p>
-                            <motion.ul
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 2.2 }}
-                                className="space-y-1 text-[13px]"
-                            >
-                                <li className="text-neutral-400">
-                                    <span className="text-green-400 mr-2">→</span>
-                                    Supabase Auth for session management
-                                </li>
-                                <li className="text-neutral-400">
-                                    <span className="text-green-400 mr-2">→</span>
-                                    RLS policies on all public tables
-                                </li>
-                                <li className="text-neutral-400">
-                                    <span className="text-green-400 mr-2">→</span>
-                                    Custom claims for role-based access (admin, editor, viewer)
-                                </li>
-                            </motion.ul>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: 2.6 }}
-                                className="text-neutral-500 text-xs pt-2 border-t border-white/5"
-                            >
-                                Sources: conversation_feb_08.md • auth_architecture.pdf • notes_security.md
-                            </motion.p>
+                            <div className="text-neutral-300 leading-relaxed text-[13px]">
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    whileInView={{ opacity: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: 1.8 }}
+                                    className="mb-2"
+                                >
+                                    Analysis of <strong className="text-white font-semibold">latest_project_sync</strong> completed. The core architecture is successfully migrating to a hybrid cloud model.
+                                </motion.p>
+                                <motion.ul
+                                    initial={{ opacity: 0 }}
+                                    whileInView={{ opacity: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: 2.2 }}
+                                    className="list-disc ml-5 space-y-1 text-neutral-400"
+                                >
+                                    <li>Vercel Edge Deployment: <span className="text-green-400 opacity-80">STABLE</span></li>
+                                    <li>Hetzner VPS Backend: <span className="text-green-400 opacity-80">ACTIVE (159.xx)</span></li>
+                                    <li>Knowledge Base: <span className="text-purple-400 opacity-80">1,242 concepts indexed</span></li>
+                                </motion.ul>
+                            </div>
                         </motion.div>
 
-                        {/* Blinking Cursor */}
+                        {/* Prompt Input State */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
-                            transition={{ delay: 3.0 }}
+                            transition={{ delay: 2.8 }}
+                            className="flex items-center gap-2 pt-2"
                         >
-                            <span className="text-purple-400">user@local</span>
-                            <span className="text-neutral-600"> ~ </span>
+                            <span className="text-purple-400 font-bold">user@local</span>
+                            <span className="text-neutral-600">~</span>
                             <span className="text-neutral-500">$</span>
                             <motion.span
                                 animate={{ opacity: [1, 0] }}
                                 transition={{ duration: 0.8, repeat: Infinity, ease: "linear", repeatType: "reverse" }}
-                                className="ml-2 inline-block w-2.5 h-4 bg-white/70 align-middle"
+                                className="inline-block w-2.5 h-4 bg-white/70 align-middle"
                             />
                         </motion.div>
+                    </div>
+
+                    {/* Terminal Input Area Mock - Deep Contrast */}
+                    <div className="px-4 py-3 border-t border-white/5 bg-black/40 shrink-0">
+                        <div className="flex items-center gap-2 bg-white/[0.02] border border-white/5 rounded-lg px-4 py-2 opacity-50">
+                            <span className="text-purple-400/50 font-mono text-xs font-bold whitespace-nowrap">user@local:</span>
+                            <div className="text-neutral-600 text-xs font-mono">Execute system command or run task...</div>
+                            <div className="ml-auto">
+                                <Send className="w-3 h-3 text-purple-400/30" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </motion.section>
@@ -762,13 +753,8 @@ export default function LandingPage() {
                             Aether is an engineering scaffold that turns raw algorithms into a capable, personal agent. Fully transparent. Totally private.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-                            <Link href="/dashboard" className="px-8 py-4 bg-white text-black font-bold rounded-xl flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.15)] group">
-                                <span>Access Terminal</span>
-                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                            <Link href="https://github.com/takzen/aether-agent" target="_blank" className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-xl flex items-center gap-3 hover:bg-white/10 transition-colors">
-                                <Github className="w-4 h-4" />
-                                <span>Source Code</span>
+                            <Link href="/dashboard" className="px-12 py-5 bg-white text-black font-bold rounded-xl flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_50px_rgba(255,255,255,0.2)] group uppercase tracking-tighter text-lg">
+                                <span>AETHER PRO ➔</span>
                             </Link>
                         </div>
                     </motion.div>
@@ -780,7 +766,7 @@ export default function LandingPage() {
                                 <AetherLogo className="w-6 h-6" /> AETHER
                             </span>
                             <p className="text-sm text-neutral-500 leading-relaxed max-w-sm">
-                                Advanced autonomous agent architecture with long-term memory, dual-core reasoning, and transparent thought streams. Built for the modern builder.
+                                Premium autonomous agent architecture with long-term memory, hybrid cloud reasoning (Hetzner + Vercel), and transparent command execution. Built for the modern builder.
                             </p>
                             <div className="flex gap-4">
                                 <span className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-neutral-500 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"><Github className="w-4 h-4" /></span>
@@ -792,7 +778,7 @@ export default function LandingPage() {
                             <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Long-Term Memory</Link>
                             <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Vector Knowledge Base</Link>
                             <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Hybrid Reasoning</Link>
-                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Thought Stream</Link>
+                            <Link href="#" className="text-neutral-500 hover:text-purple-400 transition-colors text-sm">Command Terminal</Link>
                         </div>
 
                         <div className="flex flex-col gap-4">
