@@ -37,6 +37,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
                                 formButtonPrimary: "bg-white text-black hover:bg-neutral-200",
                                 formFieldLabel: "text-neutral-300",
                                 formFieldInput: "bg-black/50 border-white/10 text-white",
+                                footer: "hidden",
                                 footerAction: "hidden",
                                 footerActionText: "hidden",
                                 footerActionLink: "hidden",
