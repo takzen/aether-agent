@@ -4,7 +4,7 @@
 set -e
 
 echo "======================================================="
-echo "         [ AETHER ] - Installation script (v1.0)"
+echo "         [ AETHER ] - Installation script (v1.5.0)"
 echo "======================================================="
 echo ""
 echo "Checking prerequisites..."

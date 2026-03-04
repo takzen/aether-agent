@@ -2,6 +2,14 @@
 
 Wszystkie znaczące zmiany w Aether Agent są tutaj udokumentowane.
 
+## [1.5.0] - 2026-03-04
+
+### Dodano
+- **Wdrożenie Hybrydowej Chmury (Vercel + Hetzner)**: Rozdzielono architekturę na całkowicie zdalny serwer (Backend) stojący na stabilnym serwerze VPS zbudowany na Dockerze oraz lekki, szybki frontend Next.js umieszczony na globalnej infrastrukturze Vercel.
+- **Autoryzacja od Clerk**: Skonfigurowano zamknięty model prywatnego logowania dla agenta ukrywając całkowicie otwartą publiczną rejestrację za pomocą twardych narzutów w stylach aplikacji.
+- **Globalne Odwrócone Proxy (Next.js Rewrites)**: Skonfigurowano bezpieczne tunelowanie API przez domenowy podwęzeł `/api/v1`, pomijając rygorystyczne zasady blokujące "Mixed Content" w obostrzeniach środowiska HTTPS we współczesnych przeglądarkach.
+- Usunięto na stałe archaiczne odniesienia kodu do węzła "Localhost" na poszczególnych stronach pulpitu. Architektura od teraz polega dynamicznie w całości na `NEXT_PUBLIC_API_URL`.
+
 ## [1.4.2] - 2026-03-02
 
 ### Dodano

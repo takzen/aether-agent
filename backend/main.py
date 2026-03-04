@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
 
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="Aether API", version="1.4.0", lifespan=lifespan)
+app = FastAPI(title="Aether API", version="1.5.0", lifespan=lifespan)
 
 workspace_path = Path(__file__).resolve().parent.parent / "workspace"
 workspace_path.mkdir(parents=True, exist_ok=True)
@@ -329,7 +329,7 @@ async def vision_index_pdf(filename: str, max_pages: int = 4, model: str | None 
 
 @app.get("/ping")
 async def ping():
-    return {"status": "success", "message": "pong", "version": "1.4.0"}
+    return {"status": "success", "message": "pong", "version": "1.5.0"}
 
 @app.get("/stats")
 async def get_stats():
