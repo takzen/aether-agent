@@ -6,7 +6,12 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { AetherLogo } from "@/components/AetherLogo";
 import { useState, useEffect } from "react";
-import { UserButton } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
+
+const DynamicUserButton = dynamic(
+    () => import("@clerk/nextjs").then((mod) => mod.UserButton),
+    { ssr: false, loading: () => <div className="w-8 h-8 rounded-full bg-purple-500/20 border border-purple-500/30 animate-pulse" /> }
+);
 
 const menuItems = [
     { icon: Home, label: "Command Center", href: "/dashboard" }, // Updated href to match dashboard route
@@ -96,7 +101,7 @@ export default function Sidebar() {
                 <div className="p-2 xl:p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center xl:justify-start gap-3">
                     <div className="w-8 h-8 flex items-center justify-center shrink-0">
                         {process.env.NEXT_PUBLIC_ENABLE_AUTH === "true" ? (
-                            <UserButton
+                            <DynamicUserButton
                                 appearance={{
                                     elements: {
                                         userButtonAvatarBox: "w-8 h-8 rounded-full border border-purple-500/30",
