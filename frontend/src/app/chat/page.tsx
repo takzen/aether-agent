@@ -446,13 +446,13 @@ export default function ChatPage() {
         }
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         setMounted(true);
         fetchSessions();
         const params = new URLSearchParams(window.location.search);
         const prefill = params.get("prefill");
         if (prefill) setInput(prefill);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 

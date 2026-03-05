@@ -159,9 +159,9 @@ export default function CronPage() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createJob = async () => {
@@ -295,10 +295,10 @@ export default function CronPage() {
             {actionStatus && (
               <div
                 className={`text-xs rounded-lg px-3 py-2 border ${actionStatus.type === "error"
-                    ? "text-red-300 bg-red-500/10 border-red-500/30"
-                    : actionStatus.type === "success"
-                      ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
-                      : "text-cyan-300 bg-cyan-500/10 border-cyan-500/30"
+                  ? "text-red-300 bg-red-500/10 border-red-500/30"
+                  : actionStatus.type === "success"
+                    ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
+                    : "text-cyan-300 bg-cyan-500/10 border-cyan-500/30"
                   }`}
               >
                 {actionStatus.message}

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Sidebar from "@/components/Sidebar";
-import { Cpu, Plus, Trash2, FileText, ExternalLink, X, Loader2, Pencil } from "lucide-react";
+import { Cpu, Plus, Trash2, ExternalLink, X, Loader2, Pencil } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 type AgentSkill = {
