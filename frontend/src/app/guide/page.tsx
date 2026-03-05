@@ -41,33 +41,21 @@ export default function GuidePage() {
 
             {/* Navigation */}
             <nav className="relative z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl sticky top-0">
-                <div className="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+                <div className="max-w-[1400px] w-full mx-auto px-8 h-20 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-3 group">
                         <ArrowLeft className="w-4 h-4 text-neutral-500 group-hover:text-white transition-colors" />
                         <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-50 group-hover:opacity-100 transition-opacity">Main Engine</span>
                     </Link>
                     <div className="flex items-center gap-3">
                         <AetherLogo className="w-6 h-6 text-white" />
-                        <span className="font-bold tracking-tighter text-lg uppercase">System Manual</span>
-                    </div>
-                    <div className="hidden md:flex items-center gap-6 text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase">
-                        <Link href="#architecture" className="hover:text-white transition-colors">Architecture</Link>
-                        <Link href="#cognition" className="hover:text-white transition-colors">Cognition</Link>
-                        <Link href="#features" className="hover:text-white transition-colors">Features</Link>
+                        <span className="font-bold tracking-tighter text-lg uppercase">Documentation</span>
                     </div>
                 </div>
             </nav>
 
             {/* Hero Section */}
             <header className="relative pt-32 pb-24 px-8 border-b border-white/5">
-                <div className="max-w-4xl mx-auto space-y-8">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold tracking-[0.2em] text-neutral-400 uppercase"
-                    >
-                        Hybrid Intelligence Protocol (HIP)
-                    </motion.div>
+                <div className="max-w-[1400px] mx-auto space-y-8">
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -89,37 +77,25 @@ export default function GuidePage() {
             </header>
 
             {/* Content Sections */}
-            <main className="relative z-10 max-w-6xl mx-auto px-8 py-32 space-y-40">
+            <main className="relative z-10 max-w-[1400px] w-full mx-auto px-8 py-32 space-y-40">
 
                 {/* 1. Architecture Section */}
-                <section id="architecture" className="space-y-16">
-                    <div className="flex flex-col md:flex-row gap-12 items-start">
-                        <div className="w-full md:w-1/2 space-y-8">
-                            <h2 className="text-xs font-bold tracking-[0.3em] text-purple-500 uppercase">01. Architecture</h2>
-                            <h3 className="text-4xl font-bold tracking-tight">The Neural Stack.</h3>
-                            <p className="text-neutral-400 leading-relaxed text-lg font-light">
-                                Aether operates on a multi-layered memory and processing architecture. It bridges the gap between stateful persistence and high-speed neural processing.
-                            </p>
-                            <div className="grid grid-cols-1 gap-6">
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
-                                    <span className="text-white font-bold text-sm block">Vector Memory (Qdrant)</span>
-                                    <p className="text-sm text-neutral-500">Stores semantic memories and indexed knowledge base documents as High-Dimensional embeddings.</p>
-                                </div>
-                                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
-                                    <span className="text-white font-bold text-sm block">Relational Core (SQLite)</span>
-                                    <p className="text-sm text-neutral-500">Logs, session history, and the Concept Constellation graph that links facts into logical structures.</p>
-                                </div>
-                            </div>
+                <section id="architecture" className="space-y-12">
+                    <div className="max-w-5xl space-y-6">
+                        <h2 className="text-xs font-bold tracking-[0.3em] text-purple-500 uppercase">01. Architecture</h2>
+                        <h3 className="text-4xl font-bold tracking-tight">The Neural Stack.</h3>
+                        <p className="text-neutral-400 leading-relaxed text-lg font-light">
+                            Aether operates on a multi-layered memory and processing architecture. It bridges the gap between stateful persistence and high-speed neural processing.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-6 rounded-2xl bg-[#050505] border border-white/5 space-y-2 hover:border-white/10 transition-colors">
+                            <span className="text-white font-bold text-sm block">Vector Memory (Qdrant)</span>
+                            <p className="text-sm text-neutral-500">Stores semantic memories and indexed knowledge base documents as High-Dimensional embeddings.</p>
                         </div>
-                        <div className="w-full md:w-1/2 aspect-video md:aspect-square rounded-3xl bg-[#050505] border border-white/10 p-8 relative overflow-hidden flex items-center justify-center">
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent" />
-                            <div className="relative z-10 w-full h-full flex flex-col items-center justify-center gap-4">
-                                <Activity className="w-12 h-12 text-purple-500 animate-pulse" />
-                                <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest text-center">
-                                    HIP Runtime Active <br />
-                                    Subagent Simulation: 100%
-                                </div>
-                            </div>
+                        <div className="p-6 rounded-2xl bg-[#050505] border border-white/5 space-y-2 hover:border-white/10 transition-colors">
+                            <span className="text-white font-bold text-sm block">Relational Core (SQLite)</span>
+                            <p className="text-sm text-neutral-500">Logs, session history, and the Concept Constellation graph that links facts into logical structures.</p>
                         </div>
                     </div>
                 </section>
@@ -151,7 +127,7 @@ export default function GuidePage() {
 
                 {/* 3. Features Breakdown */}
                 <section id="features" className="space-y-20">
-                    <div className="max-w-3xl space-y-6">
+                    <div className="max-w-5xl space-y-6">
                         <h2 className="text-xs font-bold tracking-[0.3em] text-purple-500 uppercase">03. Advanced Systems</h2>
                         <h3 className="text-4xl font-bold tracking-tight">Beyond The Chatbot.</h3>
                     </div>
@@ -209,29 +185,75 @@ export default function GuidePage() {
                     </div>
                 </section>
 
-                {/* Final Call To Action */}
-                <section className="py-20 border-t border-white/5 flex flex-col items-center text-center space-y-8">
-                    <div className="space-y-4 max-w-xl">
-                        <h2 className="text-3xl font-bold tracking-tight">Initialize The Agent.</h2>
-                        <p className="text-neutral-500 font-light leading-relaxed">
-                            Aether Pro provides the dedicated backend infrastructure on Hetzner to keep your World Model active 24/7.
+                {/* 4. Terminal Commands */}
+                <section id="commands" className="space-y-12">
+                    <div className="max-w-5xl space-y-6">
+                        <h2 className="text-xs font-bold tracking-[0.3em] text-green-500 uppercase">04. Terminal Commands</h2>
+                        <h3 className="text-4xl font-bold tracking-tight">Dashboard Interceptor.</h3>
+                        <p className="text-neutral-400 leading-relaxed text-lg font-light">
+                            The terminal in the Aether Dashboard is a powerful diagnostic tool. Slash commands are interpreted locally by the Interceptor.
                         </p>
                     </div>
-                    <Link href="/dashboard" className="px-10 py-4 bg-white text-black font-bold rounded-xl hover:scale-105 transition-all uppercase tracking-tighter text-sm">
-                        Access Dashboard ➔
-                    </Link>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[
+                            { cmd: "/logs [limit]", desc: "Displays the latest entries from the system event log.", usage: "Error diagnostics, viewing recent Agent actions." },
+                            { cmd: "/clear", desc: "Clears all history visible in the terminal window.", usage: "Tidying up the workspace before a new task." },
+                            { cmd: "/logclear", desc: "Permanently deletes all telemetry history from the database.", usage: "Refreshing the logs database. Irreversible." },
+                            { cmd: "/simulate", desc: "Launches the Active World Model (AWM).", usage: "Generates proactive insights from the last 30 minutes." }
+                        ].map((item, i) => (
+                            <div key={i} className="p-6 rounded-2xl bg-[#050505] border border-white/5 space-y-4 hover:border-white/10 transition-colors">
+                                <div className="inline-flex px-3 py-1 rounded bg-green-500/10 border border-green-500/20 font-mono text-sm text-green-400">
+                                    {item.cmd}
+                                </div>
+                                <p className="text-neutral-400 text-sm font-light leading-relaxed">{item.desc}</p>
+                                <div className="text-[11px] text-neutral-500 font-mono uppercase tracking-widest"><span className="text-white/30">Usage:</span> {item.usage}</div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 5. API Reference */}
+                <section id="api" className="space-y-12">
+                    <div className="max-w-5xl space-y-6">
+                        <h2 className="text-xs font-bold tracking-[0.3em] text-orange-500 uppercase">05. API Reference</h2>
+                        <h3 className="text-4xl font-bold tracking-tight">REST Endpoints.</h3>
+                        <p className="text-neutral-400 leading-relaxed text-lg font-light">
+                            The Aether backend exposes a heavily documented FastAPI REST interface. Below are the key endpoints for system integration.
+                        </p>
+                    </div>
+
+                    <div className="space-y-4">
+                        {[
+                            { method: "POST", path: "/chat/stream", desc: "Primary streaming endpoint (NDJSON). Applies live cognition settings." },
+                            { method: "GET", path: "/cognition/settings", desc: "Returns runtime parameters for persona, autonomy, and creativity." },
+                            { method: "POST", path: "/system/simulate", desc: "Triggers the AWM simulation loop externally." },
+                            { method: "POST", path: "/knowledge/vision-index/{file}", desc: "Multimodal vision indexing mapping PDF pages into the vector store." },
+                            { method: "GET", path: "/cron/tasks", desc: "Lists available automated background task handlers." }
+                        ].map((api, i) => (
+                            <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl bg-[#050505] border border-white/5 hover:bg-white/[0.04] transition-colors">
+                                <div className="flex items-center gap-3 shrink-0 sm:w-64">
+                                    <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${api.method === 'GET' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                        api.method === 'POST' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                            api.method === 'DELETE' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                                'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                                        }`}>
+                                        {api.method}
+                                    </span>
+                                    <span className="font-mono text-sm text-white">{api.path}</span>
+                                </div>
+                                <p className="text-sm text-neutral-500 font-light">{api.desc}</p>
+                            </div>
+                        ))}
+                    </div>
                 </section>
 
             </main>
 
             {/* Footer */}
             <footer className="border-t border-white/5 py-12 px-8 flex flex-col items-center gap-6">
-                <div className="flex items-center gap-6 text-[10px] font-bold tracking-[0.2em] text-neutral-500 uppercase">
-                    <Link href="/" className="hover:text-white">Home</Link>
-                    <Link href="https://github.com/takzen/aether-agent" className="hover:text-white">Repository</Link>
-                </div>
                 <div className="text-[10px] text-neutral-700 font-mono uppercase tracking-[0.2em]">
-                    &copy; 2026 Aether Agency • Verified Architecture
+                    &copy; 2026 AETHER
                 </div>
             </footer>
         </div>

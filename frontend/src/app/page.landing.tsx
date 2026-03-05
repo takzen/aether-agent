@@ -187,7 +187,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="max-w-7xl mx-auto px-4 pt-40 pb-32 scroll-mt-32"
+                className="max-w-[1400px] w-full mx-auto px-4 pt-40 pb-32 scroll-mt-32"
                 id="features"
             >
                 <div className="text-center mb-16 space-y-4">
@@ -487,7 +487,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="max-w-7xl mx-auto px-4 py-32 relative"
+                className="max-w-[1400px] w-full mx-auto px-4 py-32 relative"
             >
                 <div className="text-center mb-20 space-y-4">
                     <h2 className="text-sm font-mono text-blue-400 uppercase tracking-[0.3em]">The Process</h2>
@@ -602,7 +602,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="max-w-4xl mx-auto px-4 py-32 relative"
+                className="max-w-[1400px] w-full mx-auto px-4 py-32 relative"
             >
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-sm font-mono text-green-400 uppercase tracking-[0.3em]">Live Preview</h2>
@@ -613,7 +613,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Terminal Window - Deep Black Premium Style */}
-                <div className="rounded-2xl bg-[#050505] border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.7)] flex flex-col">
+                <div className="rounded-2xl bg-[#050505] border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.7)] flex flex-col max-w-5xl mx-auto">
                     <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.03]">
                         <div className="flex gap-1.5">
                             <div className="w-2.5 h-2.5 rounded-full bg-red-500/30 border border-red-500/50" />
@@ -736,7 +736,7 @@ export default function LandingPage() {
                 {/* Środkowy blask na dolnej krawędzi */}
                 <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-900/10 blur-[120px] rounded-full pointer-events-none" />
 
-                <div className="relative z-10 w-full max-w-7xl px-8 flex flex-col items-center">
+                <div className="relative z-10 w-full max-w-[1400px] px-8 flex flex-col items-center">
 
                     {/* Główny blok Call To Action */}
                     <motion.div
@@ -760,7 +760,10 @@ export default function LandingPage() {
                     </motion.div>
 
                     {/* Siatka Linków Stopki - Uproszczona */}
-                    <div className="w-full flex flex-col md:flex-row justify-between items-start gap-12 border-t border-white/10 pt-16 pb-16">
+                    <div className="w-full flex flex-col md:flex-row justify-between items-start gap-12 border-t border-white/10 pt-16 pb-16 relative">
+                        {/* Subtelny glow na górnej krawędzi stopki */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+
                         <div className="flex flex-col gap-6 max-w-sm">
                             <span className="font-bold tracking-tighter text-2xl text-white flex items-center gap-3">
                                 <AetherLogo className="w-6 h-6" /> AETHER
@@ -770,23 +773,29 @@ export default function LandingPage() {
                             </p>
                         </div>
 
-                        <div className="flex gap-16">
+                        <div className="flex flex-wrap gap-8 md:gap-16">
                             <div className="flex flex-col gap-4">
-                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Resources</h4>
-                                <Link href="https://github.com/takzen/aether-agent" className="text-neutral-400 hover:text-white transition-colors text-sm">Repository</Link>
-                                <Link href="/guide" className="text-neutral-400 hover:text-white transition-colors text-sm">System Manual</Link>
+                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Products</h4>
+                                <Link href="/what-is-aether" className="text-neutral-400 hover:text-white transition-colors text-sm">What is Aether</Link>
+                                <Link href="/news" className="text-neutral-400 hover:text-white transition-colors text-sm">News</Link>
                             </div>
                             <div className="flex flex-col gap-4">
-                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Platform</h4>
-                                <Link href="/dashboard" className="text-neutral-400 hover:text-white transition-colors text-sm">Access Pro</Link>
-                                <span className="text-neutral-600 text-sm">v1.5.0</span>
+                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Developers</h4>
+                                <Link href="/guide" className="text-neutral-400 hover:text-white transition-colors text-sm">Documentation</Link>
+                                <Link href="https://github.com/takzen/aether-agent" className="text-neutral-400 hover:text-white transition-colors text-sm">GitHub</Link>
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Company</h4>
+                                <Link href="/about" className="text-neutral-400 hover:text-white transition-colors text-sm">About us</Link>
+                                <Link href="/privacy" className="text-neutral-400 hover:text-white transition-colors text-sm">Privacy policy</Link>
+                                <Link href="/terms" className="text-neutral-400 hover:text-white transition-colors text-sm">Terms of service</Link>
                             </div>
                         </div>
                     </div>
 
                     {/* Najniższy Panel i Prawa Autorskie */}
-                    <div className="w-full flex flex-col items-center justify-center text-neutral-600 text-[10px] uppercase tracking-widest font-mono border-t border-white/5 pt-8 pb-4">
-                        <span>&copy; AETHER</span>
+                    <div className="w-full flex items-center justify-center text-neutral-600 text-[10px] uppercase tracking-widest font-mono border-t border-white/5 pt-8 pb-4">
+                        <span>&copy; 2026 AETHER</span>
                     </div>
 
                 </div>
