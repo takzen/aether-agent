@@ -13,8 +13,26 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aether | Personal AI Intelligence",
-  description: "The proactive, type-safe personal intelligence layer.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aetheragent.pl'),
+  title: "Aether | Premium Personal Intelligence",
+  description: "Aether is a proactive, type-safe personal AI intelligence layer and autonomous agent architecture with long-term memory.",
+  keywords: ["Autonomous Agent", "AI", "Personal Intelligence", "Second Brain", "LLM", "Hetzner", "Vercel", "RAG"],
+  authors: [{ name: "Aether Team" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Aether | Premium Personal Intelligence",
+    description: "The proactive, type-safe personal intelligence layer.",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aether | Premium Personal Intelligence",
+    description: "The proactive, type-safe personal intelligence layer.",
+  },
   icons: {
     icon: "/icon.svg",
   },
