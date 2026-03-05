@@ -446,6 +446,7 @@ export default function ChatPage() {
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         setMounted(true);
         fetchSessions();

@@ -62,7 +62,7 @@ export default function TermsPage() {
                     <section className="space-y-4">
                         <h2 className="text-xs font-bold tracking-[0.3em] text-neutral-500 uppercase">1. Provision of Service</h2>
                         <p className="text-lg text-neutral-400">
-                            The Aether Agent open-source software is provided "AS IS", without warranty of any kind, express or implied. In no event shall the developers be held liable for any claim, damages, or other liability arising out of the software's autonomous file execution operations.
+                            The Aether Agent open-source software is provided &quot;AS IS&quot;, without warranty of any kind, express or implied. In no event shall the developers be held liable for any claim, damages, or other liability arising out of the software&apos;s autonomous file execution operations.
                         </p>
                     </section>
 

@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform, useSpring, useMotionTemplate, useMotionValue } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Globe, Zap, Shield, Database, Cpu, Network, Lock, Github, Send } from "lucide-react";
+import { ArrowRight, Zap, Shield, Database, Cpu, Network, Lock, Github, Send } from "lucide-react";
 import { AetherLogo } from "@/components/AetherLogo";
 import { useRef } from "react";
 
@@ -367,7 +367,7 @@ export default function LandingPage() {
 
                                         <div className="flex gap-2 mt-2">
                                             <span className="text-green-500">guest@aether</span>
-                                            <span className="text-neutral-300">~ % /simulate "morning_brief"</span>
+                                            <span className="text-neutral-300">~ % /simulate &quot;morning_brief&quot;</span>
                                         </div>
                                         <div className="flex gap-2">
                                             <span className="text-neutral-500">[00:03]</span>
@@ -636,7 +636,7 @@ export default function LandingPage() {
                             <span className="text-purple-400 font-bold shrink-0">user@local</span>
                             <span className="text-neutral-600">~</span>
                             <span className="text-neutral-500">$</span>
-                            <span className="text-neutral-200 ml-1">/simulate --context "latest_project_sync"</span>
+                            <span className="text-neutral-200 ml-1">/simulate --context &quot;latest_project_sync&quot;</span>
                         </motion.div>
 
                         {/* Aether Processing - Realistic Log Output */}

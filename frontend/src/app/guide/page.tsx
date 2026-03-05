@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Shield, Zap, Brain, MessageSquare, Terminal, Cpu, Database, Network, Moon, Sun, Activity } from "lucide-react";
+import { ArrowLeft, Shield, Zap, Brain, Network, Moon, Sun } from "lucide-react";
 
 const AetherLogo = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -141,7 +141,7 @@ export default function GuidePage() {
                                 <div className="space-y-2">
                                     <h4 className="font-bold text-lg text-white">Active World Model (AWM)</h4>
                                     <p className="text-neutral-400 font-light leading-relaxed">
-                                        Proactivity engine that cyclically analyzes system logs and interaction history to generate "System Insights" and detect project conflicts automatically.
+                                        Proactivity engine that cyclically analyzes system logs and interaction history to generate &quot;System Insights&quot; and detect project conflicts automatically.
                                     </p>
                                 </div>
                             </div>

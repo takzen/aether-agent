@@ -1,0 +1,55 @@
+﻿
+> frontend@1.5.0 lint C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend
+> eslint
+
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\about\page.tsx
+  77:40   error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  77:270  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  77:279  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\chat\page.tsx
+  455:8  warning  React Hook useEffect has a missing dependency: 'fetchSessions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\cron\page.tsx
+  164:6  warning  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\guide\page.tsx
+    5:41   warning  'MessageSquare' is defined but never used                        @typescript-eslint/no-unused-vars
+    5:56   warning  'Terminal' is defined but never used                             @typescript-eslint/no-unused-vars
+    5:66   warning  'Cpu' is defined but never used                                  @typescript-eslint/no-unused-vars
+    5:71   warning  'Database' is defined but never used                             @typescript-eslint/no-unused-vars
+    5:101  warning  'Activity' is defined but never used                             @typescript-eslint/no-unused-vars
+  144:133  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  144:149  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\news\page.tsx
+   5:21  warning  'Rocket' is defined but never used        @typescript-eslint/no-unused-vars
+   5:29  warning  'Zap' is defined but never used           @typescript-eslint/no-unused-vars
+  80:28  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\page.landing.tsx
+    5:22   warning  'Globe' is defined but never used                                @typescript-eslint/no-unused-vars
+  370:94   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  370:108  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  639:89   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  639:109  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\skills\page.tsx
+  5:29  warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\terms\page.tsx
+  65:79   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  65:85   error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  65:256  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\app\what-is-aether\page.tsx
+  84:41  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  84:58  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\takze\OneDrive\Pulpit\project\aether-agent\frontend\src\proxy.ts
+  5:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ôťľ 27 problems (16 errors, 11 warnings)
+
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Rocket, Zap, Shield, GitCommit, Orbit } from "lucide-react";
+import { ArrowLeft, Shield, GitCommit, Orbit } from "lucide-react";
 
 const AetherLogo = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -77,7 +77,7 @@ const newsUpdates = [
 ];
 
 // Reusing generic icon import workaround 
-function BrainAlias(props: any) {
+function BrainAlias(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg
             {...props}

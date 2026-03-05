@@ -74,7 +74,7 @@ export default function AboutPage() {
                     <section className="space-y-4">
                         <h2 className="text-xs font-bold tracking-[0.3em] text-neutral-500 uppercase">Architecture over Magic</h2>
                         <p className="text-lg text-neutral-400">
-                            Aether wasn't built to be another chat interface. It was engineered from the ground up as a fully connected architecture with specific database roles (Qdrant for vector embeddings, SQLite for relational persistence). We replaced the generic "AI magic" with deterministic pipelines and structured context handling.
+                            Aether wasn&apos;t built to be another chat interface. It was engineered from the ground up as a fully connected architecture with specific database roles (Qdrant for vector embeddings, SQLite for relational persistence). We replaced the generic &quot;AI magic&quot; with deterministic pipelines and structured context handling.
                         </p>
                     </section>
 

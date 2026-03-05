@@ -1,8 +1,8 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import type { NextRequest, NextFetchEvent } from "next/server";
 
-export default function middleware(request: NextRequest, event: any) {
+export default function middleware(request: NextRequest, event: NextFetchEvent) {
     // Jeśli autoryzacja jest WYŁĄCZONA na poziomie Vercel lub lokalnie, omijamy middleware
     if (process.env.NEXT_PUBLIC_ENABLE_AUTH !== "true") {
         return NextResponse.next();

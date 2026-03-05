@@ -81,7 +81,7 @@ export default function WhatIsAetherPage() {
                         </div>
                         <h2 className="text-2xl font-bold tracking-tight">Deterministic Operations</h2>
                         <p className="text-neutral-400 text-lg font-light leading-relaxed">
-                            We bypassed "AI hallucination" by strictly typing tool requests through Pydantic models. Aether utilizes concrete bash interfaces, system file-read capabilities, and explicit Git operations under a robust Human-in-the-Loop constraint.
+                            We bypassed &quot;AI hallucination&quot; by strictly typing tool requests through Pydantic models. Aether utilizes concrete bash interfaces, system file-read capabilities, and explicit Git operations under a robust Human-in-the-Loop constraint.
                         </p>
                     </section>
 

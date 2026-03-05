@@ -159,6 +159,7 @@ export default function CronPage() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     load();
   }, []);
@@ -183,10 +184,10 @@ export default function CronPage() {
               ? { prompt: agentPrompt }
               : task === "skill_task"
                 ? {
-                    skill_id: selectedSkillId,
-                    instruction: skillInstruction,
-                    store_as_tweet: storeAsTweet,
-                  }
+                  skill_id: selectedSkillId,
+                  instruction: skillInstruction,
+                  store_as_tweet: storeAsTweet,
+                }
                 : {},
         }),
       });
@@ -293,13 +294,12 @@ export default function CronPage() {
             {error && <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">{error}</div>}
             {actionStatus && (
               <div
-                className={`text-xs rounded-lg px-3 py-2 border ${
-                  actionStatus.type === "error"
+                className={`text-xs rounded-lg px-3 py-2 border ${actionStatus.type === "error"
                     ? "text-red-300 bg-red-500/10 border-red-500/30"
                     : actionStatus.type === "success"
                       ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/30"
                       : "text-cyan-300 bg-cyan-500/10 border-cyan-500/30"
-                }`}
+                  }`}
               >
                 {actionStatus.message}
               </div>
