@@ -77,7 +77,7 @@ export default function LandingPage() {
                         <span>Open Source Core</span>
                     </Link>
                     <div className="hidden lg:block w-px h-4 bg-white/10" />
-                    <Link href="/dashboard" className="px-6 py-2.5 bg-white text-black hover:bg-purple-100 rounded-full transition-all text-sm font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center gap-2">
+                    <Link href="/dashboard" prefetch={false} className="px-6 py-2.5 bg-white text-black hover:bg-purple-100 rounded-full transition-all text-sm font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center gap-2">
                         <span>AETHER PRO</span>
                         <ArrowRight className="w-4 h-4" />
                     </Link>
@@ -748,7 +748,7 @@ export default function LandingPage() {
                             Aether is an engineering scaffold that turns raw algorithms into a capable, personal agent. Fully transparent. Totally private.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-                            <Link href="/dashboard" className="px-12 py-5 bg-white text-black font-bold rounded-xl flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_50px_rgba(255,255,255,0.2)] group uppercase tracking-tighter text-lg">
+                            <Link href="/dashboard" prefetch={false} className="px-12 py-5 bg-white text-black font-bold rounded-xl flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_50px_rgba(255,255,255,0.2)] group uppercase tracking-tighter text-lg">
                                 <span>AETHER PRO ➔</span>
                             </Link>
                         </div>
@@ -771,19 +771,19 @@ export default function LandingPage() {
                         <div className="flex flex-wrap gap-8 md:gap-16">
                             <div className="flex flex-col gap-4">
                                 <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Products</h4>
-                                <Link href="/what-is-aether" className="text-neutral-400 hover:text-white transition-colors text-sm">What is Aether</Link>
-                                <Link href="/news" className="text-neutral-400 hover:text-white transition-colors text-sm">News</Link>
+                                <Link href="/what-is-aether" prefetch={false} className="text-neutral-400 hover:text-white transition-colors text-sm">What is Aether</Link>
+                                <Link href="/news" prefetch={false} className="text-neutral-400 hover:text-white transition-colors text-sm">News</Link>
                             </div>
                             <div className="flex flex-col gap-4">
                                 <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Developers</h4>
-                                <Link href="/guide" className="text-neutral-400 hover:text-white transition-colors text-sm">Documentation</Link>
-                                <Link href="https://github.com/takzen/aether-agent" className="text-neutral-400 hover:text-white transition-colors text-sm">GitHub</Link>
+                                <Link href="/guide" prefetch={false} className="text-neutral-400 hover:text-white transition-colors text-sm">Documentation</Link>
+                                <Link href="https://github.com/takzen/aether-agent" target="_blank" className="text-neutral-400 hover:text-white transition-colors text-sm">GitHub</Link>
                             </div>
                             <div className="flex flex-col gap-4">
                                 <h4 className="text-white text-xs font-bold tracking-widest uppercase mb-2 opacity-50">Company</h4>
-                                <Link href="/about" className="text-neutral-400 hover:text-white transition-colors text-sm">About us</Link>
-                                <Link href="/privacy" className="text-neutral-400 hover:text-white transition-colors text-sm">Privacy policy</Link>
-                                <Link href="/terms" className="text-neutral-400 hover:text-white transition-colors text-sm">Terms of service</Link>
+                                <Link href="/about" prefetch={false} className="text-neutral-400 hover:text-white transition-colors text-sm">About us</Link>
+                                <Link href="/privacy" prefetch={false} className="text-neutral-400 hover:text-white transition-colors text-sm">Privacy policy</Link>
+                                <Link href="/terms" prefetch={false} className="text-neutral-400 hover:text-white transition-colors text-sm">Terms of service</Link>
                             </div>
                         </div>
                     </div>
