@@ -108,6 +108,23 @@
       filter: blur(60px);
     }
   }
+
+  @keyframes slide-up-fade {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+      filter: blur(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0px);
+    }
+  }
+
+  .animate-slide-up-fade {
+    animation: slide-up-fade 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
 
 /* --- Force Hide Clerk Sign Up Footer --- */

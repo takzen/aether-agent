@@ -150,14 +150,9 @@ export default function LandingPage() {
 
                 <div className="relative z-10 text-center space-y-8 mix-blend-normal mt-[5vh]">
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 1, type: "spring", damping: 20 }}
-                        className="text-7xl md:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40 drop-shadow-2xl relative"
-                    >
+                    <h1 className="animate-slide-up-fade text-7xl md:text-9xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40 drop-shadow-2xl relative">
                         SECOND <br /> BRAIN
-                    </motion.h1>
+                    </h1>
 
                     <motion.p
                         initial={{ opacity: 0 }}
