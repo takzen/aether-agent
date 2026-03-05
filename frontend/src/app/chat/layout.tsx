@@ -1,5 +1,9 @@
-import { ProtectedRoute } from "@/components/AuthWrapper";
+import { ProtectedRoute, AuthWrapper } from "@/components/AuthWrapper";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-    return <ProtectedRoute>{children}</ProtectedRoute>;
+    return (
+        <AuthWrapper>
+            <ProtectedRoute>{children}</ProtectedRoute>
+        </AuthWrapper>
+    );
 }

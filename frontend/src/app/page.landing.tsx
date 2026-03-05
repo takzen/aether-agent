@@ -93,25 +93,33 @@ export default function LandingPage() {
                     {/* Tło luminescencyjne */}
                     <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/20 via-transparent to-blue-600/20 rounded-full blur-[90px] animate-pulse" />
 
-                    {/* Pierścienie Obwodowe - CSS only */}
-                    <div className="absolute inset-[5%] border border-white/[0.03] rounded-full border-t-purple-500/40 animate-[spin_40s_linear_infinite]" />
-                    <div className="absolute inset-[15%] border border-white/[0.05] rounded-full border-b-cyan-500/40 animate-[spin_30s_linear_infinite_reverse]" />
-                    <div className="absolute inset-[25%] border border-dashed border-white/10 rounded-full animate-[spin_20s_linear_infinite]" />
+                    {/* Pierścienie Obwodowe */}
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute inset-[5%] border border-white/[0.03] rounded-full border-t-purple-500/40" />
+                    <motion.div animate={{ rotate: -360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute inset-[15%] border border-white/[0.05] rounded-full border-b-cyan-500/40" />
+                    <motion.div animate={{ rotate: 180 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-[25%] border border-dashed border-white/10 rounded-full" />
 
                     {/* Węzły Wektorowe (Neuronowe Ścieżki Pamięci) */}
                     <svg className="absolute inset-0 w-full h-full overflow-visible opacity-60">
-                        {Array.from({ length: 6 }).map((_, i) => {
-                            const angle = (i * Math.PI * 2) / 6;
+                        {Array.from({ length: 12 }).map((_, i) => {
+                            const angle = (i * Math.PI * 2) / 12;
+                            // Dynamika odległości satelitów
                             const distMain = 38;
                             const distSub = 25;
                             return (
                                 <g key={i}>
+                                    {/* Linia Główna z Centrum */}
                                     <line
                                         x1="50%" y1="50%"
                                         x2={`${50 + Math.cos(angle) * distMain}%`} y2={`${50 + Math.sin(angle) * distMain}%`}
                                         stroke="rgba(168,85,247,0.3)" strokeWidth="1" strokeDasharray="2 4"
                                     />
-                                    <circle cx={`${50 + Math.cos(angle) * distMain}%`} cy={`${50 + Math.sin(angle) * distMain}%`} r="3" fill="rgba(168,85,247,0.8)" className="animate-pulse" />
+                                    {/* Główny Węzeł Sfery */}
+                                    <motion.circle
+                                        cx={`${50 + Math.cos(angle) * distMain}%`} cy={`${50 + Math.sin(angle) * distMain}%`} r="3" fill="rgba(168,85,247,0.8)"
+                                        animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0.9, 0.4] }}
+                                        transition={{ duration: 3 + (i % 3), repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
+                                    />
+                                    {/* Sub-Ścieżki i Nody Satelitarne */}
                                     <line
                                         x1={`${50 + Math.cos(angle) * distMain}%`} y1={`${50 + Math.sin(angle) * distMain}%`}
                                         x2={`${50 + Math.cos(angle + 0.3) * distSub}%`} y2={`${50 + Math.sin(angle + 0.3) * distSub}%`}
@@ -130,9 +138,13 @@ export default function LandingPage() {
 
                     {/* Wewnętrzny Motyl: Ukryty za światłem */}
                     <div className="absolute inset-[30%] flex items-center justify-center pointer-events-none drop-shadow-[0_0_30px_rgba(168,85,247,0.8)]">
-                        <div className="w-full h-full flex items-center justify-center animate-pulse">
+                        <motion.div
+                            animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.6, 1, 0.6] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                            className="w-full h-full flex items-center justify-center"
+                        >
                             <AetherLogo className="w-full h-full opacity-80 mix-blend-screen" />
-                        </div>
+                        </motion.div>
                     </div>
                 </motion.div>
 
@@ -142,24 +154,27 @@ export default function LandingPage() {
                         SECOND <br /> BRAIN
                     </h1>
 
-                    <p
-                        className="animate-slide-up-fade text-lg md:text-2xl text-neutral-400 max-w-2xl mx-auto uppercase tracking-[0.2em] font-light flex items-center justify-center gap-4 flex-wrap"
-                        style={{ animationDelay: "0.3s", opacity: 0 }}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 1 }}
+                        className="text-lg md:text-2xl text-neutral-400 max-w-2xl mx-auto uppercase tracking-[0.2em] font-light flex items-center justify-center gap-4 flex-wrap"
                     >
                         <span>Cloud Intelligence</span>
                         <span className="text-purple-500/50">•</span>
                         <span>Secure Architecture</span>
                         <span className="text-purple-500/50">•</span>
                         <span className="text-neutral-300">Autonomy</span>
-                    </p>
+                    </motion.p>
                 </div>
 
-                <div
+                <motion.div
+                    style={{ opacity: orbOpacity }}
                     className="absolute bottom-12 flex flex-col items-center gap-3 text-neutral-600 animate-bounce cursor-pointer font-mono"
                 >
                     <span className="text-[10px] uppercase tracking-[0.3em]">Initialize Sequence</span>
                     <ArrowRight className="rotate-90 w-4 h-4 text-purple-400" />
-                </div>
+                </motion.div>
             </section>
 
 
@@ -200,11 +215,22 @@ export default function LandingPage() {
 
                                 {/* Vector Space Grid */}
                                 <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-4 p-6 opacity-30">
-                                    {Array.from({ length: 8 }).map((_, i) => (
-                                        <div
+                                    {Array.from({ length: 16 }).map((_, i) => (
+                                        <motion.div
                                             key={i}
-                                            className="w-1.5 h-1.5 bg-neutral-600 rounded-full animate-pulse"
-                                            style={{ animationDelay: `${i * 0.2}s` }}
+                                            className="w-1.5 h-1.5 bg-neutral-600 rounded-full"
+                                            initial={{ opacity: 0.2 }}
+                                            animate={{
+                                                opacity: [0.2, 0.8, 0.2],
+                                                scale: [1, 1.5, 1],
+                                                backgroundColor: ["#525252", "#a855f7", "#525252"]
+                                            }}
+                                            transition={{
+                                                duration: 3,
+                                                repeat: Infinity,
+                                                delay: i * 0.1,
+                                                ease: "easeInOut"
+                                            }}
                                         />
                                     ))}
                                 </div>

@@ -5,13 +5,11 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["latin"],
   variable: '--font-inter',
-  display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: '--font-mono',
-  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -41,7 +39,6 @@ export const metadata: Metadata = {
 };
 
 import { CommandProvider } from "@/context/CommandContext";
-import { AuthWrapper } from "@/components/AuthWrapper";
 
 export default function RootLayout({
   children,
@@ -52,9 +49,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased selection:bg-primary/30 selection:text-primary`}>
         <CommandProvider>
-          <AuthWrapper>
-            {children}
-          </AuthWrapper>
+          {children}
         </CommandProvider>
       </body>
     </html>
