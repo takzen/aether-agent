@@ -5,7 +5,7 @@
 
 **The Autonomous, Cognitively-Aware Personal Intelligence Model**
 
-[![Version](https://img.shields.io/badge/version-1.5.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue?style=flat-square)](https://github.com/takzen/aether-agent)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Kernel-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![PydanticAI](https://img.shields.io/badge/PydanticAI-Type--Safe-E92063?style=flat-square)](https://ai.pydantic.dev)
@@ -195,7 +195,7 @@ docker-compose up -d --build
 
 > _"Aether aims to be more than just a software tool — it's an intelligent entity aware of its existence in time and space."_
 
-Aether is fully feature-complete based on our original 6-Phase Master Plan for the Open Source release (37/37 Tasks Done). Now in v1.5, we are focusing on Cloud deployment, Hybrid arch and Cognitive Persona Calibration.
+Aether is fully feature-complete based on our original 6-Phase Master Plan for the Open Source release (37/37 Tasks Done). Now in v1.1.0, we are maintaining the stable public baseline while evolving the core architecture.
 
 ---
 
@@ -204,7 +204,7 @@ Aether is fully feature-complete based on our original 6-Phase Master Plan for t
 **Apache-2.0** © [Krzysztof Pika](https://github.com/takzen/aether-agent)
 
 > [!IMPORTANT]
-> **Trademarks & Logo:** The names "Aether", "Aether Agent", "Project Nebula", and all associated logos are trademarks of Krzysztof Pika. These are **not covered** by the Apache 2.0 License. Any use of these trademarks, beyond reasonable and customary description of the software's origin, requires explicit written permission.
+> **Trademarks & Logo:** The names "Aether", "Aether Agent" and all associated logos are trademarks of Krzysztof Pika. These are **not covered** by the Apache 2.0 License. Any use of these trademarks, beyond reasonable and customary description of the software's origin, requires explicit written permission.
 
 <div align="center">
 <br>
@@ -212,3 +212,27 @@ Aether is fully feature-complete based on our original 6-Phase Master Plan for t
 _"This is my small contribution to the development of local AI. It is a humble beginning of a concept that will soon evolve into something much greater. If you want to witness the transformation, follow my next steps."_
 
 </div>
+
+---
+
+## 🌌 Aether Pro & Cloud
+
+For professional users and enterprises requiring high-performance infrastructure, we offer a more powerful, cloud-optimized version of the system.
+
+- **Current Pro Version:** `v1.1.5`
+- **Optimization:** Optimized for **Cloud environments** (Hetzner, AWS, etc.) with enhanced scaling and performance calibration.
+- **Ready-to-use:** Fully configured and hosted instances for those who want to jump straight into production.
+
+### 🖥️ Aether Pro Interface
+
+| ![Dashboard](frontend/public/psc/command_center.webp) | ![Cognition](frontend/public/psc/cognition.webp) |
+| :---: | :---: |
+| **Dashboard Intelligence** | **Neural Persona Calibration** |
+| ![Memories](frontend/public/psc/memories.webp) | ![Neural Topology](frontend/public/psc/neural_topology.webp) |
+| **Concept Constellations** | **Neural Topology Visualization** |
+| ![Chat Interface](frontend/public/psc/chat.webp) | ![Skills](frontend/public/psc/skills.webp) |
+| **Advanced Reasoning Chat** | **Specialized Agent Skills** |
+
+> 🌐 **Visit the official platform:** [**aetheragent.pl**](https://aetheragent.pl/)
+
+---
