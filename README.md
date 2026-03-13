@@ -225,12 +225,12 @@ For professional users and enterprises requiring high-performance infrastructure
 
 ### 🖥️ Aether Pro Interface
 
-| ![Dashboard](frontend/public/psc/command_center.webp) | ![Cognition](frontend/public/psc/cognition.webp) |
+| ![Dashboard](assets/psc/command_center.webp) | ![Cognition](assets/psc/cognition.webp) |
 | :---: | :---: |
 | **Dashboard Intelligence** | **Neural Persona Calibration** |
-| ![Memories](frontend/public/psc/memories.webp) | ![Neural Topology](frontend/public/psc/neural_topology.webp) |
+| ![Memories](assets/psc/memories.webp) | ![Neural Topology](assets/psc/neural_topology.webp) |
 | **Concept Constellations** | **Neural Topology Visualization** |
-| ![Chat Interface](frontend/public/psc/chat.webp) | ![Skills](frontend/public/psc/skills.webp) |
+| ![Chat Interface](assets/psc/chat.webp) | ![Skills](assets/psc/skills.webp) |
 | **Advanced Reasoning Chat** | **Specialized Agent Skills** |
 
 > 🌐 **Visit the official platform:** [**aetheragent.pl**](https://aetheragent.pl/)
