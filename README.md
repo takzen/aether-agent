@@ -219,7 +219,7 @@ _"This is my small contribution to the development of local AI. It is a humble b
 
 For professional users and enterprises requiring high-performance infrastructure, we offer a more powerful, cloud-optimized version of the system.
 
-- **Current Pro Version:** `v1.1.5`
+- **Current Pro Version:** `v1.5.0`
 - **Optimization:** Optimized for **Cloud environments** (Hetzner, AWS, etc.) with enhanced scaling and performance calibration.
 - **Ready-to-use:** Fully configured and hosted instances for those who want to jump straight into production.
 
